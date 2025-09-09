@@ -1,0 +1,10 @@
+<aplicacion>
+    <configuracion>
+        <baseDatos>
+            <url>jdbc:mysql://localhost:3306/CSIA</url>
+            <db>CSIA</db>
+            <usuario>root</usuario>
+            <password>12345678</password>
+        </baseDatos>
+    </configuracion>
+</aplicacion>

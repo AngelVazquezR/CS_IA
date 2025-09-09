@@ -2,14 +2,22 @@ package Object;
 
 public class Persona {
 
-	private String Nombre;
-	private String Apellido;
+	public String Nombre;
+	public String Apellido;
 	private String ID;
+	public String DNI;
+	public String fAlta;
+	public String fBaja;
+
 	
-	public Persona(String nombre, String apellido, String id) {
+	
+	public Persona(String nombre, String apellido, String dni, String falta, String fbaja, String id) {
 		Nombre = nombre;
 		Apellido = apellido;
 		ID = id;
+		DNI = dni;
+		fAlta=falta;
+		fBaja = fbaja;
 	}
 	
 	public String GetNombre() {
@@ -24,6 +32,19 @@ public class Persona {
 		return ID;
 	}
 	
+	public String GetDNI() {
+		return DNI;
+	}
+	
+	public String GetfAlta() {
+		return fAlta;
+	}
+	
+	public String GetfBaja() {
+		return fBaja;
+	}
+	
+	
 	public void SetNombre(String Pnombre) {
 		Nombre = Pnombre;
 	}
@@ -32,6 +53,13 @@ public class Persona {
 		Apellido = Papellido;
 	}
 	
+	public void SetfAlta(String falta) {
+		fAlta = falta;
+	}
+	
+	public void SetfBaja(String fbaja) {
+		fBaja = fbaja;
+	}
 	
 	
 }

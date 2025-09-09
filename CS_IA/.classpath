@@ -6,5 +6,16 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="lib" path="/Users/angelvazquezrabasco/Downloads/mysql-connector-java-8.0.28/mysql-connector-java-8.0.28.jar">
+		<attributes>
+			<attribute name="module" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="/Users/angelvazquezrabasco/Downloads/DatePicker/LGoodDatePicker-11.2.1.jar" sourcepath="/Users/angelvazquezrabasco/Downloads/DatePicker/LGoodDatePicker-11.2.1-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:file:/Users/angelvazquezrabasco/Downloads/DatePicker/LGoodDatePicker-11.2.1-javadoc.jar!/"/>
+			<attribute name="module" value="true"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
