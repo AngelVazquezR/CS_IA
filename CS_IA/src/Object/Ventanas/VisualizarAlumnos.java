@@ -11,6 +11,7 @@ import javax.swing.table.TableColumn;
 import javax.swing.table.TableRowSorter;
 
 import Object.Alumno;
+import Object.AlumnoTableModel;
 import Object.ConectionSQL;
 import Object.Persona;
 
@@ -26,9 +27,9 @@ import java.util.regex.Pattern;
 public class VisualizarAlumnos extends JFrame implements ActionListener{
 
 	JFrame frame1;
-	static AlumnoTableModel modelo1 = new AlumnoTableModel();
-	JTable tabla = new JTable(modelo1);
-	TableRowSorter<AlumnoTableModel> sorter1= new TableRowSorter<>(modelo1);
+	static AlumnoTableModel modeloAlumno = new AlumnoTableModel();
+	JTable tabla = new JTable(modeloAlumno);
+	TableRowSorter<AlumnoTableModel> sorter1= new TableRowSorter<>(modeloAlumno);
 	
 	
 	private static final long serialVersionUID = 1L;
@@ -45,7 +46,7 @@ public class VisualizarAlumnos extends JFrame implements ActionListener{
 	
 	public VisualizarAlumnos() {
 		
-		frame1 = new JFrame("Tabla base");
+		frame1 = new JFrame("Visualizar alumnos");
 		  
 		//Alumno a = new Alumno("a","a","a","","","","a");
 		frame1.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -53,8 +54,8 @@ public class VisualizarAlumnos extends JFrame implements ActionListener{
 		frame1.setVisible(true);
 			
 	        
-	     tabla = new JTable(modelo1);    
-	     sorter1 = new TableRowSorter<>(modelo1);
+	     tabla = new JTable(modeloAlumno);    
+	     sorter1 = new TableRowSorter<>(modeloAlumno);
 	     tabla.setRowSorter(sorter1);
 	     
 	     JScrollPane sp = new JScrollPane(tabla);    
@@ -86,7 +87,7 @@ public class VisualizarAlumnos extends JFrame implements ActionListener{
 	        	int viewRow = tabla.getSelectedRow();
 	        	if (viewRow >= 0) {
 	        		int modelRow = tabla.convertRowIndexToModel(viewRow);
-	        		cargarFormulario(modelo1.getAt(modelRow));
+	        		cargarFormulario(modeloAlumno.getAt(modelRow));
 	        		btnEliminar.setEnabled(true);
 	        	}else {
 	        		
@@ -119,7 +120,7 @@ public class VisualizarAlumnos extends JFrame implements ActionListener{
 
 	public static void AddRow(String nombre, String apellido,String dni,String prof) {
 		System.out.println("AddRow");
-		modelo1.add(new Alumno(nombre,apellido,dni,"","","",prof));
+		modeloAlumno.add(new Alumno(nombre,apellido,dni,"","","",prof));
 	}
 	
 	private void cargarFormulario(Persona persona) {

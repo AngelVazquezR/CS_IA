@@ -31,9 +31,9 @@ import java.time.*;
 public class VisualizarProfesores extends JFrame implements ActionListener{
 
 	JFrame frame;
-	static ProfesorTableModel modelo = new ProfesorTableModel();
-	JTable tabla = new JTable(modelo);
-	TableRowSorter<ProfesorTableModel> sorter= new TableRowSorter<>(modelo);
+	static ProfesorTableModel modeloProfesor = new ProfesorTableModel();
+	JTable tabla = new JTable(modeloProfesor);
+	TableRowSorter<ProfesorTableModel> sorter= new TableRowSorter<>(modeloProfesor);
 	
 	
 	private static final long serialVersionUID = 1L;
@@ -50,14 +50,14 @@ public class VisualizarProfesores extends JFrame implements ActionListener{
 
 	
 	public VisualizarProfesores() {
-		frame = new JFrame("Tabla base");
+		frame = new JFrame("Visualizar profesores");
 		Profesor a = new Profesor("a","a","a","a","a","a");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 650, 450);
 			
 	        
-	     tabla = new JTable(modelo);    
-	     sorter = new TableRowSorter<>(modelo);
+	     tabla = new JTable(modeloProfesor);    
+	     sorter = new TableRowSorter<>(modeloProfesor);
 	     tabla.setRowSorter(sorter);
 	     
 	     JScrollPane sp = new JScrollPane(tabla);    
@@ -107,7 +107,7 @@ public class VisualizarProfesores extends JFrame implements ActionListener{
 	        frame.add(panel, "South");  
 	        	    	        
 	        frame.setSize(1400, 500); 
-		    modelo.add(a);
+		    modeloProfesor.add(a);
 		     
 	        frame.setVisible(true);   
 
@@ -118,7 +118,7 @@ public class VisualizarProfesores extends JFrame implements ActionListener{
 	        	int viewRow = tabla.getSelectedRow();
 	        	if (viewRow >= 0) {
 	        		int modelRow = tabla.convertRowIndexToModel(viewRow);
-	        		cargarFormulario(modelo.getAt(modelRow));
+	        		cargarFormulario(modeloProfesor.getAt(modelRow));
 	        		btnEliminar.setEnabled(true);
 	        	}else {
 	        		
@@ -152,7 +152,7 @@ public class VisualizarProfesores extends JFrame implements ActionListener{
 	            public void actionPerformed(ActionEvent e) {    
 	            	int filaSeleccionada = tabla.getSelectedRow();    
 	                if (filaSeleccionada >= 0) {    
-	                   // modelo.eliminar(filaSeleccionada);    
+	                   // modeloProfesor.eliminar(filaSeleccionada);    
 	                } else {    
 	                    JOptionPane.showMessageDialog(frame, "Por favor selecciona una fila para eliminar.");    
 	                }    
@@ -166,8 +166,8 @@ public class VisualizarProfesores extends JFrame implements ActionListener{
 
 	public static void AddRow(String nombre, String apellido,String dni, String fAlta, String fBaja) {
 		System.out.println("AddRow");
-		modelo.add(new Profesor(nombre,apellido,dni,fAlta,fBaja,""));
-       //modelo.add(nuevaFila);   
+		modeloProfesor.add(new Profesor(nombre,apellido,dni,fAlta,fBaja,""));
+       //modeloProfesor.add(nuevaFila);   
 	}
 	
 	private void cargarFormulario(Persona persona) {

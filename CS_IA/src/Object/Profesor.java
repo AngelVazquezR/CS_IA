@@ -9,13 +9,8 @@ public class Profesor extends Persona {
 	
 	
 	public Profesor(String nombre, String apellido, String dni,String falta,String fbaja, String id) {
-		super(nombre, apellido, dni, falta, fbaja, id);
-
-		
-		
+		super(nombre, apellido, dni, falta, fbaja, id);	
 	}
-	
-	
 	
 	public LocalTime GetF_Alta() {
 		return F_Alta;
@@ -27,8 +22,6 @@ public class Profesor extends Persona {
 	
 	public void SetF_Alta(LocalTime f_alta) {
 		F_Alta = f_alta;
-		
-		
 	}
 	
 	public void SetF_Baja(LocalTime f_baja) {

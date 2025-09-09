@@ -2,6 +2,7 @@ package Object;
 
 public class ConfigDB {
 
+	public String driver;
 	public String url;
 	public String db;
 	public String user;
@@ -9,6 +10,7 @@ public class ConfigDB {
 	
 	
 	public ConfigDB() {
+		driver = "";
 		url  = "";
 		db = "";
 		user = "";

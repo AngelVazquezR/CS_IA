@@ -1,14 +1,11 @@
-package Object.Ventanas;
+package Object;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.table.AbstractTableModel;
 
-import Object.Persona;
-import Object.Alumno;
-
-public class AlumnoTableModel extends  AbstractTableModel{
+public class AlumnoTableModelOld extends  AbstractTableModel{
 
 	public static final int COL_NOMBRE=0;
 	public static final int COL_APELLIDO=1;

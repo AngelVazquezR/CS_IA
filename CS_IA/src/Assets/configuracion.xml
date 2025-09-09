@@ -1,6 +1,7 @@
 <aplicacion>
     <configuracion>
         <baseDatos>
+            <driver>com.mysql.cj.jdbc.Driver</driver>
             <url>jdbc:mysql://localhost:3306/CSIA</url>
             <db>CSIA</db>
             <usuario>root</usuario>

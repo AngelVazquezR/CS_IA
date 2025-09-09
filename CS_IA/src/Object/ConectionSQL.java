@@ -37,7 +37,9 @@ public class ConectionSQL {
 	public ConectionSQL() {
 		LeerConf();
 		try {
-			Class.forName("com.mysql.jdbc.Driver");
+			//Class.forName("com.mysql.jdbc.Driver");
+			//Class.forName("com.mysql.cj.jdbc.Driver");
+			Class.forName(confDB.driver);
 			//connection = DriverManager.getConnection(url_,user,password);
 			connection = DriverManager.getConnection(confDB.url,confDB.user,confDB.password);
 			if(connection != null) {
@@ -61,8 +63,8 @@ public class ConectionSQL {
 	}
 	
 	public void LeerConf() {
-		
-		String url="";
+		String driver = "";
+		String url = "";
 		String usuario = "";
 		String password = "";
 		String DB = "";
@@ -75,10 +77,13 @@ public class ConectionSQL {
 			Document doc = dBuilder.parse(archivo);
 			doc.getDocumentElement().normalize();
 			 Element baseDatos = (Element) doc.getElementsByTagName("baseDatos").item(0);
+			 driver = baseDatos.getElementsByTagName("driver").item(0).getTextContent();
 			 url = baseDatos.getElementsByTagName("url").item(0).getTextContent();
 			 usuario = baseDatos.getElementsByTagName("usuario").item(0).getTextContent();
 		     password = baseDatos.getElementsByTagName("password").item(0).getTextContent();
 		     DB = baseDatos.getElementsByTagName("db").item(0).getTextContent();
+		     
+		     confDB.driver = driver;
 		     confDB.url = url;
 		     confDB.db = DB;
 		     confDB.user = usuario;
@@ -94,11 +99,12 @@ public class ConectionSQL {
 			e.printStackTrace();
 		}
 
-        // Acceder al nodo <baseDatos> dentro de <aplicacion>/<configuracion>
-        System.out.println("URL: " + url);
+        // Mostramos los valores leidos
+		System.out.println("Driver: " + driver);
+		System.out.println("URL: " + url);
         System.out.println("Usuario: " + usuario);
-        System.out.println("Usuario: " + password);
-        System.out.println("Usuario: " + DB);  
+        System.out.println("Password: " + password);
+        System.out.println("DB: " + DB);  
 	}
 	
 	public static void AsignarProf(String profe, String alumno) {
