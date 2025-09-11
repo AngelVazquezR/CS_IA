@@ -1,4 +1,5 @@
-package Object.Ventanas;
+package Object.NoUtil;
+
 import java.awt.Component;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
@@ -15,13 +16,13 @@ import javax.swing.border.EmptyBorder;
 
 import Object.Main;
 
-
-public class AddProfesorTab extends JFrame implements ActionListener {
+public class AddAlumnoTab extends JFrame implements ActionListener{
+	
 
 	private static final long serialVersionUID = 1L;
 	private JPanel contentPane;
 	
-	JButton AddButton = new JButton("Añadir Tutor");
+	JButton AddButton = new JButton("Añadir Alumno");
 	JButton AtrasButton = new JButton("Atras");
 	
 	JLabel lblNewLabel = new JLabel("Introduzca los datos");
@@ -35,7 +36,7 @@ public class AddProfesorTab extends JFrame implements ActionListener {
 	static String[] charArray = new String[] {"a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"};
 	static String[] numArray = new String[] {"1","2","3","4","5","6","7","8","9","0"};
 	
-	public AddProfesorTab() {
+	public AddAlumnoTab() {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 450, 300);
 		contentPane = new JPanel();
@@ -44,7 +45,7 @@ public class AddProfesorTab extends JFrame implements ActionListener {
 		contentPane.setLayout(null);
 		
 		
-		AddButton.setBounds(6, 200, 117, 29);
+		AddButton.setBounds(6, 200, 124, 29);
 		AddButton.setFocusable(false);
 		AddButton.addActionListener(this);
 		contentPane.add(AddButton);
@@ -111,4 +112,5 @@ public class AddProfesorTab extends JFrame implements ActionListener {
 		
 		
 	}
+
 }

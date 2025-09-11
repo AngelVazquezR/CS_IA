@@ -51,7 +51,7 @@ public class VisualizarProfesores extends JFrame implements ActionListener{
 	
 	public VisualizarProfesores() {
 		frame = new JFrame("Visualizar profesores");
-		Profesor a = new Profesor("a","a","a","a","a","a");
+		//Profesor a = new Profesor("a","a","a","a","a","a");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 650, 450);
 			
@@ -89,8 +89,7 @@ public class VisualizarProfesores extends JFrame implements ActionListener{
 
 	        panel.add(new JLabel("Nombre:"));    
 	        panel.add(nombreField);    
-	        panel.add
-	        (new JLabel("Apellido:")); 
+	        panel.add(new JLabel("Apellido:")); 
 	        
 	        panel.add(apellidoField); 
 	        panel.add(new JLabel("DNI:"));
@@ -107,7 +106,7 @@ public class VisualizarProfesores extends JFrame implements ActionListener{
 	        frame.add(panel, "South");  
 	        	    	        
 	        frame.setSize(1400, 500); 
-		    modeloProfesor.add(a);
+		   
 		     
 	        frame.setVisible(true);   
 

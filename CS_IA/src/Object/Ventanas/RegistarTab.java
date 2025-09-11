@@ -14,6 +14,8 @@ import javax.swing.SwingUtilities;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
+import Object.Main;
+
 import Object.ConectionSQL;
 
 public class RegistarTab extends JFrame implements ActionListener {
@@ -62,6 +64,7 @@ public class RegistarTab extends JFrame implements ActionListener {
 		
 		contentPane.add(AtrasButton);
 		lblNewLabel.setBounds(6, 6, 160, 16);
+		AtrasButton.addActionListener(this);
 		
 		contentPane.add(lblNewLabel);
 		
@@ -80,6 +83,14 @@ public class RegistarTab extends JFrame implements ActionListener {
 			System.out.println("Escuchado, los parametros son "+user+" y "+password);
 			conn.RegistrarUsuario(user,password);
 		}
-		
+		if(e.getSource()==AtrasButton) {
+			Main.Welcome();
+			CerrarVentana();
+		}
+	}
+	
+	public void CerrarVentana() {
+		Component com = SwingUtilities.getRoot(this);
+		 ((Window) com).dispose();
 	}
 }

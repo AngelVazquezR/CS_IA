@@ -31,29 +31,29 @@ public class WelcomePage extends JFrame implements ActionListener {
 	JPanel contentPane = new JPanel();
 	
 	JLabel WelcomeLabel = new JLabel("Home");
-	JLabel AddLabel = new JLabel("Añadir");
-	JLabel ModificarLabel = new JLabel("Modificar");
-	JLabel AsignarLabel = new JLabel("Asignar");
+	JLabel TablaLabel = new JLabel("Ver tabla de:");
 	
-	JButton AddTutor = new JButton("Tutor");
-	JButton AddAlumno = new JButton("Alumno");
-	JButton ModTutor = new JButton("Tutor");
-	JButton ModAlumno = new JButton("Alumno");
-	JButton AsigTutor = new JButton("Tutor");
-	JButton AsigAlumno = new JButton("Alumno");
-	JButton Logout = new JButton("Cerrar sesión");
-	JButton NuevoUser = new JButton("Nuevo User");
+	JButton Actualizarbtn = new JButton("Actualizar registro");
+	JButton TablaProfesorbtn = new JButton("Tutor");
+	JButton TablaAlumnobtn = new JButton("Alumno");
+	JButton Asignarbtn = new JButton("Asignar profesor");
+	JButton Logoutbtn = new JButton("Cerrar sesión");
+	JButton NuevoUserbtn = new JButton("Crear usuario");
 	private final JMenu mnAcciones = new JMenu("Acciones");
 	private final JMenuItem mniAccionesModificar = new JMenuItem("Modificar");
 	private final JMenuItem mniAccionesSalir = new JMenuItem("Salir");
 	private final JSeparator mniAccionesSeparador1 = new JSeparator();
 	private final JMenuItem mniAccionesAsignar = new JMenuItem("Asignar");
 	private final JSeparator mniAccionesSeparador2 = new JSeparator();
+	
+	private final JMenu mnTablas = new JMenu("Tablas");
+	JMenuItem mntmProfeTabla = new JMenuItem("Profesores");
+	JMenuItem mntmAlumnoTabla = new JMenuItem("Alumnos");
 
 	
 	public WelcomePage() {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 900, 600);
+		setBounds(100, 100, 402, 319);
 		
 		JMenuBar menuBar = new JMenuBar();
 		setJMenuBar(menuBar);
@@ -65,13 +65,25 @@ public class WelcomePage extends JFrame implements ActionListener {
 		
 		mnAcciones.add(mniAccionesSeparador1);
 		
-		mnAcciones.add(mniAccionesSalir);
-		mniAccionesSalir.addActionListener(this);
+		mnAcciones.add(mniAccionesAsignar);
+		mniAccionesAsignar.addActionListener(this);
 		
 		mnAcciones.add(mniAccionesSeparador2);
 		
-		mnAcciones.add(mniAccionesAsignar);
-		mniAccionesAsignar.addActionListener(this);
+		mnAcciones.add(mniAccionesSalir);
+		
+		menuBar.add(mnTablas);
+		
+		
+		mnTablas.add(mntmProfeTabla);
+		mntmProfeTabla.addActionListener(this);
+		
+		JSeparator separator = new JSeparator();
+		mnTablas.add(separator);
+		
+		
+		mnTablas.add(mntmAlumnoTabla);
+		mniAccionesSalir.addActionListener(this);
 		
 		//contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -79,90 +91,69 @@ public class WelcomePage extends JFrame implements ActionListener {
 		contentPane.setLayout(null);
 		contentPane.setVisible(true);		
 		
-		WelcomeLabel.setBounds(129, 180, 61, 16);
+		WelcomeLabel.setBounds(5, 6, 61, 16);
 		contentPane.add(WelcomeLabel);
 		
-		AddLabel.setBounds(16, 34, 61, 16);
-		contentPane.add(AddLabel);
+		TablaLabel.setBounds(229, 39, 89, 16);
+		contentPane.add(TablaLabel);
 		
-		ModificarLabel.setBounds(150, 34, 61, 16);
-		contentPane.add(ModificarLabel);
+		Actualizarbtn.setBounds(5, 62, 153, 29);
+		Actualizarbtn.setFocusable(false);
+		Actualizarbtn.addActionListener(this);
+		contentPane.add(Actualizarbtn);
 		
-		AsignarLabel.setBounds(289, 34, 61, 16);
-		contentPane.add(AsignarLabel);
+		TablaProfesorbtn.setBounds(213, 62, 117, 29);
+		TablaProfesorbtn.setFocusable(false);
+		TablaProfesorbtn.addActionListener(this);
+		contentPane.add(TablaProfesorbtn);
 		
-		AddTutor.setBounds(0, 62, 117, 29);
-		AddTutor.setFocusable(false);
-		AddTutor.addActionListener(this);
-		contentPane.add(AddTutor);
+		TablaAlumnobtn.setBounds(213, 103, 117, 29);
+		TablaAlumnobtn.setFocusable(false);
+		TablaAlumnobtn.addActionListener(this);
+		contentPane.add(TablaAlumnobtn);
 		
-		AddAlumno.setBounds(0, 103, 117, 29);
-		AddAlumno.setFocusable(false);
-		AddAlumno.addActionListener(this);
-		contentPane.add(AddAlumno);
-		
-		ModTutor.setBounds(150, 62, 117, 29);
-		ModTutor.setFocusable(false);
-		ModTutor.addActionListener(this);
-		contentPane.add(ModTutor);
-		
-		ModAlumno.setBounds(150, 103, 117, 29);
-		ModAlumno.setFocusable(false);
-		ModAlumno.addActionListener(this);
-		contentPane.add(ModAlumno);
-		
-		AsigTutor.setBounds(289, 62, 117, 29);
-		AsigTutor.setFocusable(false);
-		AsigTutor.addActionListener(this);
-		contentPane.add(AsigTutor);
-		
-		AsigAlumno.setBounds(289, 103, 117, 29);
-		AsigAlumno.setFocusable(false);
-		AsigAlumno.addActionListener(this);
-		contentPane.add(AsigAlumno);
+		Asignarbtn.setBounds(5, 103, 153, 29);
+		Asignarbtn.setFocusable(false);
+		Asignarbtn.addActionListener(this);
+		contentPane.add(Asignarbtn);
 		
 		
-		Logout.setBounds(0, 237, 117, 29);
-		Logout.setFocusable(false);
-		Logout.addActionListener(this);
-		contentPane.add(Logout);
+		Logoutbtn.setBounds(180, 175, 117, 29);
+		Logoutbtn.setFocusable(false);
+		Logoutbtn.addActionListener(this);
+		contentPane.add(Logoutbtn);
 		
-		NuevoUser.setFocusable(false);
-		NuevoUser.setBounds(0, 175, 117, 29);
-		NuevoUser.addActionListener(this);
-		contentPane.add(NuevoUser);
+		NuevoUserbtn.setFocusable(false);
+		NuevoUserbtn.setBounds(25, 175, 117, 29);
+		NuevoUserbtn.addActionListener(this);
+		contentPane.add(NuevoUserbtn);
 
 	}
 	
 	@Override
-	public void actionPerformed(ActionEvent e) {
-		
-		 if(e.getSource()== Logout) {	 
-			 Main.LogIn();
-			 CerrarVentana();			 
-		}
-		 
-		 if(e.getSource()==ModTutor) {
-			 ModificarTab modificarTab = new ModificarTab();
-			 modificarTab.setVisible(true);
-			 CerrarVentana();			 
-		 }
-		 
-		 if(e.getSource()==NuevoUser) {
-			RegistarTab registrarTab = new RegistarTab();
-			registrarTab.setVisible(true);
+	public void actionPerformed(ActionEvent e) {						 
+		 if(e.getSource()==NuevoUserbtn) {
+			Main.RegistrarUser();
 			CerrarVentana();
 		 }
-		 if(e.getSource()==mniAccionesModificar) {
+		 if(e.getSource()==mniAccionesModificar||e.getSource()==Actualizarbtn) {
 			 Main.Gestionar();
 			 CerrarVentana();
 		 }
-		 if(e.getSource()==mniAccionesSalir) {
+		 if(e.getSource()==mniAccionesSalir||e.getSource()== Logoutbtn) {
 			 Main.LogIn();
 			 CerrarVentana();	
 		 }
-		 if(e.getSource()==mniAccionesAsignar) {
+		 if(e.getSource()==mniAccionesAsignar || e.getSource()==Asignarbtn) {
 			 Main.Asignar();
+			 CerrarVentana();
+		 }
+		 if(e.getSource()==mntmProfeTabla || e.getSource()==TablaProfesorbtn) {
+			 Main.ProfeTabla();
+			 CerrarVentana();
+		 }
+		 if(e.getSource()==mntmAlumnoTabla || e.getSource()==TablaAlumnobtn) {
+			 Main.AlumTabla();
 			 CerrarVentana();
 		 }
 	}

@@ -6,6 +6,7 @@ import java.util.Random;
 import Object.Ventanas.AsignarTab;
 import Object.Ventanas.GestionarTab;
 import Object.Ventanas.LoginPage;
+import Object.Ventanas.RegistarTab;
 import Object.Ventanas.VisualizarAlumnos;
 import Object.Ventanas.VisualizarProfesores;
 import Object.Ventanas.WelcomePage;
@@ -20,19 +21,8 @@ public class Main {
 	public static void main(String[] args) {
 		
 		IDandPasswords idandpasswords = new IDandPasswords();
-	
-		//Visualizar visualizar = new Visualizar();
-		
 		ConectionSQL conectionSQL = new ConectionSQL();
-		
-		
 		LoginPage loginpage = new LoginPage(idandpasswords.getLoginInfo());
-		//Visualizar visualizar = new Visualizar();
-		VisualizarAlumnos vis = new VisualizarAlumnos();
-		
-		
-		
-		//conectionSQL.RecuperaDatos();
 		
 
 	}
@@ -59,6 +49,18 @@ public class Main {
 	public static void Welcome() {
 		WelcomePage welcomePage = new WelcomePage();
 		welcomePage.setVisible(true);
+	}
+	public static void AlumTabla() {
+		VisualizarAlumnos vis = new VisualizarAlumnos();
+		//vis.setVisible(true);
+	}
+	public static void ProfeTabla() {
+		VisualizarProfesores v = new VisualizarProfesores();
+		//vis.setVisible(true);
+	}
+	public static void RegistrarUser() {
+		RegistarTab registrarTab = new RegistarTab();
+		registrarTab.setVisible(true);
 	}
 	
 	
