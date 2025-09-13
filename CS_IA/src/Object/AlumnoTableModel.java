@@ -7,7 +7,8 @@ import javax.swing.table.AbstractTableModel;
 
 
 public class AlumnoTableModel extends AbstractTableModel {
-
+	private static final long serialVersionUID = 1L;
+	
 	public static final int COL_NOMRE=0;
 	public static final int COL_APELLIDO=1;
 	public static final int COL_DNI=2;

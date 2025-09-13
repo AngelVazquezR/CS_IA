@@ -154,7 +154,7 @@ public class WelcomePage extends JFrame implements ActionListener {
 		 }
 		 if(e.getSource()==mntmProfeTabla || e.getSource()==TablaProfesorbtn) {
 			 Main.ProfeTabla();
-			// CerrarVentana();
+			 CerrarVentana();
 		 }
 		 if(e.getSource()==mntmAlumnoTabla || e.getSource()==TablaAlumnobtn) {
 			 Main.AlumTabla();
@@ -165,10 +165,11 @@ public class WelcomePage extends JFrame implements ActionListener {
 
 	public void CerrarVentana() {
 		
-		Component com = SwingUtilities.getRoot(this);
-		((Window) com).dispose();
+		//Component com = SwingUtilities.getRoot(this);
+		//((Window) com).dispose();
 		//((Window) com).setVisible(false);
 		//contentPane.setVisible(false);
+		this.setVisible(false);
 	}
 
 	public static void RestaurarVentana() {
