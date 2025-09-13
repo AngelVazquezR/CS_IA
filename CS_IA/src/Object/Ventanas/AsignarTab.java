@@ -18,6 +18,7 @@ import com.github.lgooddatepicker.components.TimePicker;
 
 import Object.ConectionSQL;
 import Object.Main;
+
 import javax.swing.JMenuBar;
 import javax.swing.JMenu;
 import javax.swing.JPopupMenu;
@@ -31,7 +32,7 @@ import javax.swing.JComboBox;
 
 public class AsignarTab extends JFrame implements ActionListener{
 
-	private static final long serialVersionUID = 1L;
+	private final long serialVersionUID = 1L;
 	private JPanel contentPane;
 
 	JLabel AsignarLabel = new JLabel("Asiganar");
@@ -48,7 +49,7 @@ public class AsignarTab extends JFrame implements ActionListener{
 	
 	
 	public AsignarTab() {
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		//setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 500, 350);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -154,7 +155,8 @@ public class AsignarTab extends JFrame implements ActionListener{
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if(e.getSource()==AtrasButton) {
-			Main.Welcome();
+			WelcomePage.RestaurarVentana();
+			//Main.Welcome();
 			CerrarVentana();
 		}
 		if (e.getSource()== AsignarButton) {

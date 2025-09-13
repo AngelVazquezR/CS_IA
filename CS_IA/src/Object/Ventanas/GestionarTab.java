@@ -148,7 +148,8 @@ public class GestionarTab extends JFrame implements ActionListener {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if(e.getSource()==AtrasButton) {
-			Main.Welcome();
+			WelcomePage.RestaurarVentana();
+			//Main.Welcome();
 			CerrarVentana();
 		}
 		if(e.getSource()==ActualizarButton) {

@@ -26,7 +26,7 @@ import javax.swing.JSeparator;
 public class WelcomePage extends JFrame implements ActionListener {
 
 	private static final long serialVersionUID = 1L;
-	//private JPanel contentPane;
+	static //private JPanel contentPane;
 	
 	JPanel contentPane = new JPanel();
 	
@@ -49,6 +49,8 @@ public class WelcomePage extends JFrame implements ActionListener {
 	private final JMenu mnTablas = new JMenu("Tablas");
 	JMenuItem mntmProfeTabla = new JMenuItem("Profesores");
 	JMenuItem mntmAlumnoTabla = new JMenuItem("Alumnos");
+	
+	static Component comp = SwingUtilities.getRoot(contentPane);
 
 	
 	public WelcomePage() {
@@ -136,32 +138,43 @@ public class WelcomePage extends JFrame implements ActionListener {
 	public void actionPerformed(ActionEvent e) {						 
 		 if(e.getSource()==NuevoUserbtn) {
 			Main.RegistrarUser();
-			CerrarVentana();
+			//CerrarVentana();
 		 }
 		 if(e.getSource()==mniAccionesModificar||e.getSource()==Actualizarbtn) {
 			 Main.Gestionar();
-			 CerrarVentana();
+			// CerrarVentana();
 		 }
 		 if(e.getSource()==mniAccionesSalir||e.getSource()== Logoutbtn) {
 			 Main.LogIn();
-			 CerrarVentana();	
+			 //CerrarVentana();	
 		 }
 		 if(e.getSource()==mniAccionesAsignar || e.getSource()==Asignarbtn) {
 			 Main.Asignar();
-			 CerrarVentana();
+			// CerrarVentana();
 		 }
 		 if(e.getSource()==mntmProfeTabla || e.getSource()==TablaProfesorbtn) {
 			 Main.ProfeTabla();
-			 CerrarVentana();
+			// CerrarVentana();
 		 }
 		 if(e.getSource()==mntmAlumnoTabla || e.getSource()==TablaAlumnobtn) {
 			 Main.AlumTabla();
-			 CerrarVentana();
+			// CerrarVentana();
 		 }
 	}
 	
+
 	public void CerrarVentana() {
+		
 		Component com = SwingUtilities.getRoot(this);
-		 ((Window) com).dispose();
+		((Window) com).dispose();
+		//((Window) com).setVisible(false);
+		//contentPane.setVisible(false);
 	}
+
+	public static void RestaurarVentana() {
+		//contentPane.setVisible(true);
+		((Window) comp).setVisible(true);
+	}
+	
+
 }
