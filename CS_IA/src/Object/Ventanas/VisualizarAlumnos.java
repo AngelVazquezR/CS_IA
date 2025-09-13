@@ -13,6 +13,7 @@ import javax.swing.table.TableRowSorter;
 import Object.Alumno;
 import Object.AlumnoTableModel;
 import Object.ConectionSQL;
+import Object.Main;
 import Object.Persona;
 
 import java.awt.*;
@@ -43,6 +44,7 @@ public class VisualizarAlumnos extends JFrame implements ActionListener{
     JButton btnAgregar = new JButton("Agregar");   
     JButton btnModificar = new JButton("Modificar"); 
     JButton btnEliminar = new JButton("Eliminar");   
+    JButton btnAtras = new JButton("Atras");   
 	
 	public VisualizarAlumnos() {
 		
@@ -108,9 +110,51 @@ public class VisualizarAlumnos extends JFrame implements ActionListener{
 	        panel.add(btnAgregar);    
 	        panel.add(btnModificar);  
 	        panel.add(btnEliminar);    
+	        panel.add(btnAtras);
 	        frame1.add(panel, "South");  
 	        
-	        frame1.setSize(1100, 500); 
+	        btnAgregar.addActionListener(new ActionListener() {    
+	            public void actionPerformed(ActionEvent e) {    
+	                 
+	                ConectionSQL.AddAlumno(nombreField.getText(), apellidoField.getText(), DNIField.getText());
+	                ConectionSQL.AsignarProf(ProfeField.getText(), nombreField.getText());
+	                AddRow(nombreField.getText(), apellidoField.getText(), 
+	                		DNIField.getText(), ProfeField.getText());
+	            }    
+	        });    
+	        
+	        btnModificar.addActionListener(new ActionListener() {    
+	            public void actionPerformed(ActionEvent e) {    
+	                 ConectionSQL.ModAlumno(nombreField.getText(), apellidoField.getText(),
+	                		 DNIField.getText());
+	                 ConectionSQL.AsignarProf(ProfeField.getText(), nombreField.getText());
+	                 RecargarVentana();  
+	            }    
+	        });    
+	        
+	        btnEliminar.addActionListener(new ActionListener() {    
+	            public void actionPerformed(ActionEvent e) {    
+	            	int filaSeleccionada = tabla.getSelectedRow();    
+	                if (filaSeleccionada >= 0) {    
+	                   // modeloProfesor.eliminar(filaSeleccionada);    
+	                } else {    
+	                    JOptionPane.showMessageDialog(frame1, "Por favor selecciona una fila para eliminar.");    
+	                }    
+	                
+	            }    
+	        });    
+	        
+	        btnAtras.addActionListener(new ActionListener() {    
+	            public void actionPerformed(ActionEvent e) {    
+	            	Main.Welcome();   
+	            	CerrarVentana();	                
+	            }    
+	        });  
+	        
+	        
+	        
+	        
+	        frame1.setSize(1300, 500); 
 		    //modelo.add(a);
 		     
 	         
@@ -128,6 +172,17 @@ public class VisualizarAlumnos extends JFrame implements ActionListener{
 		apellidoField.setText(persona.Apellido);
 		DNIField.setText(persona.DNI);
 	}	
+	
+	public void RecargarVentana() {
+		frame1.repaint();
+		}
+	
+	public void CerrarVentana() {
+		
+		Component com = SwingUtilities.getRoot(this);
+		 ((Window) com).dispose();
+		 frame1.dispose();
+	}
 	
 	@Override
 	public void actionPerformed(ActionEvent e) {

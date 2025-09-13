@@ -83,6 +83,8 @@ public class WelcomePage extends JFrame implements ActionListener {
 		
 		
 		mnTablas.add(mntmAlumnoTabla);
+		mntmAlumnoTabla.addActionListener(this);
+		
 		mniAccionesSalir.addActionListener(this);
 		
 		//contentPane = new JPanel();

@@ -11,6 +11,7 @@ import javax.swing.table.TableColumn;
 import javax.swing.table.TableRowSorter;
 
 import Object.ConectionSQL;
+import Object.Main;
 import Object.Persona;
 
 import java.sql.ResultSet;
@@ -47,6 +48,7 @@ public class VisualizarProfesores extends JFrame implements ActionListener{
     JButton btnAgregar = new JButton("Agregar");    
     JButton btnModificar = new JButton("Modificar");  
     JButton btnEliminar = new JButton("Eliminar");   
+    JButton btnAtras = new JButton("Atras");  
 
 	
 	public VisualizarProfesores() {
@@ -102,10 +104,11 @@ public class VisualizarProfesores extends JFrame implements ActionListener{
 	        panel.add(fBajaField);    
 	        panel.add(btnAgregar); 
 	        panel.add(btnModificar);  
-	        panel.add(btnEliminar);    
+	        panel.add(btnEliminar);  
+	        panel.add(btnAtras);   
 	        frame.add(panel, "South");  
 	        	    	        
-	        frame.setSize(1400, 500); 
+	        frame.setSize(1500, 500); 
 		   
 		     
 	        frame.setVisible(true);   
@@ -159,7 +162,12 @@ public class VisualizarProfesores extends JFrame implements ActionListener{
 	            }    
 	        });    
 	        
-	        
+	        btnAtras.addActionListener(new ActionListener() {    
+	            public void actionPerformed(ActionEvent e) {    
+	            	Main.Welcome();   
+	            	CerrarVentana();	                
+	            }    
+	        });  
 	        
 	}
 
@@ -185,6 +193,7 @@ public class VisualizarProfesores extends JFrame implements ActionListener{
 		
 		Component com = SwingUtilities.getRoot(this);
 		 ((Window) com).dispose();
+		 frame.dispose();
 	}
 	
 	@Override
