@@ -156,7 +156,7 @@ public class GestionarTab extends JFrame implements ActionListener {
 			String Nombre = NombreField.getText();
 			String Apellido = ApellidoField.getText();
 			String DNI = DNIField.getText();
-			if(accion != 0 && profe != 0 && Apellido != null && Nombre != null) {
+			if(accion != 0 && profe != 0 && Apellido != null && Nombre != null && ConectionSQL.existeDNI(profe, DNI) == false) {
 				System.out.println("Todos los datos estan en orden");
 				if(profe == 1) {
 					if (accion == 1) {

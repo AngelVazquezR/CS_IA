@@ -363,6 +363,30 @@ public static String RecuperaPassword(String user) {
 		}
 	}
 
+	public static Boolean existeDNI(Integer type, String DNI) {
+		ResultSet resultSet;
+		String tDNI = "";
+		try {
+			Conection();
+			st=connection.createStatement();
+			if (type == 2) {
+				resultSet= st.executeQuery("SELECT COUNT(DNI) FROM STUDENTS WHERE DNI = "+DNI+"");
+				if (resultSet.getInt("DNI") != 0) {
+					return true;
+				}
+			}else if (type == 1) {
+				resultSet= st.executeQuery("SELECT COUNT(DNI) FROM TEACHERS WHERE DNI = "+DNI+"");
+				if (resultSet.getInt("DNI") != 0) {
+					return true;
+				}
+			} 
+			
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return false;
+	}
 	
 	
 	
