@@ -10,6 +10,7 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
+import javax.swing.JPasswordField;
 import javax.swing.SwingUtilities;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
@@ -23,7 +24,7 @@ public class RegistarTab extends JFrame implements ActionListener {
 	private static final long serialVersionUID = 1L;
 	private JPanel contentPane;
 	JTextField UsuarioField = new JTextField();
-	JTextField PasswordField = new JTextField();
+	JPasswordField PasswordField = new JPasswordField();
 	JButton RegistrarButton = new JButton("Registrar usuario");
 	private final JButton AtrasButton = new JButton("Atras");
 	private final JLabel lblNewLabel = new JLabel("Registrar nuevo usuario");
@@ -79,9 +80,12 @@ public class RegistarTab extends JFrame implements ActionListener {
 		if(e.getSource()==RegistrarButton) {
 			
 			String user = UsuarioField.getText();
-			String password = PasswordField.getText();
-			System.out.println("Escuchado, los parametros son "+user+" y "+password);
-			conn.RegistrarUsuario(user,password);
+			char[] passwordChars = PasswordField.getPassword();
+			try {
+				conn.RegistrarUsuario(user, String.valueOf(passwordChars));
+			} finally {
+				java.util.Arrays.fill(passwordChars, '\0');
+			}
 		}
 		if(e.getSource()==AtrasButton) {
 			Main.Welcome();
