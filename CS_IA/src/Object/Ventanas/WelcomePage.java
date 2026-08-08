@@ -26,9 +26,8 @@ import javax.swing.JSeparator;
 public class WelcomePage extends JFrame implements ActionListener {
 
 	private static final long serialVersionUID = 1L;
-	static //private JPanel contentPane;
-	
-	JPanel contentPane = new JPanel();
+	private static WelcomePage instance;
+	private final JPanel contentPane = new JPanel();
 	
 	JLabel WelcomeLabel = new JLabel("Home");
 	JLabel TablaLabel = new JLabel("Ver tabla de:");
@@ -50,10 +49,10 @@ public class WelcomePage extends JFrame implements ActionListener {
 	JMenuItem mntmProfeTabla = new JMenuItem("Profesores");
 	JMenuItem mntmAlumnoTabla = new JMenuItem("Alumnos");
 	
-	static Component comp = SwingUtilities.getRoot(contentPane);
 
 	
 	public WelcomePage() {
+		instance = this;
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 402, 319);
 		
@@ -146,7 +145,7 @@ public class WelcomePage extends JFrame implements ActionListener {
 		 }
 		 if(e.getSource()==mniAccionesSalir||e.getSource()== Logoutbtn) {
 			 Main.LogIn();
-			 //CerrarVentana();	
+			 dispose();
 		 }
 		 if(e.getSource()==mniAccionesAsignar || e.getSource()==Asignarbtn) {
 			 Main.Asignar();
@@ -164,17 +163,14 @@ public class WelcomePage extends JFrame implements ActionListener {
 	
 
 	public void CerrarVentana() {
-		
-		//Component com = SwingUtilities.getRoot(this);
-		//((Window) com).dispose();
-		//((Window) com).setVisible(false);
-		//contentPane.setVisible(false);
-		this.setVisible(false);
+		setVisible(false);
 	}
 
 	public static void RestaurarVentana() {
-		//contentPane.setVisible(true);
-		((Window) comp).setVisible(true);
+		if (instance != null) {
+			instance.setVisible(true);
+			instance.toFront();
+		}
 	}
 	
 
