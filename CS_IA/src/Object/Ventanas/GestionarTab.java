@@ -21,6 +21,7 @@ import com.github.lgooddatepicker.components.DatePicker;
 
 import javax.swing.JButton;
 import javax.swing.ButtonGroup;
+import javax.swing.JOptionPane;
 
 public class GestionarTab extends JFrame implements ActionListener {
 
@@ -153,30 +154,38 @@ public class GestionarTab extends JFrame implements ActionListener {
 			CerrarVentana();
 		}
 		if(e.getSource()==ActualizarButton) {
-			String Nombre = NombreField.getText();
-			String Apellido = ApellidoField.getText();
-			String DNI = DNIField.getText();
-			if(accion != 0 && profe != 0 && Apellido != null && Nombre != null && ConectionSQL.existeDNI(profe, DNI) == false) {
-				System.out.println("Todos los datos estan en orden");
-				if(profe == 1) {
-					if (accion == 1) {
-						ConectionSQL.ModProfe(Nombre, Apellido, DNI, "",  "");
-					}else if(accion == 2) {
-						ConectionSQL.AddProfe(Nombre, Apellido, DNI, "",  "");
-					}else {
-						ConectionSQL.DeleteProfe(Nombre, Apellido, DNI);
-					}
-				}else{
-					if (accion == 1) {
-						ConectionSQL.ModAlumno(Nombre, Apellido, DNI);
-					}else if(accion == 2) {
-						ConectionSQL.AddAlumno(Nombre, Apellido, DNI);
-					}else {
-						ConectionSQL.DeleteAlumno(Nombre, Apellido, DNI);
-					}
+			String nombre = NombreField.getText().trim();
+			String apellido = ApellidoField.getText().trim();
+			String dni = DNIField.getText().trim();
+			if (accion == 0 || profe == 0 || nombre.isBlank() || apellido.isBlank() || dni.isBlank()) {
+				JOptionPane.showMessageDialog(this, "Rellena todos los campos y selecciona una accion y un tipo.");
+				return;
+			}
+			boolean existe = ConectionSQL.existeDNI(profe, dni);
+			if (accion == 2 && existe) {
+				JOptionPane.showMessageDialog(this, "Ya existe una persona con ese DNI.");
+				return;
+			}
+			if (accion != 2 && !existe) {
+				JOptionPane.showMessageDialog(this, "No existe ninguna persona con ese DNI.");
+				return;
+			}
+			if(profe == 1) {
+				if (accion == 1) {
+					ConectionSQL.ModProfe(nombre, apellido, dni, "", "");
+				}else if(accion == 2) {
+					ConectionSQL.AddProfe(nombre, apellido, dni, "", "");
+				}else {
+					ConectionSQL.DeleteProfe(nombre, apellido, dni);
 				}
-			}else {
-				System.out.println("Rellena los campos que faltan");
+			}else{
+				if (accion == 1) {
+					ConectionSQL.ModAlumno(nombre, apellido, dni);
+				}else if(accion == 2) {
+					ConectionSQL.AddAlumno(nombre, apellido, dni);
+				}else {
+					ConectionSQL.DeleteAlumno(nombre, apellido, dni);
+				}
 			}
 		}
 		if(e.getSource()==ModificarRadial) {
