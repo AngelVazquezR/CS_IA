@@ -74,16 +74,10 @@ public class LoginPage implements ActionListener {
 		if(e.getSource()==loginbutton) {
 			
 			String userID = userIDField.getText();
-			String password = String.valueOf(userPasswordField.getPassword());
-			String hashPassword ="";
-			
-			hashPassword = ConectionSQL.RecuperaPassword(userID);
-			try {
-				ConectionSQL.Conection();
-			} catch (SQLException e1) {
-				
-				e1.printStackTrace();
-			}
+			char[] passwordChars = userPasswordField.getPassword();
+			String password = String.valueOf(passwordChars);
+			java.util.Arrays.fill(passwordChars, '\0');
+			String hashPassword = ConectionSQL.RecuperaPassword(userID);
 			
 			if(hashPassword.equals(password)) {
 				System.out.println("Correct Login");
