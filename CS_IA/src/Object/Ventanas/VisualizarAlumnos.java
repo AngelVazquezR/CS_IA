@@ -51,7 +51,7 @@ public class VisualizarAlumnos extends JFrame implements ActionListener{
 		frame1 = new JFrame("Visualizar alumnos");
 		  
 		//Alumno a = new Alumno("a","a","a","","","","a");
-		frame1.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame1.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		frame1.setBounds(100, 100, 650, 450);
 		frame1.setVisible(true);
 			
@@ -146,7 +146,7 @@ public class VisualizarAlumnos extends JFrame implements ActionListener{
 	        
 	        btnAtras.addActionListener(new ActionListener() {    
 	            public void actionPerformed(ActionEvent e) {    
-	            	Main.Welcome();   
+	            	WelcomePage.RestaurarVentana();
 	            	CerrarVentana();	                
 	            }    
 	        });  
@@ -178,10 +178,7 @@ public class VisualizarAlumnos extends JFrame implements ActionListener{
 		}
 	
 	public void CerrarVentana() {
-		
-		Component com = SwingUtilities.getRoot(this);
-		 ((Window) com).dispose();
-		 frame1.dispose();
+		frame1.dispose();
 	}
 	
 	@Override
