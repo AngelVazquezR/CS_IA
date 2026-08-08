@@ -16,11 +16,13 @@ USE `csia`;
 -- Volcando estructura para tabla csia.alumnos
 DROP TABLE IF EXISTS `alumnos`;
 CREATE TABLE IF NOT EXISTS `alumnos` (
-  `ID` varchar(6) DEFAULT NULL,
+  `ID` varchar(6) NOT NULL,
   `NOMBRE` varchar(45) DEFAULT NULL,
   `APELLIDO` varchar(45) DEFAULT NULL,
   `DNI` varchar(9) DEFAULT NULL,
-  `PROFESOR` varchar(20) DEFAULT NULL
+  `PROFESOR` varchar(20) DEFAULT NULL,
+  PRIMARY KEY (`ID`),
+  UNIQUE KEY `idx_ALUMNOS_DNI` (`DNI`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- La exportación de datos fue deseleccionada.
@@ -34,7 +36,8 @@ CREATE TABLE IF NOT EXISTS `profesores` (
   `DNI` varchar(9) DEFAULT NULL,
   `FALTA` varchar(20) DEFAULT NULL,
   `FBAJA` varchar(20) DEFAULT NULL,
-  PRIMARY KEY (`ID`)
+  PRIMARY KEY (`ID`),
+  UNIQUE KEY `idx_PROFESORES_DNI` (`DNI`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- La exportación de datos fue deseleccionada.
