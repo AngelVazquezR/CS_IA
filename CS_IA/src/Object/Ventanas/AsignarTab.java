@@ -32,7 +32,7 @@ import javax.swing.JComboBox;
 
 public class AsignarTab extends JFrame implements ActionListener{
 
-	private final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 1L;
 	private JPanel contentPane;
 
 	JLabel AsignarLabel = new JLabel("Asiganar");
@@ -44,12 +44,12 @@ public class AsignarTab extends JFrame implements ActionListener{
 	
 	
 	
-	static JComboBox profeComboBox = new JComboBox();
-	static JComboBox alumComboBox = new JComboBox();
+	static JComboBox<String> profeComboBox = new JComboBox<>();
+	static JComboBox<String> alumComboBox = new JComboBox<>();
 	
 	
 	public AsignarTab() {
-		//setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		setBounds(100, 100, 500, 350);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -160,7 +160,8 @@ public class AsignarTab extends JFrame implements ActionListener{
 			CerrarVentana();
 		}
 		if (e.getSource()== AsignarButton) {
-			if(profeComboBox.getSelectedItem().toString() != "Profesor") {
+			if (!"Profesor".equals(profeComboBox.getSelectedItem())
+					&& !"Alumno".equals(alumComboBox.getSelectedItem())) {
 				
 			
 			ConectionSQL.AsignarProf( profeComboBox.getSelectedItem().toString().toUpperCase(), 
