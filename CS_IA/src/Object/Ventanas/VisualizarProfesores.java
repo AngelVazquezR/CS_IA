@@ -55,6 +55,7 @@ public class VisualizarProfesores extends JFrame implements ActionListener{
 		frame = new JFrame("Visualizar profesores");
 		//Profesor a = new Profesor("a","a","a","a","a","a");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		
 		setBounds(100, 100, 650, 450);
 			
 	        
