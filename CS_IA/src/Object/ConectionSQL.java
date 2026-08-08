@@ -6,7 +6,6 @@ import java.sql.SQLException;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.Statement;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -23,43 +22,22 @@ import Object.Ventanas.VisualizarAlumnos;
 import org.w3c.dom.Document;
 
 public class ConectionSQL {
-//	private static String db = "CSIA";
-//	private static String user = "root";
-//	private static String password = "12345678";
-//	private static String url_ = "jdbc:mysql://localhost:3306/"+ db;
-	
-	private static Connection connection;
-	private static Statement st = null;
-	
-	private static ConfigDB confDB = new ConfigDB();
-	
-	
+	private static final ConfigDB confDB = new ConfigDB();
+
 	public ConectionSQL() {
 		LeerConf();
 		try {
-			//Class.forName("com.mysql.jdbc.Driver");
-			//Class.forName("com.mysql.cj.jdbc.Driver");
 			Class.forName(confDB.driver);
-			//connection = DriverManager.getConnection(url_,user,password);
-			connection = DriverManager.getConnection(confDB.url,confDB.user,confDB.password);
-			if(connection != null) {
-				st = connection.createStatement();
-				System.out.println("Se ha conectado con exito a la base de datos "+confDB.db);
-				
+			try (Connection connection = openConnection()) {
+				System.out.println("Se ha conectado con exito a la base de datos " + confDB.db);
 			}
-			else {
-				System.out.println("No a sido plosible establecer conexion");
-			}
-		} catch (SQLException e) {e.printStackTrace();}
-		catch (ClassNotFoundException e) {e.printStackTrace();}
-		catch (Exception e) {e.printStackTrace();}
-		
-		
+		} catch (ClassNotFoundException | SQLException e) {
+			e.printStackTrace();
+		}
 	}
-	
-	public static void Conection() throws SQLException{
-		
-		connection = DriverManager.getConnection(confDB.url,confDB.user,confDB.password);
+
+	private static Connection openConnection() throws SQLException {
+		return DriverManager.getConnection(confDB.url, confDB.user, confDB.password);
 	}
 	
 	public void LeerConf() {
@@ -73,6 +51,11 @@ public class ConectionSQL {
         DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
         DocumentBuilder dBuilder;
 		try {
+			dbFactory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+			dbFactory.setFeature("http://xml.org/sax/features/external-general-entities", false);
+			dbFactory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+			dbFactory.setXIncludeAware(false);
+			dbFactory.setExpandEntityReferences(false);
 			dBuilder = dbFactory.newDocumentBuilder();
 			Document doc = dBuilder.parse(archivo);
 			doc.getDocumentElement().normalize();
@@ -80,7 +63,10 @@ public class ConectionSQL {
 			 driver = baseDatos.getElementsByTagName("driver").item(0).getTextContent();
 			 url = baseDatos.getElementsByTagName("url").item(0).getTextContent();
 			 usuario = baseDatos.getElementsByTagName("usuario").item(0).getTextContent();
-		     password = baseDatos.getElementsByTagName("password").item(0).getTextContent();
+		     password = System.getenv("CSIA_DB_PASSWORD");
+		     if (password == null || password.isBlank()) {
+		     	throw new IllegalStateException("Define la variable de entorno CSIA_DB_PASSWORD");
+		     }
 		     DB = baseDatos.getElementsByTagName("db").item(0).getTextContent();
 		     
 		     confDB.driver = driver;
@@ -103,291 +89,235 @@ public class ConectionSQL {
 		System.out.println("Driver: " + driver);
 		System.out.println("URL: " + url);
         System.out.println("Usuario: " + usuario);
-        System.out.println("Password: " + password);
         System.out.println("DB: " + DB);  
 	}
 	
 	public static void AsignarProf(String profe, String alumno) {
-		ResultSet rs;
-		
-		try {
-			Conection();
-			st=connection.createStatement();
-			st.executeUpdate("UPDATE ALUMNOS SET PROFESOR ='"+profe+"' WHERE NOMBRE = '"+alumno+"';");
+		String sql = "UPDATE ALUMNOS SET PROFESOR = ? WHERE NOMBRE = ?";
+		try (Connection connection = openConnection();
+			 PreparedStatement statement = connection.prepareStatement(sql)) {
+			statement.setString(1, profe);
+			statement.setString(2, alumno);
+			statement.executeUpdate();
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
 	}
 	
 	public static void FillAlumPop() {
-		ResultSet rs;
-		
-		try {
-			Conection();
-			st=connection.createStatement();
-			rs = st.executeQuery("SELECT NOMBRE AS NOM FROM ALUMNOS;");
-			while(rs.next()) {
-				AsignarTab.AddAlumPop(rs.getString("NOM"));
-				}
+		String sql = "SELECT NOMBRE AS NOM FROM ALUMNOS";
+		try (Connection connection = openConnection();
+			 PreparedStatement statement = connection.prepareStatement(sql);
+			 ResultSet resultSet = statement.executeQuery()) {
+			while (resultSet.next()) {
+				AsignarTab.AddAlumPop(resultSet.getString("NOM"));
+			}
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
 	}
 	
 	public static void FillProfePop() {
-		ResultSet rs;
-		
-		try {
-			Conection();
-			st=connection.createStatement();
-			rs = st.executeQuery("SELECT NOMBRE AS NOM FROM PROFESORES;");
-			while(rs.next()) {
-				AsignarTab.AddProfePop(rs.getString("NOM"));
-				}
+		String sql = "SELECT NOMBRE AS NOM FROM PROFESORES";
+		try (Connection connection = openConnection();
+			 PreparedStatement statement = connection.prepareStatement(sql);
+			 ResultSet resultSet = statement.executeQuery()) {
+			while (resultSet.next()) {
+				AsignarTab.AddProfePop(resultSet.getString("NOM"));
+			}
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
 	}
 	
-	public static void AddProfe(String nombre, String Apellido, String DNI, String fAlta, String fBaja) {
-		ResultSet rs;
-		String id = "";
-		int count;
-		
-		try {
-			Conection();
-			st=connection.createStatement();
-			rs = st.executeQuery("SELECT COUNT(*) AS NUM_PRO FROM PROFESORES;");
-			while(rs.next()) {
-				id = rs.getString("NUM_PRO");
-				id = Algoritmos.GenerateID("PR",id);				
-				/*count = Integer.parseInt(id)+1;				
-				id="PR"+String.format("%04d", count);
-				System.out.println(id);*/
-				}
-			st.executeUpdate("INSERT INTO PROFESORES VALUES('"+id+"','"+nombre+"','"+Apellido+"','"+DNI+"','"+fAlta+"','"+fBaja+"');");			
+	public static void AddProfe(String nombre, String apellido, String dni, String fAlta, String fBaja) {
+		String countSql = "SELECT COUNT(*) AS NUM_PRO FROM PROFESORES";
+		String insertSql = "INSERT INTO PROFESORES (ID, NOMBRE, APELLIDOS, DNI, FALTA, FBAJA) VALUES (?, ?, ?, ?, ?, ?)";
+		try (Connection connection = openConnection();
+			 PreparedStatement countStatement = connection.prepareStatement(countSql);
+			 ResultSet resultSet = countStatement.executeQuery()) {
+			if (!resultSet.next()) {
+				throw new SQLException("No se pudo generar el ID del profesor");
+			}
+			String id = Algoritmos.GenerateID("PR", resultSet.getString("NUM_PRO"));
+			try (PreparedStatement insertStatement = connection.prepareStatement(insertSql)) {
+				insertStatement.setString(1, id);
+				insertStatement.setString(2, nombre);
+				insertStatement.setString(3, apellido);
+				insertStatement.setString(4, dni);
+				insertStatement.setString(5, fAlta);
+				insertStatement.setString(6, fBaja);
+				insertStatement.executeUpdate();
+			}
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
 	
 	public static void ProfeFillTable() {
-		ResultSet rs;	
-		try {
-			Conection();
-			st=connection.createStatement();
-			rs = st.executeQuery("SELECT NOMBRE AS NOM,APELLIDOS AS APE,DNI AS DN, FALTA AS FA, FBAJA AS FB FROM PROFESORES");
-			while(rs.next()) {
-				VisualizarProfesores.AddRow(rs.getString("NOM"), rs.getString("APE"), rs.getString("DN"), rs.getString("FA"), rs.getString("FB"));
-				}
+		String sql = "SELECT NOMBRE AS NOM, APELLIDOS AS APE, DNI AS DN, FALTA AS FA, FBAJA AS FB FROM PROFESORES";
+		try (Connection connection = openConnection();
+			 PreparedStatement statement = connection.prepareStatement(sql);
+			 ResultSet resultSet = statement.executeQuery()) {
+			while (resultSet.next()) {
+				VisualizarProfesores.AddRow(resultSet.getString("NOM"), resultSet.getString("APE"),
+						resultSet.getString("DN"), resultSet.getString("FA"), resultSet.getString("FB"));
+			}
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
 	
 	public static void AlumFillTable() {
-		ResultSet rs;	
-		try {
-			Conection();
-			st=connection.createStatement();
-			rs = st.executeQuery("SELECT NOMBRE AS NOM,APELLIDO AS APE,DNI AS DN,PROFESOR AS PROF FROM ALUMNOS");
-			while(rs.next()) {
-				VisualizarAlumnos.AddRow(rs.getString("NOM"), rs.getString("APE"),
-						rs.getString("DN"), rs.getString("PROF"));
-				}
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-	
-	
-	
-	public static void ModProfe(String nombre, String Apellido, String DNI, String fAlta, String fBaja) {
-		ResultSet resultSet;
-		try {
-			System.out.println("mod");
-			Conection();
-			st=connection.createStatement();
-			
-			st.executeUpdate("UPDATE PROFESORES SET NOMBRE ='"+nombre+"',APELLIDOS='"+Apellido+"', FALTA='"+fAlta+"', FBAJA='"+fBaja+"'WHERE DNI='"+DNI+"';");
-			
-		} catch (SQLException e) {
-			
-			e.printStackTrace();
-		}
-	}
-	public static void DeleteProfe(String nombre, String Apellido, String DNI) {
-		try {
-			Conection();
-			st=connection.createStatement();
-			st.executeUpdate("DELETE FROM PROFESORES WHERE NOMBRE='"+nombre+"'AND APELLIDOS='"+Apellido+"'AND DNI='"+DNI+"';");
-			
-			//st.executeUpdate("INSERT INTO ALUMNOS VALUES('"+id+"','"+nombre+"','"+Apellido+"','"+DNI+"');");
-			
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-	public static void AddAlumno(String nombre, String Apellido, String DNI) {
-		ResultSet rs;
-		String id = "";
-		int count;
-		try {
-			Conection();
-			st=connection.createStatement();
-			rs = st.executeQuery("SELECT COUNT(*) AS NUM_PRO FROM ALUMNOS;");
-			while(rs.next()) {
-				id = rs.getString("NUM_PRO");
-				id = Algoritmos.GenerateID("AL",id);		
-				/*count = Integer.parseInt(id)+1;
-				id="PR"+String.format("%04d", count);
-				System.out.println(id);*/
-				}
-			st.executeUpdate("INSERT INTO ALUMNOS VALUES('"+id+"','"+nombre+"','"+Apellido+"','"+DNI+"');");
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-	public static void ModAlumno(String nombre, String Apellido, String DNI) {
-		ResultSet resultSet;
-		try {
-			Conection();
-			st=connection.createStatement();
-			
-			st.executeUpdate("UPDATE ALUMNOS SET NOMBRE ='"+nombre+"',APELLIDO='"+Apellido+"'WHERE DNI='"+DNI+"';");
-			
-		} catch (SQLException e) {
-			
-			e.printStackTrace();
-		}
-	}
-	public static void DeleteAlumno(String nombre, String Apellido, String DNI) {
-		try {
-			Conection();
-			st=connection.createStatement();
-			st.executeUpdate("DELETE FROM ALUMNOS WHERE NOMBRE='"+nombre+"'AND APELLIDO='"+Apellido+"'AND DNI='"+DNI+"';");
-			
-			//st.executeUpdate("INSERT INTO ALUMNOS VALUES('"+id+"','"+nombre+"','"+Apellido+"','"+DNI+"');");
-			
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-	
-/*
-	public static void RecuperaDatos() {
-		ResultSet resultSet;
-		try {
-			st=connection.createStatement();
-			resultSet= st.executeQuery("SELECT CONTRASEÑA FROM USUARIOS");
-			while(resultSet.next()) {
-				System.out.println(resultSet.getString("CONTRASEÑA"));	
+		String sql = "SELECT NOMBRE AS NOM, APELLIDO AS APE, DNI AS DN, PROFESOR AS PROF FROM ALUMNOS";
+		try (Connection connection = openConnection();
+			 PreparedStatement statement = connection.prepareStatement(sql);
+			 ResultSet resultSet = statement.executeQuery()) {
+			while (resultSet.next()) {
+				VisualizarAlumnos.AddRow(resultSet.getString("NOM"), resultSet.getString("APE"),
+						resultSet.getString("DN"), resultSet.getString("PROF"));
 			}
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}		
-	}
-	*/
-public static String RecuperaPassword(String user) {	
-		ResultSet resultSet;
-		String passwordHash="";
-		try {
-			Conection();
-			st=connection.createStatement();
-			//se hace de esta manera para evitar ataques de injeccion sql
-			resultSet= st.executeQuery("SELECT CONTRASEÑA FROM USUARIOS WHERE USUARIO = '"
-			+user.toUpperCase()+"';");
-			
-			
-			while(resultSet.next()) {
-				passwordHash = resultSet.getString("CONTRASEÑA");
-				System.out.println(passwordHash);	
-			}
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+	
+	public static void ModProfe(String nombre, String apellido, String dni, String fAlta, String fBaja) {
+		String sql = "UPDATE PROFESORES SET NOMBRE = ?, APELLIDOS = ?, FALTA = ?, FBAJA = ? WHERE DNI = ?";
+		try (Connection connection = openConnection();
+			 PreparedStatement statement = connection.prepareStatement(sql)) {
+			statement.setString(1, nombre);
+			statement.setString(2, apellido);
+			statement.setString(3, fAlta);
+			statement.setString(4, fBaja);
+			statement.setString(5, dni);
+			statement.executeUpdate();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public static void DeleteProfe(String nombre, String apellido, String dni) {
+		String sql = "DELETE FROM PROFESORES WHERE NOMBRE = ? AND APELLIDOS = ? AND DNI = ?";
+		try (Connection connection = openConnection();
+			 PreparedStatement statement = connection.prepareStatement(sql)) {
+			statement.setString(1, nombre);
+			statement.setString(2, apellido);
+			statement.setString(3, dni);
+			statement.executeUpdate();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public static void AddAlumno(String nombre, String apellido, String dni) {
+		String countSql = "SELECT COUNT(*) AS NUM_ALUMNOS FROM ALUMNOS";
+		String insertSql = "INSERT INTO ALUMNOS (ID, NOMBRE, APELLIDO, DNI) VALUES (?, ?, ?, ?)";
+		try (Connection connection = openConnection();
+			 PreparedStatement countStatement = connection.prepareStatement(countSql);
+			 ResultSet resultSet = countStatement.executeQuery()) {
+			if (!resultSet.next()) {
+				throw new SQLException("No se pudo generar el ID del alumno");
+			}
+			String id = Algoritmos.GenerateID("AL", resultSet.getString("NUM_ALUMNOS"));
+			try (PreparedStatement insertStatement = connection.prepareStatement(insertSql)) {
+				insertStatement.setString(1, id);
+				insertStatement.setString(2, nombre);
+				insertStatement.setString(3, apellido);
+				insertStatement.setString(4, dni);
+				insertStatement.executeUpdate();
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public static void ModAlumno(String nombre, String apellido, String dni) {
+		String sql = "UPDATE ALUMNOS SET NOMBRE = ?, APELLIDO = ? WHERE DNI = ?";
+		try (Connection connection = openConnection();
+			 PreparedStatement statement = connection.prepareStatement(sql)) {
+			statement.setString(1, nombre);
+			statement.setString(2, apellido);
+			statement.setString(3, dni);
+			statement.executeUpdate();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public static void DeleteAlumno(String nombre, String apellido, String dni) {
+		String sql = "DELETE FROM ALUMNOS WHERE NOMBRE = ? AND APELLIDO = ? AND DNI = ?";
+		try (Connection connection = openConnection();
+			 PreparedStatement statement = connection.prepareStatement(sql)) {
+			statement.setString(1, nombre);
+			statement.setString(2, apellido);
+			statement.setString(3, dni);
+			statement.executeUpdate();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+	
+public static String RecuperaPassword(String user) {
+		String sql = "SELECT CONTRASEÑA FROM USUARIOS WHERE USUARIO = ?";
+		try (Connection connection = openConnection();
+			 PreparedStatement statement = connection.prepareStatement(sql)) {
+			statement.setString(1, user.trim().toUpperCase());
+			try (ResultSet resultSet = statement.executeQuery()) {
+				return resultSet.next() ? resultSet.getString("CONTRASEÑA") : "";
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return "";
+		}
+	}
+	
+	public static void RegistrarUsuario(String user, String password) {
+		String normalizedUser = user.trim().toUpperCase();
+		String existsSql = "SELECT 1 FROM USUARIOS WHERE USUARIO = ? LIMIT 1";
+		String insertSql = "INSERT INTO USUARIOS (USUARIO, CONTRASEÑA) VALUES (?, ?)";
+		try (Connection connection = openConnection();
+			 PreparedStatement existsStatement = connection.prepareStatement(existsSql)) {
+			existsStatement.setString(1, normalizedUser);
+			try (ResultSet resultSet = existsStatement.executeQuery()) {
+				if (resultSet.next()) {
+					System.out.println("El usuario " + normalizedUser + " ya existe");
+					return;
+				}
+			}
+			try (PreparedStatement insertStatement = connection.prepareStatement(insertSql)) {
+				insertStatement.setString(1, normalizedUser);
+				insertStatement.setString(2, password);
+				insertStatement.executeUpdate();
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public static Boolean existeDNI(Integer type, String dni) {
+		String table;
+		if (type == 1) {
+			table = "PROFESORES";
+		} else if (type == 2) {
+			table = "ALUMNOS";
+		} else {
+			throw new IllegalArgumentException("Tipo de persona no valido: " + type);
+		}
+		String sql = "SELECT 1 FROM " + table + " WHERE DNI = ? LIMIT 1";
+		try (Connection connection = openConnection();
+			 PreparedStatement statement = connection.prepareStatement(sql)) {
+			statement.setString(1, dni);
+			try (ResultSet resultSet = statement.executeQuery()) {
+				return resultSet.next();
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
+	
 		
-		return passwordHash;
-		
-	}
-	
-	
-	public static void RegistrarUsuario(String User, String Password) {
-		String userMayuscula = User.toUpperCase();
-		String cadenaAux="7";
-		Integer numUsuarios = -1;
-		String sql = "";
-		ResultSet resultSet;
-		System.out.println("Conectado con exito");
-		try {
-			Conection();
-			st=connection.createStatement();
-			
-			sql = "SELECT COUNT(USUARIO) AS NUM_USUARIOS FROM USUARIOS WHERE USUARIO = '"+userMayuscula+"'";
-			//resultSet= st.executeQuery("SELECT CONTRASEÑA FROM USUARIOS");
-			resultSet = st.executeQuery(sql);
-			resultSet.next();
-			cadenaAux=resultSet.getString("NUM_USUARIOS");
-			
-			numUsuarios = Integer.parseInt(cadenaAux);
-			
-			//System.out.println("a");
-			System.out.println("El usuario "+ User+" aparece "+numUsuarios);
-			
-			if(numUsuarios == 0) {
-				
-				sql = "INSERT INTO USUARIOS(USUARIO,CONTRASEÑA) VALUES('"+userMayuscula+"','"+Password+"')";
-				st.executeUpdate(sql);
-				System.out.println("Usuario registrado con exito");
-			}else {
-				System.out.println("El usuario "+User+" ya existe");
-			}
-			
-		} catch (SQLException e) {
-			
-			e.printStackTrace();
-		}
-	}
-
-	public static Boolean existeDNI(Integer type, String DNI) {
-		ResultSet resultSet;
-		String tDNI = "";
-		try {
-			Conection();
-			st=connection.createStatement();
-			if (type == 2) {
-				resultSet= st.executeQuery("SELECT COUNT(DNI) FROM STUDENTS WHERE DNI = "+DNI+"");
-				if (resultSet.getInt("DNI") != 0) {
-					return true;
-				}
-			}else if (type == 1) {
-				resultSet= st.executeQuery("SELECT COUNT(DNI) FROM TEACHERS WHERE DNI = "+DNI+"");
-				if (resultSet.getInt("DNI") != 0) {
-					return true;
-				}
-			} 
-			
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return false;
-	}
-	
 	
 	
 }
