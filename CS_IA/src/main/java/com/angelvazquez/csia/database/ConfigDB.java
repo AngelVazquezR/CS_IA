@@ -2,6 +2,7 @@ package com.angelvazquez.csia.database;
 
 public class ConfigDB {
 
+	public DatabaseType databaseType;
 	public String driver;
 	public String url;
 	public String db;
@@ -10,6 +11,7 @@ public class ConfigDB {
 	
 	
 	public ConfigDB() {
+		databaseType = DatabaseType.MYSQL;
 		driver = "";
 		url  = "";
 		db = "";

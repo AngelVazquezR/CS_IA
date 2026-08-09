@@ -110,7 +110,7 @@ public class ConfiguracionManager {
     /**
      * Lee configuracion.xml.
      */
-    private ConfigDB leerConfiguracion(Path ruta)
+    ConfigDB leerConfiguracion(Path ruta)
             throws Exception {
 
         DocumentBuilderFactory factory =
@@ -138,6 +138,18 @@ public class ConfiguracionManager {
         }
 
         ConfigDB configuracion = new ConfigDB();
+
+        String tipo = obtenerValorOpcional(
+                baseDatos,
+                "tipo"
+        );
+
+        try {
+            configuracion.databaseType =
+                    DatabaseType.fromConfigValue(tipo);
+        } catch (IllegalArgumentException e) {
+            throw new IOException(e.getMessage(), e);
+        }
 
         configuracion.driver =
                 obtenerValor(baseDatos, "driver");
@@ -395,7 +407,28 @@ public class ConfiguracionManager {
     }
 
     /**
-     * Obtiene el contenido de una etiqueta.
+     * Obtiene el contenido de una etiqueta opcional.
+     */
+    private String obtenerValorOpcional(
+            Element padre,
+            String etiqueta) {
+
+        if (padre
+                .getElementsByTagName(etiqueta)
+                .getLength() == 0) {
+
+            return null;
+        }
+
+        return padre
+                .getElementsByTagName(etiqueta)
+                .item(0)
+                .getTextContent()
+                .trim();
+    }
+
+    /**
+     * Obtiene el contenido de una etiqueta obligatoria.
      */
     private String obtenerValor(
             Element padre,
