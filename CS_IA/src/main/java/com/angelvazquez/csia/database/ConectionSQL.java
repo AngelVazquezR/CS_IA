@@ -1,113 +1,79 @@
 package com.angelvazquez.csia.database;
 
-import java.io.File;
-import java.io.IOException;
 import java.sql.Connection;
-import java.sql.SQLException;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-
-import org.w3c.dom.Element;
-import org.xml.sax.SAXException;
+import java.util.Objects;
 
 import com.angelvazquez.csia.util.*;
 import com.angelvazquez.csia.ui.ventanas.AsignarTab;
 import com.angelvazquez.csia.ui.ventanas.VisualizarAlumnos;
 import com.angelvazquez.csia.ui.ventanas.VisualizarProfesores;
 
-import org.w3c.dom.Document;
-
 public class ConectionSQL {
-//	private static String db = "CSIA";
-//	private static String user = "root";
-//	private static String password = "12345678";
-//	private static String url_ = "jdbc:mysql://localhost:3306/"+ db;
-	
+
 	private static Connection connection;
 	private static Statement st = null;
-	
 	private static ConfigDB confDB = new ConfigDB();
-	
-	
+	private static final DatabaseConnectionFactory CONNECTION_FACTORY =
+			new DatabaseConnectionFactory();
+
+	/**
+	 * Conserva el constructor anterior para no romper llamadas existentes.
+	 * La lectura del XML queda centralizada en ConfiguracionManager.
+	 */
+	@Deprecated
 	public ConectionSQL() {
-		LeerConf();
+		this(loadConfiguration());
+	}
+
+	/**
+	 * Recibe la configuración que ya fue cargada durante el arranque.
+	 */
+	public ConectionSQL(ConfigDB configuration) {
+		confDB = Objects.requireNonNull(
+				configuration,
+				"La configuración de base de datos no puede ser null."
+		);
+
 		try {
-			//Class.forName("com.mysql.jdbc.Driver");
-			//Class.forName("com.mysql.cj.jdbc.Driver");
-			Class.forName(confDB.driver);
-			//connection = DriverManager.getConnection(url_,user,password);
-			connection = DriverManager.getConnection(confDB.url,confDB.user,confDB.password);
-			if(connection != null) {
+			connection = CONNECTION_FACTORY.open(confDB);
+
+			if (connection != null) {
 				st = connection.createStatement();
-				System.out.println("Se ha conectado con exito a la base de datos "+confDB.db);
-				
+				System.out.println(
+						"Se ha conectado con éxito a "
+								+ confDB.databaseType.getConfigValue()
+								+ (confDB.db.isBlank()
+										? ""
+										: " (" + confDB.db + ")")
+				);
 			}
-			else {
-				System.out.println("No a sido plosible establecer conexion");
-			}
-		} catch (SQLException e) {e.printStackTrace();}
-		catch (ClassNotFoundException e) {e.printStackTrace();}
-		catch (Exception e) {e.printStackTrace();}
-		
-		
-	}
-	
-	public static void Conection() throws SQLException{
-		
-		connection = DriverManager.getConnection(confDB.url,confDB.user,confDB.password);
-	}
-	
-	public void LeerConf() {
-		String driver = "";
-		String url = "";
-		String usuario = "";
-		String password = "";
-		String DB = "";
-		
-		File archivo = new File("config/configuracion.xml");
-        DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-        DocumentBuilder dBuilder;
-		try {
-			dBuilder = dbFactory.newDocumentBuilder();
-			Document doc = dBuilder.parse(archivo);
-			doc.getDocumentElement().normalize();
-			 Element baseDatos = (Element) doc.getElementsByTagName("baseDatos").item(0);
-			 driver = baseDatos.getElementsByTagName("driver").item(0).getTextContent();
-			 url = baseDatos.getElementsByTagName("url").item(0).getTextContent();
-			 usuario = baseDatos.getElementsByTagName("usuario").item(0).getTextContent();
-		     password = baseDatos.getElementsByTagName("password").item(0).getTextContent();
-		     DB = baseDatos.getElementsByTagName("db").item(0).getTextContent();
-		     
-		     confDB.driver = driver;
-		     confDB.url = url;
-		     confDB.db = DB;
-		     confDB.user = usuario;
-		     confDB.password = password;
-		} catch (ParserConfigurationException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (SAXException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
+		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-
-        // Mostramos los valores leidos
-		System.out.println("Driver: " + driver);
-		System.out.println("URL: " + url);
-        System.out.println("Usuario: " + usuario);
-        System.out.println("Password: " + password);
-        System.out.println("DB: " + DB);  
 	}
-	
+
+	private static ConfigDB loadConfiguration() {
+		ConfigDB configuration =
+				new ConfiguracionManager().inicializarConfiguracion();
+
+		if (configuration == null) {
+			throw new IllegalStateException(
+					"La configuración de base de datos no está disponible."
+			);
+		}
+
+		return configuration;
+	}
+
+	public static void Conection() throws SQLException {
+		connection = CONNECTION_FACTORY.open(confDB);
+	}
+
 	public static void AsignarProf(String profe, String alumno) {
 		ResultSet rs;
 		
