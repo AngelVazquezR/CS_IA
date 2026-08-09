@@ -4,6 +4,9 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Random;
 
+import com.angelvazquez.csia.database.ConfigDB;
+import com.angelvazquez.csia.database.ConfiguracionManager;
+
 import com.angelvazquez.csia.database.ConectionSQL;
 import com.angelvazquez.csia.database.IDandPasswords;
 import com.angelvazquez.csia.model.Profesor;
@@ -17,26 +20,29 @@ import com.angelvazquez.csia.ui.ventanas.VisualizarProfesores;
 import com.angelvazquez.csia.ui.ventanas.WelcomePage;
 
 public class Main {
-
 	public static Users user1;
 	static Random rand = new Random();
 	static HashMap<String,String> map = new LinkedHashMap();
 	
-
 	public static void main(String[] args) {
+		
+		// Comprobamos si existe el fichero de configuracion
+		ConfiguracionManager manager = new ConfiguracionManager();
+		ConfigDB configuracion = manager.inicializarConfiguracion();
+		if (configuracion == null) {
+            System.out.println("Arranque cancelado por falta de configuración.");
+
+            return;
+        }
 		
 		IDandPasswords idandpasswords = new IDandPasswords();
 		ConectionSQL conectionSQL = new ConectionSQL();
 		LoginPage loginpage = new LoginPage(idandpasswords.getLoginInfo());
-		
-
 	}
 	
 	public static String randomChar(String[] array) {
-		
 		System.out.println(rand.nextInt(array.length));
 		return array[rand.nextInt(array.length)];
-		
 	}
 	
 	public static void LogIn() {
@@ -67,8 +73,7 @@ public class Main {
 		RegistarTab registrarTab = new RegistarTab();
 		registrarTab.setVisible(true);
 	}
-	
-	
+		
 	public static void CreateProfesor(String id, String name, String apellido, String DNI) {
 		Profesor profe = new Profesor(name, apellido, id, DNI, "", "");
 		map.put(profe.GetID(), profe.GetNombre());
