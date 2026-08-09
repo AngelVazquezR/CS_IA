@@ -36,7 +36,7 @@ public class Main {
         }
 		
 		IDandPasswords idandpasswords = new IDandPasswords();
-		ConectionSQL conectionSQL = new ConectionSQL();
+		ConectionSQL conectionSQL = new ConectionSQL(configuracion);
 		LoginPage loginpage = new LoginPage(idandpasswords.getLoginInfo());
 	}
 	
