@@ -15,6 +15,7 @@ import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
 import com.angelvazquez.csia.database.ConectionSQL;
+import com.angelvazquez.csia.util.Algoritmos;
 import com.angelvazquez.csia.Main;
 
 public class RegistarTab extends JFrame implements ActionListener {
@@ -79,6 +80,7 @@ public class RegistarTab extends JFrame implements ActionListener {
 			
 			String user = UsuarioField.getText();
 			String password = PasswordField.getText();
+			password = Algoritmos.hashAlgorithm(password);
 			System.out.println("Escuchado, los parametros son "+user+" y "+password);
 			conn.RegistrarUsuario(user,password);
 		}

@@ -12,6 +12,7 @@ import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
 import com.angelvazquez.csia.database.ConectionSQL;
+import com.angelvazquez.csia.util.Algoritmos;
 
 import javax.swing.JOptionPane;
 
@@ -85,16 +86,24 @@ public class LoginPage implements ActionListener {
 				
 				e1.printStackTrace();
 			}
-			
+			// quitar una vez se cree la base de datos con los usuarios y contraseñas, y dejar solo el de hash
 			if(hashPassword.equals(password)) {
 				System.out.println("Correct Login");
 
 				WelcomePage welcomepage = new WelcomePage();
 				welcomepage.setVisible(true);
 				frame.dispose();
-			}else {
+				
+			}else if(hashPassword.equals(Algoritmos.hashAlgorithm(password))) {
+				System.out.println("Correct Login");
+
+				WelcomePage welcomepage = new WelcomePage();
+				welcomepage.setVisible(true);
+				frame.dispose();{
+					
+				}
+			}}else {
 				JOptionPane.showMessageDialog(null, "Usuario o contraseña incorrecta", null,JOptionPane.INFORMATION_MESSAGE);
-			}
 			/*
 			if(logininfo.containsKey(userID)){
 				if (logininfo.get(userID).equals(password)) {
