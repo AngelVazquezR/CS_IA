@@ -17,7 +17,6 @@ import javax.swing.JRadioButton;
 import com.github.lgooddatepicker.components.TimePicker;
 
 import com.angelvazquez.csia.database.ConectionSQL;
-import com.angelvazquez.csia.Main;
 
 import javax.swing.JMenuBar;
 import javax.swing.JMenu;

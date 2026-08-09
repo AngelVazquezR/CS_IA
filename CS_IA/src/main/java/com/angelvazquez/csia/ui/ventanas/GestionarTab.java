@@ -8,7 +8,6 @@ import java.awt.event.ActionListener;
 import java.lang.annotation.ElementType;
 
 import com.angelvazquez.csia.database.ConectionSQL;
-import com.angelvazquez.csia.Main;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;

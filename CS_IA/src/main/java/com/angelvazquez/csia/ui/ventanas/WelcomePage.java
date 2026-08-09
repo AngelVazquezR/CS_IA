@@ -14,7 +14,6 @@ import javax.swing.SwingUtilities;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
-import com.angelvazquez.csia.database.ConectionSQL;
 import com.angelvazquez.csia.Main;
 
 import javax.swing.JMenuBar;
