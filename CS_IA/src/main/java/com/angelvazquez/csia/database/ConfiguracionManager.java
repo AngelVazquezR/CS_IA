@@ -26,6 +26,9 @@ public class ConfiguracionManager {
 
     private static final String DIRECTORIO_CONFIG = "config";
     private static final String FICHERO_CONFIG = "configuracion.xml";
+    private static final String DRIVER_SQLITE = "org.sqlite.JDBC";
+    private static final String URL_SQLITE_PREDETERMINADA =
+            "jdbc:sqlite:data/CSIA.db";
 
     /**
      * Método principal que debe llamarse durante el arranque de la aplicación.
@@ -151,20 +154,52 @@ public class ConfiguracionManager {
             throw new IOException(e.getMessage(), e);
         }
 
-        configuracion.driver =
-                obtenerValor(baseDatos, "driver");
+        if (configuracion.databaseType == DatabaseType.SQLITE) {
+            configuracion.driver = obtenerValorOpcionalConPredeterminado(
+                    baseDatos,
+                    "driver",
+                    DRIVER_SQLITE
+            );
 
-        configuracion.url =
-                obtenerValor(baseDatos, "url");
+            configuracion.url = obtenerValorOpcionalConPredeterminado(
+                    baseDatos,
+                    "url",
+                    URL_SQLITE_PREDETERMINADA
+            );
 
-        configuracion.user =
-                obtenerValor(baseDatos, "usuario");
+            configuracion.user = obtenerValorOpcionalConPredeterminado(
+                    baseDatos,
+                    "usuario",
+                    ""
+            );
 
-        configuracion.password =
-                obtenerValor(baseDatos, "password");
+            configuracion.password = obtenerValorOpcionalConPredeterminado(
+                    baseDatos,
+                    "password",
+                    ""
+            );
 
-        configuracion.db =
-                obtenerValor(baseDatos, "db");
+            configuracion.db = obtenerValorOpcionalConPredeterminado(
+                    baseDatos,
+                    "db",
+                    ""
+            );
+        } else {
+            configuracion.driver =
+                    obtenerValor(baseDatos, "driver");
+
+            configuracion.url =
+                    obtenerValor(baseDatos, "url");
+
+            configuracion.user =
+                    obtenerValor(baseDatos, "usuario");
+
+            configuracion.password =
+                    obtenerValor(baseDatos, "password");
+
+            configuracion.db =
+                    obtenerValor(baseDatos, "db");
+        }
 
         return configuracion;
     }
@@ -425,6 +460,24 @@ public class ConfiguracionManager {
                 .item(0)
                 .getTextContent()
                 .trim();
+    }
+
+    /**
+     * Obtiene una etiqueta opcional o un valor predeterminado.
+     */
+    private String obtenerValorOpcionalConPredeterminado(
+            Element padre,
+            String etiqueta,
+            String valorPredeterminado) {
+
+        String valor = obtenerValorOpcional(
+                padre,
+                etiqueta
+        );
+
+        return valor == null || valor.isBlank()
+                ? valorPredeterminado
+                : valor;
     }
 
     /**
