@@ -71,6 +71,7 @@ class SqliteConnectionConfigurerTest {
                     WHERE name = 'DATOS'
                     """);
             statement.execute("PRAGMA writable_schema = OFF");
+            statement.execute("PRAGMA schema_version = 2");
 
             assertThrows(
                     SQLException.class,
