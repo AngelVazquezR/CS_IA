@@ -7,8 +7,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.Statement;
+import java.util.List;
 
 import org.junit.jupiter.api.Test;
+
+import com.angelvazquez.csia.database.schema.JdbcSchemaExtractor.Extraction;
 
 class JdbcSchemaExtractorTest {
 
@@ -26,15 +29,30 @@ class JdbcSchemaExtractorTest {
                     )
                     """);
 
-            DatabaseSchema schema =
-                    new JdbcSchemaExtractor().extract(connection);
+            Extraction extraction =
+                    new JdbcSchemaExtractor().extractWithContext(connection);
+            DatabaseSchema schema = extraction.schema();
             DatabaseSchema.Table table = schema.tables().get("PERSONAS");
 
             assertTrue(schema.tables().containsKey("PERSONAS"));
-            assertEquals(java.util.List.of("ID", "NOMBRE"), table.columnOrder());
+            assertEquals(List.of("ID", "NOMBRE"), table.columnOrder());
             assertFalse(table.columns().get("ID").nullable());
             assertTrue(table.columns().get("NOMBRE").nullable());
-            assertEquals(java.util.List.of("ID"), table.primaryKey());
+            assertEquals(List.of("ID"), table.primaryKey());
+
+            String exported =
+                    SchemaValidationMain.formatExtractedSchema(extraction);
+            assertTrue(exported.contains("TABLA PERSONAS"));
+            assertTrue(exported.contains("Tablas encontradas (1): PERSONAS"));
         }
+    }
+
+    @Test
+    void resuelveElCatalogoSinDistinguirMayusculas() throws Exception {
+        String selected = JdbcSchemaExtractor.chooseCatalog(
+                "CSIA",
+                List.of("information_schema", "csia", "mysql"));
+
+        assertEquals("csia", selected);
     }
 }
