@@ -63,7 +63,7 @@ public final class SchemaValidationMain {
             try (Connection connection =
                          new DatabaseConnectionFactory().open(configuration)) {
                 extraction = new JdbcSchemaExtractor()
-                        .extractWithContext(connection);
+                        .extractWithContext(connection, configuration.db);
             }
 
             writeExtractedSchema(extraction);
