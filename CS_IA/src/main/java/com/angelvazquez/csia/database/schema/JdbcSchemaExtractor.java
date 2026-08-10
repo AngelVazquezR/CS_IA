@@ -27,8 +27,14 @@ public final class JdbcSchemaExtractor {
     public Extraction extractWithContext(Connection connection)
             throws SQLException {
 
+        return extractWithContext(connection, connection.getCatalog());
+    }
+
+    public Extraction extractWithContext(
+            Connection connection,
+            String requestedCatalog) throws SQLException {
+
         DatabaseMetaData metadata = connection.getMetaData();
-        String requestedCatalog = connection.getCatalog();
         List<String> availableCatalogs = extractCatalogs(metadata);
         String catalog = chooseCatalog(requestedCatalog, availableCatalogs);
         Map<String, Table> tables = new LinkedHashMap<>();
