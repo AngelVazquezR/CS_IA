@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuracion>
+    <baseDatos>
+        <tipo>mysql</tipo>
+        <driver>com.mysql.cj.jdbc.Driver</driver>
+        <url>jdbc:mysql://localhost:3306/</url>
+        <db>CSIA</db>
+        <usuario>CAMBIAR_USUARIO</usuario>
+        <password>CAMBIAR_PASSWORD</password>
+    </baseDatos>
+</configuracion>
