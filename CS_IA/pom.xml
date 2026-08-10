@@ -48,6 +48,7 @@
                 <directory>assets</directory>
                 <includes>
                     <include>modelo.sql</include>
+                    <include>schema-sqlite.sql</include>
                 </includes>
             </resource>
         </resources>
