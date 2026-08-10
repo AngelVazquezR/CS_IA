@@ -6,6 +6,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.Statement;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -28,6 +30,7 @@ class DatabaseConnectionFactoryTest {
                      connectionFactory.open(configuration)) {
 
             assertFalse(connection.isClosed());
+            assertTrue(tableExists(connection, "USUARIOS"));
         }
     }
 
@@ -51,6 +54,22 @@ class DatabaseConnectionFactoryTest {
 
         assertTrue(Files.isDirectory(databasePath.getParent()));
         assertTrue(Files.isRegularFile(databasePath));
+    }
+
+    private boolean tableExists(
+            Connection connection,
+            String table
+    ) throws Exception {
+
+        try (Statement statement = connection.createStatement();
+             ResultSet rows = statement.executeQuery("""
+                     SELECT COUNT(*)
+                     FROM sqlite_master
+                     WHERE type = 'table'
+                       AND name = '""" + table + "'")) {
+
+            return rows.next() && rows.getInt(1) == 1;
+        }
     }
 
     private ConfigDB sqliteConfiguration(String url) {
