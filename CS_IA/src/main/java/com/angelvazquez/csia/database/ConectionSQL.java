@@ -1,14 +1,13 @@
 package com.angelvazquez.csia.database;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Objects;
 
 import com.angelvazquez.csia.util.*;
+import com.angelvazquez.csia.database.repository.UsuarioRepository;
 import com.angelvazquez.csia.ui.ventanas.AsignarTab;
 import com.angelvazquez.csia.ui.ventanas.VisualizarAlumnos;
 import com.angelvazquez.csia.ui.ventanas.VisualizarProfesores;
@@ -269,66 +268,35 @@ public class ConectionSQL {
 		}		
 	}
 	*/
-public static String RecuperaPassword(String user) {	
-		ResultSet resultSet;
-		String passwordHash="";
+public static String RecuperaPassword(String user) {
 		try {
-			Conection();
-			st=connection.createStatement();
-			//se hace de esta manera para evitar ataques de injeccion sql
-			resultSet= st.executeQuery("SELECT CONTRASEÑA FROM USUARIOS WHERE USUARIO = '"
-			+user.toUpperCase()+"';");
-			
-			
-			while(resultSet.next()) {
-				passwordHash = resultSet.getString("CONTRASEÑA");
-				System.out.println(passwordHash);	
-			}
+			return usuarioRepository().recuperarPassword(user);
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
+
+			return "";
 		}
-		
-		return passwordHash;
-		
 	}
-	
-	
-	public static void RegistrarUsuario(String User, String Password) {
-		String userMayuscula = User.toUpperCase();
-		String cadenaAux="7";
-		Integer numUsuarios = -1;
-		String sql = "";
-		ResultSet resultSet;
-		System.out.println("Conectado con exito");
+
+	public static void RegistrarUsuario(String user, String password) {
 		try {
-			Conection();
-			st=connection.createStatement();
-			
-			sql = "SELECT COUNT(USUARIO) AS NUM_USUARIOS FROM USUARIOS WHERE USUARIO = '"+userMayuscula+"'";
-			//resultSet= st.executeQuery("SELECT CONTRASEÑA FROM USUARIOS");
-			resultSet = st.executeQuery(sql);
-			resultSet.next();
-			cadenaAux=resultSet.getString("NUM_USUARIOS");
-			
-			numUsuarios = Integer.parseInt(cadenaAux);
-			
-			//System.out.println("a");
-			System.out.println("El usuario "+ User+" aparece "+numUsuarios);
-			
-			if(numUsuarios == 0) {
-				
-				sql = "INSERT INTO USUARIOS(USUARIO,CONTRASEÑA) VALUES('"+userMayuscula+"','"+Password+"')";
-				st.executeUpdate(sql);
+			boolean registrado =
+					usuarioRepository().registrar(user, password);
+
+			if (registrado) {
 				System.out.println("Usuario registrado con exito");
-			}else {
-				System.out.println("El usuario "+User+" ya existe");
+			} else {
+				System.out.println(
+						"El usuario " + user + " ya existe"
+				);
 			}
-			
 		} catch (SQLException e) {
-			
 			e.printStackTrace();
 		}
+	}
+
+	private static UsuarioRepository usuarioRepository() {
+		return new UsuarioRepository(CONNECTION_FACTORY, confDB);
 	}
 
 	public static Boolean existeDNI(Integer type, String DNI) {
