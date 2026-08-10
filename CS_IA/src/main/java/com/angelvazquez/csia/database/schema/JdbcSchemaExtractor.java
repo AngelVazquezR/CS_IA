@@ -21,8 +21,16 @@ import com.angelvazquez.csia.database.schema.DatabaseSchema.Table;
 public final class JdbcSchemaExtractor {
 
     public DatabaseSchema extract(Connection connection) throws SQLException {
+        return extractWithContext(connection).schema();
+    }
+
+    public Extraction extractWithContext(Connection connection)
+            throws SQLException {
+
         DatabaseMetaData metadata = connection.getMetaData();
-        String catalog = connection.getCatalog();
+        String requestedCatalog = connection.getCatalog();
+        List<String> availableCatalogs = extractCatalogs(metadata);
+        String catalog = chooseCatalog(requestedCatalog, availableCatalogs);
         Map<String, Table> tables = new LinkedHashMap<>();
 
         try (ResultSet result = metadata.getTables(
@@ -32,7 +40,61 @@ public final class JdbcSchemaExtractor {
                 tables.put(tableName, extractTable(metadata, catalog, tableName));
             }
         }
-        return new DatabaseSchema(tables);
+
+        return new Extraction(
+                new DatabaseSchema(tables),
+                metadata.getDatabaseProductName(),
+                metadata.getDatabaseProductVersion(),
+                metadata.getURL(),
+                requestedCatalog,
+                catalog,
+                availableCatalogs);
+    }
+
+    private List<String> extractCatalogs(DatabaseMetaData metadata)
+            throws SQLException {
+
+        List<String> catalogs = new ArrayList<>();
+        try (ResultSet result = metadata.getCatalogs()) {
+            while (result.next()) {
+                String catalog = result.getString("TABLE_CAT");
+                if (catalog != null && !catalog.isBlank()) {
+                    catalogs.add(catalog);
+                }
+            }
+        }
+        return List.copyOf(catalogs);
+    }
+
+    static String chooseCatalog(
+            String requestedCatalog,
+            List<String> availableCatalogs) throws SQLException {
+
+        if (requestedCatalog == null || requestedCatalog.isBlank()) {
+            return null;
+        }
+
+        for (String available : availableCatalogs) {
+            if (requestedCatalog.equals(available)) {
+                return available;
+            }
+        }
+        for (String available : availableCatalogs) {
+            if (requestedCatalog.equalsIgnoreCase(available)) {
+                return available;
+            }
+        }
+
+        if (availableCatalogs.isEmpty()) {
+            // Algunos controladores no implementan getCatalogs(). En ese caso
+            // se conserva el catálogo de la conexión para mantener compatibilidad.
+            return requestedCatalog;
+        }
+
+        throw new SQLException(
+                "El catálogo '" + requestedCatalog
+                        + "' no aparece entre los catálogos disponibles: "
+                        + availableCatalogs);
     }
 
     private Table extractTable(
@@ -194,6 +256,20 @@ public final class JdbcSchemaExtractor {
         }
     }
 
+    public record Extraction(
+            DatabaseSchema schema,
+            String databaseProduct,
+            String databaseVersion,
+            String serverUrl,
+            String requestedCatalog,
+            String selectedCatalog,
+            List<String> availableCatalogs) {
+
+        public Extraction {
+            availableCatalogs = List.copyOf(availableCatalogs);
+        }
+    }
+
     private static final class IndexParts {
         private final boolean unique;
         private final Map<Short, String> columns = new HashMap<>();
@@ -212,5 +288,4 @@ public final class JdbcSchemaExtractor {
             this.referencedTable = referencedTable;
         }
     }
-
 }
