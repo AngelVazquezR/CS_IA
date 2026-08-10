@@ -20,6 +20,9 @@ public final class DatabaseConnectionFactory {
 
     private static final String SQLITE_URL_PREFIX = "jdbc:sqlite:";
 
+    private static final SqliteConnectionConfigurer SQLITE_CONFIGURER =
+            new SqliteConnectionConfigurer();
+
     private static final SqliteSchemaInitializer SQLITE_INITIALIZER =
             new SqliteSchemaInitializer();
 
@@ -50,7 +53,9 @@ public final class DatabaseConnectionFactory {
         Connection connection = DriverManager.getConnection(url);
 
         try {
+            SQLITE_CONFIGURER.configure(connection);
             SQLITE_INITIALIZER.initialize(connection);
+            SQLITE_CONFIGURER.validateIntegrity(connection);
 
             return connection;
         } catch (SQLException e) {
