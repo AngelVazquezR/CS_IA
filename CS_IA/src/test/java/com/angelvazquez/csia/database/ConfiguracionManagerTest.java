@@ -218,6 +218,7 @@ class ConfiguracionManagerTest {
                 new ConfiguracionInicialPanel();
 
         panel.seleccionarTipo(DatabaseType.SQLITE);
+        panel.establecerNombreSqlite("centro-pruebas");
 
         Path ruta = tempDir.resolve("configuracion-sqlite.xml");
         ConfigDB original = panel.crearConfiguracion();
@@ -228,8 +229,11 @@ class ConfiguracionManagerTest {
 
         assertEquals(DatabaseType.SQLITE, recuperada.databaseType);
         assertEquals("org.sqlite.JDBC", recuperada.driver);
-        assertEquals("jdbc:sqlite:data/CSIA.db", recuperada.url);
-        assertEquals("", recuperada.db);
+        assertEquals(
+                "jdbc:sqlite:data/centro-pruebas.db",
+                recuperada.url
+        );
+        assertEquals("centro-pruebas", recuperada.db);
         assertEquals("", recuperada.user);
         assertEquals("", recuperada.password);
     }

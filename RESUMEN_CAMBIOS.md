@@ -26,8 +26,12 @@ La implementación se hizo en `agent/sqlite-safe-improvements`, creada desde
 - Al cambiar de motor se rellenan el driver y la URL JDBC recomendados.
 - SQLite se guarda ahora realmente con `tipo=sqlite`; antes el diálogo
   construía siempre la configuración como MySQL.
-- Para SQLite se deshabilitan y vacían la base de datos, el usuario y la
-  contraseña, ya que la ruta del fichero forma parte de la URL JDBC.
+- Para SQLite se solicita el nombre de la base de datos, se añade la extensión
+  `.db` si falta y se completa automáticamente la URL bajo `data/`.
+- La URL SQLite queda como campo calculado de solo lectura para impedir que se
+  desincronice del nombre elegido.
+- El nombre SQLite es obligatorio y no admite rutas ni caracteres de fichero
+  no válidos; el usuario y la contraseña permanecen deshabilitados y vacíos.
 - Para MySQL se mantienen como obligatorios la base de datos y el usuario.
 - Los errores de validación ya no reconstruyen el diálogo ni borran los datos
   introducidos.
@@ -59,8 +63,9 @@ La implementación se hizo en `agent/sqlite-safe-improvements`, creada desde
 ## Pruebas añadidas
 
 - `ConfiguracionInicialPanelTest`: selección de motor, valores JDBC
-  predeterminados, campos habilitados, validación condicional y construcción
-  de configuraciones MySQL/SQLite.
+  predeterminados, generación de la URL desde el nombre SQLite, extensión
+  `.db`, campos habilitados, validación condicional y construcción de
+  configuraciones MySQL/SQLite.
 - `ProfesorRepositoryTest`: CRUD, continuidad de IDs e inyección SQL.
 - `AlumnoRepositoryTest`: CRUD, asignación, continuidad de IDs e inyección
   SQL.
@@ -73,13 +78,15 @@ La implementación se hizo en `agent/sqlite-safe-improvements`, creada desde
 - Prueba funcional con el driver SQLite 3.53.2.1: correcta.
 - Se verificaron creación automática del esquema, CRUD de ambos repositorios,
   asignación profesor–alumno, IDs e intentos de inyección.
-- Se compilaron y ejecutaron los 47 casos JUnit: 47 correctos y 0 fallos.
-  Son 40 anteriores y 7 nuevos para esta mejora de configuración.
+- La validación anterior compiló y ejecutó 47 casos JUnit: 47 correctos y 0
+  fallos. Esta ampliación declara 3 casos adicionales (50 en total), pendientes
+  de ejecución con Maven/JDK 21 en el entorno de revisión.
+- El formulario actualizado y sus dependencias se compilaron con el compilador
+  interno de Java 17; el *smoke test headless* de nombre, URL, extensión,
+  validaciones y retorno a MySQL finalizó correctamente.
 
-La ejecución mediante `mvn test` quedó bloqueada porque el resolvedor de Maven
-no pudo acceder a Maven Central por DNS. Las mismas fuentes se compilaron y
-probaron correctamente mediante JDK 21 y JUnit Platform. El revisor debe
-ejecutar `mvn clean test` y `mvn package` con JDK 21 antes de fusionar.
+El entorno actual no dispone de JDK 21 ni Maven. El revisor debe ejecutar
+`mvn clean test` y `mvn package` con JDK 21 antes de fusionar.
 
 ## Riesgos no incluidos
 

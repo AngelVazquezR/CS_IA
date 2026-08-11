@@ -30,12 +30,19 @@ Actualizado el 11 de agosto de 2026 sobre
 - [x] Rellenar automáticamente el driver y la URL predeterminados al cambiar
   de motor.
 - [x] Generar `ConfigDB` con el tipo seleccionado en vez de forzar MySQL.
-- [x] Hacer opcionales y deshabilitar base de datos, usuario y contraseña
-  cuando se selecciona SQLite.
+- [x] Hacer opcionales y deshabilitar usuario y contraseña cuando se
+  selecciona SQLite.
+- [x] Permitir elegir el nombre del fichero SQLite, añadir `.db` cuando no
+  se indique y construir automáticamente la URL `jdbc:sqlite:data/<nombre>.db`.
+- [x] Mantener la URL SQLite como campo calculado de solo lectura para evitar
+  que el nombre y la ruta JDBC queden desincronizados.
+- [x] Validar que el nombre SQLite sea obligatorio y no contenga rutas ni
+  caracteres de fichero no válidos.
 - [x] Mantener para MySQL la validación de base de datos y usuario.
 - [x] Conservar los datos del formulario cuando falla una validación.
 - [x] Añadir pruebas automatizadas del selector, valores predeterminados,
-  validación condicional y creación de la configuración.
+  nombre del fichero, URL generada, validación condicional y creación de la
+  configuración.
 - [ ] Validar manualmente el diálogo en Windows/Eclipse y el primer arranque
   del JAR con una base SQLite nueva.
 
@@ -84,8 +91,10 @@ mvn clean test
 mvn package
 ```
 
-En el entorno de implementación el resolvedor de Maven no pudo acceder a
-Maven Central por un fallo de DNS. Como validación alternativa se compilaron
-el código principal y los tests con JDK 21 y se ejecutaron los 47 casos con
-JUnit Platform: 47 correctos, 0 fallos. La ejecución se hizo en modo
-*headless* e incluyó el nuevo formulario y las operaciones sobre SQLite real.
+En una validación anterior se compilaron el código principal y los tests con
+JDK 21 y se ejecutaron 47 casos con JUnit Platform: 47 correctos, 0 fallos.
+Esta ampliación añade 3 casos, por lo que quedan declarados 50. Deben
+ejecutarse con Maven/JDK 21 en el entorno de revisión, ya que el entorno actual
+no dispone de JDK 21 ni Maven. Como comprobación parcial, el formulario y sus
+dependencias se compilaron con el compilador interno de Java 17 y el *smoke
+test* `headless` de los nuevos recorridos terminó correctamente.
