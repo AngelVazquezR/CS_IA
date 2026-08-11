@@ -24,6 +24,23 @@ Actualizado el 11 de agosto de 2026 sobre
 
 ## Completado en esta rama
 
+### Mejora: configuración inicial según el motor
+
+- [x] Añadir como primera opción un selector entre MySQL y SQLite.
+- [x] Rellenar automáticamente el driver y la URL predeterminados al cambiar
+  de motor.
+- [x] Generar `ConfigDB` con el tipo seleccionado en vez de forzar MySQL.
+- [x] Hacer opcionales y deshabilitar base de datos, usuario y contraseña
+  cuando se selecciona SQLite.
+- [x] Mantener para MySQL la validación de base de datos y usuario.
+- [x] Conservar los datos del formulario cuando falla una validación.
+- [x] Añadir pruebas automatizadas del selector, valores predeterminados,
+  validación condicional y creación de la configuración.
+- [ ] Validar manualmente el diálogo en Windows/Eclipse y el primer arranque
+  del JAR con una base SQLite nueva.
+
+### Repositorios JDBC
+
 - [x] Extraer las operaciones de profesores a `ProfesorRepository`.
 - [x] Extraer las operaciones de alumnos a `AlumnoRepository`.
 - [x] Sustituir concatenaciones SQL por `PreparedStatement` en ambos
@@ -67,6 +84,8 @@ mvn clean test
 mvn package
 ```
 
-En el entorno de implementación Maven Central no era accesible, por lo que
-la suite Maven completa no pudo resolver sus plugins. Sí se verificaron la
-compilación con JDK 21 y las operaciones nuevas sobre SQLite real.
+En el entorno de implementación el resolvedor de Maven no pudo acceder a
+Maven Central por un fallo de DNS. Como validación alternativa se compilaron
+el código principal y los tests con JDK 21 y se ejecutaron los 47 casos con
+JUnit Platform: 47 correctos, 0 fallos. La ejecución se hizo en modo
+*headless* e incluyó el nuevo formulario y las operaciones sobre SQLite real.

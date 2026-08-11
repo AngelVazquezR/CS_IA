@@ -20,6 +20,18 @@ La implementación se hizo en `agent/sqlite-safe-improvements`, creada desde
 
 ## Cambios funcionales
 
+### Configuración inicial
+
+- El diálogo muestra primero un selector entre MySQL y SQLite.
+- Al cambiar de motor se rellenan el driver y la URL JDBC recomendados.
+- SQLite se guarda ahora realmente con `tipo=sqlite`; antes el diálogo
+  construía siempre la configuración como MySQL.
+- Para SQLite se deshabilitan y vacían la base de datos, el usuario y la
+  contraseña, ya que la ruta del fichero forma parte de la URL JDBC.
+- Para MySQL se mantienen como obligatorios la base de datos y el usuario.
+- Los errores de validación ya no reconstruyen el diálogo ni borran los datos
+  introducidos.
+
 ### Profesores
 
 - Nuevo `ProfesorRepository` para listar, crear, modificar, eliminar y
@@ -46,6 +58,9 @@ La implementación se hizo en `agent/sqlite-safe-improvements`, creada desde
 
 ## Pruebas añadidas
 
+- `ConfiguracionInicialPanelTest`: selección de motor, valores JDBC
+  predeterminados, campos habilitados, validación condicional y construcción
+  de configuraciones MySQL/SQLite.
 - `ProfesorRepositoryTest`: CRUD, continuidad de IDs e inyección SQL.
 - `AlumnoRepositoryTest`: CRUD, asignación, continuidad de IDs e inyección
   SQL.
@@ -54,13 +69,17 @@ La implementación se hizo en `agent/sqlite-safe-improvements`, creada desde
 
 - `git diff --check`: correcto.
 - Compilación de todo `src/main/java` con JDK 21: correcta.
+- Prueba automatizada *headless* del formulario MySQL/SQLite: correcta.
 - Prueba funcional con el driver SQLite 3.53.2.1: correcta.
 - Se verificaron creación automática del esquema, CRUD de ambos repositorios,
   asignación profesor–alumno, IDs e intentos de inyección.
+- Se compilaron y ejecutaron los 47 casos JUnit: 47 correctos y 0 fallos.
+  Son 40 anteriores y 7 nuevos para esta mejora de configuración.
 
-La ejecución de `mvn test` quedó bloqueada exclusivamente porque Maven Central
-no es accesible desde el entorno de implementación. El revisor debe ejecutar
-`mvn clean test` y `mvn package` con JDK 21 antes de fusionar.
+La ejecución mediante `mvn test` quedó bloqueada porque el resolvedor de Maven
+no pudo acceder a Maven Central por DNS. Las mismas fuentes se compilaron y
+probaron correctamente mediante JDK 21 y JUnit Platform. El revisor debe
+ejecutar `mvn clean test` y `mvn package` con JDK 21 antes de fusionar.
 
 ## Riesgos no incluidos
 
