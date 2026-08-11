@@ -163,6 +163,9 @@ public class GestionarTab extends JFrame implements ActionListener {
 						ConectionSQL.ModProfe(Nombre, Apellido, DNI, "",  "");
 					}else if(accion == 2) {
 						ConectionSQL.AddProfe(Nombre, Apellido, DNI, "",  "");
+						NombreField.setText("");
+						ApellidoField.setText("");
+						DNIField.setText("");
 					}else {
 						ConectionSQL.DeleteProfe(Nombre, Apellido, DNI);
 					}
@@ -171,12 +174,18 @@ public class GestionarTab extends JFrame implements ActionListener {
 						ConectionSQL.ModAlumno(Nombre, Apellido, DNI);
 					}else if(accion == 2) {
 						ConectionSQL.AddAlumno(Nombre, Apellido, DNI);
+						NombreField.setText("");
+						ApellidoField.setText("");
+						DNIField.setText("");
 					}else {
 						ConectionSQL.DeleteAlumno(Nombre, Apellido, DNI);
 					}
 				}
 			}else {
 				System.out.println("Rellena los campos que faltan");
+				NombreField.setText("");
+				ApellidoField.setText("");
+				DNIField.setText("");
 			}
 		}
 		if(e.getSource()==ModificarRadial) {
