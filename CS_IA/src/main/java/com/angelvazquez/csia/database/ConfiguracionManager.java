@@ -7,8 +7,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import javax.swing.JOptionPane;
-import javax.swing.JPasswordField;
-import javax.swing.JTextField;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
@@ -26,9 +24,10 @@ public class ConfiguracionManager {
 
     private static final String DIRECTORIO_CONFIG = "config";
     private static final String FICHERO_CONFIG = "configuracion.xml";
-    private static final String DRIVER_SQLITE = "org.sqlite.JDBC";
+    private static final String DRIVER_SQLITE =
+            ConfiguracionInicialPanel.DRIVER_SQLITE;
     private static final String URL_SQLITE_PREDETERMINADA =
-            "jdbc:sqlite:data/CSIA.db";
+            ConfiguracionInicialPanel.URL_SQLITE;
 
     private final Path directorioAplicacion;
 
@@ -277,91 +276,30 @@ public class ConfiguracionManager {
      * Solicita al usuario los datos de conexión.
      */
     private ConfigDB solicitarConfiguracionUsuario() {
+        ConfiguracionInicialPanel panel =
+                new ConfiguracionInicialPanel();
 
-        JTextField campoDriver =
-                new JTextField("com.mysql.cj.jdbc.Driver");
-
-        JTextField campoUrl =
-                new JTextField("jdbc:mysql://localhost:3306/");
-
-        JTextField campoDB =
-                new JTextField();
-
-        JTextField campoUsuario =
-                new JTextField();
-
-        JPasswordField campoPassword =
-                new JPasswordField();
-
-        Object[] campos = {
-                "Driver JDBC:",
-                campoDriver,
-
-                "URL:",
-                campoUrl,
-
-                "Base de datos:",
-                campoDB,
-
-                "Usuario:",
-                campoUsuario,
-
-                "Contraseña:",
-                campoPassword
-        };
-
-        int resultado =
-                JOptionPane.showConfirmDialog(
-                        null,
-                        campos,
-                        "Configuración inicial de base de datos",
-                        JOptionPane.OK_CANCEL_OPTION,
-                        JOptionPane.PLAIN_MESSAGE
-                );
-
-        if (resultado != JOptionPane.OK_OPTION) {
-            return null;
-        }
-
-        String driver =
-                campoDriver.getText().trim();
-
-        String url =
-                campoUrl.getText().trim();
-
-        String db =
-                campoDB.getText().trim();
-
-        String usuario =
-                campoUsuario.getText().trim();
-
-        String password =
-                new String(campoPassword.getPassword());
-
-        if (driver.isBlank()
-                || url.isBlank()
-                || db.isBlank()
-                || usuario.isBlank()) {
-
-            mostrarError(
-                    "Driver, URL, base de datos y usuario "
-                            + "son obligatorios."
+        while (true) {
+            int resultado = JOptionPane.showConfirmDialog(
+                    null,
+                    panel,
+                    "Configuración inicial de base de datos",
+                    JOptionPane.OK_CANCEL_OPTION,
+                    JOptionPane.PLAIN_MESSAGE
             );
 
-            return solicitarConfiguracionUsuario();
+            if (resultado != JOptionPane.OK_OPTION) {
+                return null;
+            }
+
+            String errorValidacion = panel.validar();
+
+            if (errorValidacion == null) {
+                return panel.crearConfiguracion();
+            }
+
+            mostrarError(errorValidacion);
         }
-
-        ConfigDB configuracion =
-                new ConfigDB();
-
-        configuracion.databaseType = DatabaseType.MYSQL;
-        configuracion.driver = driver;
-        configuracion.url = url;
-        configuracion.db = db;
-        configuracion.user = usuario;
-        configuracion.password = password;
-
-        return configuracion;
     }
 
     /**

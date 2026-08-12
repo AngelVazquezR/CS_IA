@@ -211,6 +211,34 @@ class ConfiguracionManagerTest {
     }
 
     @Test
+    void guardaYRecuperaLaConfiguracionSqliteDelFormulario()
+            throws Exception {
+
+        ConfiguracionInicialPanel panel =
+                new ConfiguracionInicialPanel();
+
+        panel.seleccionarTipo(DatabaseType.SQLITE);
+        panel.establecerNombreSqlite("centro-pruebas");
+
+        Path ruta = tempDir.resolve("configuracion-sqlite.xml");
+        ConfigDB original = panel.crearConfiguracion();
+
+        manager.guardarConfiguracion(ruta, original);
+
+        ConfigDB recuperada = manager.leerConfiguracion(ruta);
+
+        assertEquals(DatabaseType.SQLITE, recuperada.databaseType);
+        assertEquals("org.sqlite.JDBC", recuperada.driver);
+        assertEquals(
+                "jdbc:sqlite:data/centro-pruebas.db",
+                recuperada.url
+        );
+        assertEquals("centro-pruebas", recuperada.db);
+        assertEquals("", recuperada.user);
+        assertEquals("", recuperada.password);
+    }
+
+    @Test
     void reutilizaElFicheroEnElSegundoArranque()
             throws Exception {
 

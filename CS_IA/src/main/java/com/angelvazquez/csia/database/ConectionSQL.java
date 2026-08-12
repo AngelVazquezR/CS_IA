@@ -1,12 +1,11 @@
 package com.angelvazquez.csia.database;
 
 import java.sql.Connection;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.Objects;
 
-import com.angelvazquez.csia.util.*;
+import com.angelvazquez.csia.database.repository.AlumnoRepository;
+import com.angelvazquez.csia.database.repository.ProfesorRepository;
 import com.angelvazquez.csia.database.repository.UsuarioRepository;
 import com.angelvazquez.csia.ui.ventanas.AsignarTab;
 import com.angelvazquez.csia.ui.ventanas.VisualizarAlumnos;
@@ -15,7 +14,6 @@ import com.angelvazquez.csia.ui.ventanas.VisualizarProfesores;
 public class ConectionSQL {
 
 	private static Connection connection;
-	private static Statement st = null;
 	private static ConfigDB confDB = new ConfigDB();
 	private static final DatabaseConnectionFactory CONNECTION_FACTORY =
 			new DatabaseConnectionFactory();
@@ -42,7 +40,6 @@ public class ConectionSQL {
 			connection = CONNECTION_FACTORY.open(confDB);
 
 			if (connection != null) {
-				st = connection.createStatement();
 				System.out.println(
 						"Se ha conectado con éxito a "
 								+ confDB.databaseType.getConfigValue()
@@ -74,103 +71,76 @@ public class ConectionSQL {
 	}
 
 	public static void AsignarProf(String profe, String alumno) {
-		ResultSet rs;
-		
 		try {
-			Conection();
-			st=connection.createStatement();
-			st.executeUpdate("UPDATE ALUMNOS SET PROFESOR ='"+profe+"' WHERE NOMBRE = '"+alumno+"';");
+			alumnoRepository().asignarProfesor(profe, alumno);
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
 	}
 	
 	public static void FillAlumPop() {
-		ResultSet rs;
-		
 		try {
-			Conection();
-			st=connection.createStatement();
-			rs = st.executeQuery("SELECT NOMBRE AS NOM FROM ALUMNOS;");
-			while(rs.next()) {
-				AsignarTab.AddAlumPop(rs.getString("NOM"));
-				}
+			for (String nombre : alumnoRepository().listarNombres()) {
+				AsignarTab.AddAlumPop(nombre);
+			}
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
 	}
 	
 	public static void FillProfePop() {
-		ResultSet rs;
-		
 		try {
-			Conection();
-			st=connection.createStatement();
-			rs = st.executeQuery("SELECT NOMBRE AS NOM FROM PROFESORES;");
-			while(rs.next()) {
-				AsignarTab.AddProfePop(rs.getString("NOM"));
-				}
+			for (String nombre : profesorRepository().listarNombres()) {
+				AsignarTab.AddProfePop(nombre);
+			}
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
 	}
 	
 	public static void AddProfe(String nombre, String Apellido, String DNI, String fAlta, String fBaja) {
-		ResultSet rs;
-		String id = "";
-		//int count;
-		
 		try {
-			Conection();
-			st=connection.createStatement();
-			rs = st.executeQuery("SELECT COUNT(*) AS NUM_PRO FROM PROFESORES;");
-			while(rs.next()) {
-				id = rs.getString("NUM_PRO");
-				id = Algoritmos.GenerateID("PR",id);				
-				/*count = Integer.parseInt(id)+1;				
-				id="PR"+String.format("%04d", count);
-				System.out.println(id);*/
-				}
-			st.executeUpdate("INSERT INTO PROFESORES VALUES('"+id+"','"+nombre+"','"+Apellido+"','"+DNI+"','"+fAlta+"','"+fBaja+"');");			
+			profesorRepository().agregar(
+					nombre,
+					Apellido,
+					DNI,
+					fAlta,
+					fBaja
+			);
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
 	
 	public static void ProfeFillTable() {
-		ResultSet rs;	
 		try {
-			Conection();
-			st=connection.createStatement();
-			rs = st.executeQuery("SELECT NOMBRE AS NOM,APELLIDOS AS APE,DNI AS DN, FALTA AS FA, FBAJA AS FB FROM PROFESORES");
-			while(rs.next()) {
-				VisualizarProfesores.AddRow(rs.getString("NOM"), rs.getString("APE"), rs.getString("DN"), rs.getString("FA"), rs.getString("FB"));
-				}
+			for (ProfesorRepository.ProfesorData profesor
+					: profesorRepository().listar()) {
+				VisualizarProfesores.AddRow(
+						profesor.nombre(),
+						profesor.apellidos(),
+						profesor.dni(),
+						profesor.fechaAlta(),
+						profesor.fechaBaja()
+				);
+			}
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
 	
 	public static void AlumFillTable() {
-		ResultSet rs;	
 		try {
-			Conection();
-			st=connection.createStatement();
-			rs = st.executeQuery("SELECT NOMBRE AS NOM,APELLIDO AS APE,DNI AS DN,PROFESOR AS PROF FROM ALUMNOS");
-			while(rs.next()) {
-				VisualizarAlumnos.AddRow(rs.getString("NOM"), rs.getString("APE"),
-						rs.getString("DN"), rs.getString("PROF"));
-				}
+			for (AlumnoRepository.AlumnoData alumno
+					: alumnoRepository().listar()) {
+				VisualizarAlumnos.AddRow(
+						alumno.nombre(),
+						alumno.apellido(),
+						alumno.dni(),
+						alumno.profesor()
+				);
+			}
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -178,77 +148,43 @@ public class ConectionSQL {
 	
 	
 	public static void ModProfe(String nombre, String Apellido, String DNI, String fAlta, String fBaja) {
-		ResultSet resultSet;
 		try {
-			System.out.println("mod");
-			Conection();
-			st=connection.createStatement();
-			
-			st.executeUpdate("UPDATE PROFESORES SET NOMBRE ='"+nombre+"',APELLIDOS='"+Apellido+"', FALTA='"+fAlta+"', FBAJA='"+fBaja+"'WHERE DNI='"+DNI+"';");
-			
+			profesorRepository().modificar(
+					nombre,
+					Apellido,
+					DNI,
+					fAlta,
+					fBaja
+			);
 		} catch (SQLException e) {
-			
 			e.printStackTrace();
 		}
 	}
 	public static void DeleteProfe(String nombre, String Apellido, String DNI) {
 		try {
-			Conection();
-			st=connection.createStatement();
-			st.executeUpdate("DELETE FROM PROFESORES WHERE NOMBRE='"+nombre+"'AND APELLIDOS='"+Apellido+"'AND DNI='"+DNI+"';");
-			
-			//st.executeUpdate("INSERT INTO ALUMNOS VALUES('"+id+"','"+nombre+"','"+Apellido+"','"+DNI+"');");
-			
+			profesorRepository().eliminar(nombre, Apellido, DNI);
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
 	public static void AddAlumno(String nombre, String Apellido, String DNI) {
-		ResultSet rs;
-		String id = "";
-		//int count;
-		
 		try {
-			Conection();
-			st=connection.createStatement();
-			rs = st.executeQuery("SELECT COUNT(*) AS NUM_PRO FROM ALUMNOS;");
-			while(rs.next()) {
-				id = rs.getString("NUM_PRO");
-				id = Algoritmos.GenerateID("AL",id);		
-				/*count = Integer.parseInt(id)+1;
-				id="PR"+String.format("%04d", count);
-				System.out.println(id);*/
-				}
-			st.executeUpdate("INSERT INTO ALUMNOS VALUES('"+id+"','"+nombre+"','"+Apellido+"','"+DNI+"');");
+			alumnoRepository().agregar(nombre, Apellido, DNI);
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
 	public static void ModAlumno(String nombre, String Apellido, String DNI) {
-		ResultSet resultSet;
 		try {
-			Conection();
-			st=connection.createStatement();
-			
-			st.executeUpdate("UPDATE ALUMNOS SET NOMBRE ='"+nombre+"',APELLIDO='"+Apellido+"'WHERE DNI='"+DNI+"';");
-			
+			alumnoRepository().modificar(nombre, Apellido, DNI);
 		} catch (SQLException e) {
-			
 			e.printStackTrace();
 		}
 	}
 	public static void DeleteAlumno(String nombre, String Apellido, String DNI) {
 		try {
-			Conection();
-			st=connection.createStatement();
-			st.executeUpdate("DELETE FROM ALUMNOS WHERE NOMBRE='"+nombre+"'AND APELLIDO='"+Apellido+"'AND DNI='"+DNI+"';");
-			
-			//st.executeUpdate("INSERT INTO ALUMNOS VALUES('"+id+"','"+nombre+"','"+Apellido+"','"+DNI+"');");
-			
+			alumnoRepository().eliminar(nombre, Apellido, DNI);
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -299,26 +235,23 @@ public static String RecuperaPassword(String user) {
 		return new UsuarioRepository(CONNECTION_FACTORY, confDB);
 	}
 
+	private static ProfesorRepository profesorRepository() {
+		return new ProfesorRepository(CONNECTION_FACTORY, confDB);
+	}
+
+	private static AlumnoRepository alumnoRepository() {
+		return new AlumnoRepository(CONNECTION_FACTORY, confDB);
+	}
+
 	public static Boolean existeDNI(Integer type, String DNI) {
-		ResultSet resultSet;
-		String tDNI = "";
 		try {
-			Conection();
-			st=connection.createStatement();
+			if (type == 1) {
+				return profesorRepository().existeDni(DNI);
+			}
 			if (type == 2) {
-				resultSet= st.executeQuery("SELECT COUNT(DNI) FROM STUDENTS WHERE DNI = "+DNI+"");
-				if (resultSet.getInt("DNI") != 0) {
-					return true;
-				}
-			}else if (type == 1) {
-				resultSet= st.executeQuery("SELECT COUNT(DNI) FROM TEACHERS WHERE DNI = "+DNI+"");
-				if (resultSet.getInt("DNI") != 0) {
-					return true;
-				}
-			} 
-			
+				return alumnoRepository().existeDni(DNI);
+			}
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return false;
