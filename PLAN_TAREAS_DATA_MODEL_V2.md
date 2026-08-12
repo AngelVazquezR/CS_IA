@@ -14,14 +14,15 @@ Adaptar la aplicación al nuevo modelo relacional basado en STUDENTS, TEACHERS, 
 - [x] Añadir prueba de integración del esquema SQLite v2.
 
 ## Fase 2 - Persistencia
-- [ ] Incorporar la infraestructura SQLite/JDBC ya validada de `feature/sqlite-support` de forma controlada.
-- [ ] Adaptar `AlumnoRepository` a `STUDENTS`.
-- [ ] Adaptar `ProfesorRepository` a `TEACHERS`.
-- [ ] Adaptar `UsuarioRepository` a `USERS`.
-- [ ] Crear `AsignacionRepository` para `ASSIGNMENTS`.
-- [ ] Eliminar generación de IDs basada en `COUNT(*)`.
-- [ ] Garantizar `PreparedStatement` en todas las operaciones CRUD.
-- [ ] Añadir pruebas de integridad referencial y CRUD para las cuatro tablas.
+- [x] Incorporar la infraestructura SQLite/JDBC necesaria de forma controlada (`DatabaseType`, `ConfigDB`, `DatabaseConnectionFactory`).
+- [x] Adaptar `AlumnoRepository` a `STUDENTS`.
+- [x] Adaptar `ProfesorRepository` a `TEACHERS`.
+- [x] Adaptar `UsuarioRepository` a `USERS`.
+- [x] Crear `AsignacionRepository` para `ASSIGNMENTS`.
+- [x] Eliminar generación de IDs basada en `COUNT(*)` de los nuevos repositories.
+- [x] Garantizar `PreparedStatement` en las operaciones CRUD de los nuevos repositories.
+- [x] Añadir pruebas de integración CRUD e integridad referencial para las cuatro tablas.
+- [ ] Validar la fase completa con `mvn clean test`.
 
 ## Fase 3 - TableModels y controladores
 - [ ] Adaptar `AlumnoTableModel` para mostrar email y eliminar profesor directo.
@@ -43,7 +44,7 @@ Adaptar la aplicación al nuevo modelo relacional basado en STUDENTS, TEACHERS, 
 - [ ] Mantener compatibilidad temporal solo mientras se migra la UI de autenticación.
 
 ## Fase 6 - Validación
-- [ ] Ejecutar `mvn clean test` con los nuevos tests del modelo v2.
+- [ ] Ejecutar `mvn clean test` con todos los tests del modelo v2.
 - [ ] Ejecutar `mvn clean package`.
 - [ ] Prueba manual de alta/modificación/baja de alumnos.
 - [ ] Prueba manual de alta/modificación/baja de profesores.
