@@ -4,12 +4,12 @@ import java.awt.Component;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.HashMap;
+//import java.util.HashMap;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JTextField;
+//import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;

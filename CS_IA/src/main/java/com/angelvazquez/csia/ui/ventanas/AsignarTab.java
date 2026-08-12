@@ -4,12 +4,12 @@ import java.awt.Component;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.HashMap;
+//import java.util.HashMap;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JTextField;
+//import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
@@ -18,15 +18,15 @@ import com.github.lgooddatepicker.components.TimePicker;
 
 import com.angelvazquez.csia.database.ConectionSQL;
 
-import javax.swing.JMenuBar;
-import javax.swing.JMenu;
-import javax.swing.JPopupMenu;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
-import javax.swing.JSeparator;
-import javax.swing.JFormattedTextField;
+//import javax.swing.JMenuBar;
+//import javax.swing.JMenu;
+//import javax.swing.JPopupMenu;
+//import java.awt.event.MouseAdapter;
+//import java.awt.event.MouseEvent;
+//import javax.swing.JMenuItem;
+//import javax.swing.JOptionPane;
+//import javax.swing.JSeparator;
+//import javax.swing.JFormattedTextField;
 import javax.swing.JComboBox;
 
 public class AsignarTab extends JFrame implements ActionListener{

@@ -5,8 +5,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.border.EmptyBorder;
+//import javax.swing.JPanel;
+//import javax.swing.border.EmptyBorder;
 import javax.swing.JMenuBar;
 
 public class Principal extends JFrame implements ActionListener{
