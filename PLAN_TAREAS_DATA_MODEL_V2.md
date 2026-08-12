@@ -22,17 +22,22 @@ Adaptar la aplicación al nuevo modelo relacional basado en STUDENTS, TEACHERS, 
 - [x] Eliminar generación de IDs basada en `COUNT(*)` de los nuevos repositories.
 - [x] Garantizar `PreparedStatement` en las operaciones CRUD de los nuevos repositories.
 - [x] Añadir pruebas de integración CRUD e integridad referencial para las cuatro tablas.
-- [ ] Validar la fase completa con `mvn clean test`.
+- [x] Validar la fase completa con `mvn clean test` (12 tests correctos).
 
 ## Fase 3 - TableModels y controladores
-- [ ] Adaptar `AlumnoTableModel` para mostrar email y eliminar profesor directo.
-- [ ] Adaptar `ProfesorTableModel` para mostrar asignatura y email.
-- [ ] Eliminar `AlumnoTableModelOld` cuando no existan referencias.
-- [ ] Adaptar controladores y servicios que dependan de columnas antiguas.
+- [x] Adaptar `AlumnoTableModel` para mostrar ID, nombre, apellido, DNI y email, eliminando profesor directo.
+- [x] Adaptar `ProfesorTableModel` para mostrar ID, nombre, apellido, DNI, asignatura y email.
+- [x] Añadir `setData` y actualización tipada para cargas desde repositories.
+- [x] Añadir `PersonasTableController` para desacoplar la carga de tablas del SQL directo en las ventanas.
+- [x] Añadir pruebas unitarias de los TableModels v2.
+- [x] Marcar `AlumnoTableModelOld` como legado.
+- [ ] Eliminar `AlumnoTableModelOld` cuando no existan referencias tras migrar la UI.
+- [ ] Sustituir en las ventanas las llamadas `ConectionSQL.*FillTable()` por `PersonasTableController` (fase 4, porque requiere adaptar formularios y configuración).
 
 ## Fase 4 - UI
 - [ ] Añadir email al alta/modificación de alumnos.
 - [ ] Sustituir fecha alta/baja de profesor por asignatura y email.
+- [ ] Conectar vistas de alumnos/profesores con `PersonasTableController` y repositories v2.
 - [ ] Rediseñar la asignación profesor-alumno para crear registros en `ASSIGNMENTS`.
 - [ ] Añadir día de semana, hora de inicio, fecha inicial y fecha final a la asignación.
 - [ ] Adaptar vistas de alumnos y profesores al nuevo modelo.
