@@ -31,17 +31,22 @@ Adaptar la aplicación al nuevo modelo relacional basado en STUDENTS, TEACHERS, 
 - [x] Añadir `PersonasTableController` para desacoplar la carga de tablas del SQL directo en las ventanas.
 - [x] Añadir pruebas unitarias de los TableModels v2.
 - [x] Marcar `AlumnoTableModelOld` como legado.
-- [ ] Eliminar `AlumnoTableModelOld` cuando no existan referencias tras migrar la UI.
-- [ ] Sustituir en las ventanas las llamadas `ConectionSQL.*FillTable()` por `PersonasTableController` (fase 4, porque requiere adaptar formularios y configuración).
+- [ ] Eliminar `AlumnoTableModelOld` cuando no existan referencias tras migrar toda la UI.
 
 ## Fase 4 - UI
-- [ ] Añadir email al alta/modificación de alumnos.
-- [ ] Sustituir fecha alta/baja de profesor por asignatura y email.
-- [ ] Conectar vistas de alumnos/profesores con `PersonasTableController` y repositories v2.
-- [ ] Rediseñar la asignación profesor-alumno para crear registros en `ASSIGNMENTS`.
-- [ ] Añadir día de semana, hora de inicio, fecha inicial y fecha final a la asignación.
-- [ ] Adaptar vistas de alumnos y profesores al nuevo modelo.
-- [ ] Revisar validaciones de formularios y mensajes de error.
+- [x] Conservar la configuración de ejecución en `Main` para compartirla con las ventanas.
+- [x] Detectar el tipo MYSQL/SQLITE al leer configuraciones existentes.
+- [x] Añadir email al alta/modificación de alumnos en `VisualizarAlumnos`.
+- [x] Sustituir fecha alta/baja de profesor por asignatura y email en `VisualizarProfesores`.
+- [x] Conectar vistas de alumnos/profesores con `PersonasTableController` y repositories v2.
+- [x] Implementar alta, modificación y baja mediante repositories v2, sin SQL directo en esas vistas.
+- [x] Rediseñar `AsignarTab` para crear registros en `ASSIGNMENTS`.
+- [x] Añadir selección única de día de semana, hora de inicio, fecha inicial y fecha final a la asignación.
+- [x] Cargar profesores y alumnos de la asignación por ID desde sus repositories.
+- [x] Añadir validaciones básicas y mensajes de error en las pantallas migradas.
+- [ ] Validar compilación y tests después del cableado de UI.
+- [ ] Realizar prueba manual de las tres pantallas migradas.
+- [ ] Revisar/eliminar pantallas auxiliares antiguas que ya no formen parte del flujo.
 
 ## Fase 5 - Seguridad y autenticación
 - [ ] Migrar consultas de `USUARIOS/CONTRASEÑA` a `USERS/PASSWORD_HASH`.
