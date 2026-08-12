@@ -1,33 +1,62 @@
 package com.angelvazquez.csia.model;
 
-import java.time.*;
+import java.time.LocalTime;
 
 public class Profesor extends Persona {
-	
-	
-	public LocalTime F_Alta = LocalTime.now();
-	public LocalTime F_Baja = LocalTime.now();
-	
-	
-	public Profesor(String nombre, String apellido, String dni,String falta,String fbaja, String id) {
-		super(nombre, apellido, dni, falta, fbaja, id);	
-	}
-	
-	public LocalTime GetF_Alta() {
-		return F_Alta;
-	}
-	
-	public LocalTime GetF_Baja() {
-		return F_Baja;
-	}
-	
-	public void SetF_Alta(LocalTime f_alta) {
-		F_Alta = f_alta;
-	}
-	
-	public void SetF_Baja(LocalTime f_baja) {
-		F_Baja = f_baja;
-		
-	}
 
+    /** Campos legados; se mantienen hasta migrar por completo la UI. */
+    @Deprecated
+    public LocalTime F_Alta = LocalTime.now();
+    @Deprecated
+    public LocalTime F_Baja = LocalTime.now();
+
+    private String asignatura;
+
+    /** Constructor legado. */
+    public Profesor(String nombre, String apellido, String dni, String falta,
+            String fbaja, String id) {
+        super(nombre, apellido, dni, falta, fbaja, id);
+        asignatura = "";
+    }
+
+    /** Constructor del modelo v2. */
+    public Profesor(Integer id, String nombre, String apellido, String dni,
+            String asignatura, String email) {
+        super(id, nombre, apellido, dni, email);
+        this.asignatura = asignatura;
+    }
+
+    /** Constructor para nuevas altas antes de que SQLite genere el ID. */
+    public Profesor(String nombre, String apellido, String dni,
+            String asignatura, String email) {
+        this(null, nombre, apellido, dni, asignatura, email);
+    }
+
+    public String getAsignatura() {
+        return asignatura;
+    }
+
+    public void setAsignatura(String asignatura) {
+        this.asignatura = asignatura;
+    }
+
+    @Deprecated
+    public LocalTime GetF_Alta() {
+        return F_Alta;
+    }
+
+    @Deprecated
+    public LocalTime GetF_Baja() {
+        return F_Baja;
+    }
+
+    @Deprecated
+    public void SetF_Alta(LocalTime fAlta) {
+        F_Alta = fAlta;
+    }
+
+    @Deprecated
+    public void SetF_Baja(LocalTime fBaja) {
+        F_Baja = fBaja;
+    }
 }
