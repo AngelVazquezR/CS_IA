@@ -159,7 +159,7 @@ public class ConectionSQL {
 	public static void AddProfe(String nombre, String Apellido, String DNI, String fAlta, String fBaja) {
 		ResultSet rs;
 		String id = "";
-		int count;
+		//int count;
 		
 		try {
 			Conection();
@@ -242,7 +242,8 @@ public class ConectionSQL {
 	public static void AddAlumno(String nombre, String Apellido, String DNI) {
 		ResultSet rs;
 		String id = "";
-		int count;
+		//int count;
+		
 		try {
 			Conection();
 			st=connection.createStatement();
