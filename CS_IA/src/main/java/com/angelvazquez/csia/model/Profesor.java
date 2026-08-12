@@ -29,7 +29,7 @@ public class Profesor extends Persona {
     /** Constructor para nuevas altas antes de que SQLite genere el ID. */
     public Profesor(String nombre, String apellido, String dni,
             String asignatura, String email) {
-        this(null, nombre, apellido, dni, asignatura, email);
+        this((Integer) null, nombre, apellido, dni, asignatura, email);
     }
 
     public String getAsignatura() {
