@@ -6,10 +6,12 @@ Adaptar la aplicación al nuevo modelo relacional basado en STUDENTS, TEACHERS, 
 ## Fase 1 - Esquema y dominio
 - [x] Crear rama `feature/data-model-v2` desde `main`.
 - [x] Normalizar nombres de columnas del esquema SQLite v2.
-- [ ] Añadir representación de dominio para asignaciones profesor-alumno.
-- [ ] Adaptar `Persona`, `Alumno` y `Profesor` de forma compatible con la UI existente.
-- [ ] Sustituir progresivamente IDs de texto generados por IDs numéricos autoincrementales.
-- [ ] Adaptar usuarios a `USER_ID`, `USERNAME` y `PASSWORD_HASH`.
+- [x] Añadir representación de dominio para asignaciones profesor-alumno.
+- [x] Adaptar `Persona`, `Alumno` y `Profesor` de forma compatible con la UI existente.
+- [x] Preparar el dominio para IDs numéricos autoincrementales manteniendo compatibilidad temporal con IDs de texto.
+- [x] Añadir entidad `Usuario` para `USER_ID`, `USERNAME` y `PASSWORD_HASH` manteniendo temporalmente `Users` para la UI antigua.
+- [x] Añadir pruebas unitarias del dominio v2.
+- [x] Añadir prueba de integración del esquema SQLite v2.
 
 ## Fase 2 - Persistencia
 - [ ] Incorporar la infraestructura SQLite/JDBC ya validada de `feature/sqlite-support` de forma controlada.
@@ -41,13 +43,13 @@ Adaptar la aplicación al nuevo modelo relacional basado en STUDENTS, TEACHERS, 
 - [ ] Mantener compatibilidad temporal solo mientras se migra la UI de autenticación.
 
 ## Fase 6 - Validación
-- [ ] Ejecutar `mvn clean test`.
+- [ ] Ejecutar `mvn clean test` con los nuevos tests del modelo v2.
 - [ ] Ejecutar `mvn clean package`.
 - [ ] Prueba manual de alta/modificación/baja de alumnos.
 - [ ] Prueba manual de alta/modificación/baja de profesores.
 - [ ] Prueba manual de asignaciones y persistencia tras reinicio.
 - [ ] Prueba manual de login/registro.
-- [ ] Comparar esquema SQLite generado con el esquema esperado.
+- [x] Añadir comprobación automatizada del esquema SQLite esperado.
 
 ## Criterio de integración
 La rama solo se propondrá para merge a `main` cuando el modelo, repositorios, UI y pruebas estén adaptados y no queden consultas activas contra las tablas antiguas `ALUMNOS`, `PROFESORES` o `USUARIOS`.
