@@ -6,7 +6,6 @@ import java.util.Random;
 
 import com.angelvazquez.csia.database.ConfigDB;
 import com.angelvazquez.csia.database.ConfiguracionManager;
-import com.angelvazquez.csia.database.ConectionSQL;
 import com.angelvazquez.csia.database.IDandPasswords;
 import com.angelvazquez.csia.model.Profesor;
 import com.angelvazquez.csia.model.Users;
@@ -35,7 +34,6 @@ public class Main {
         }
 
         IDandPasswords idandpasswords = new IDandPasswords();
-        new ConectionSQL();
         new LoginPage(idandpasswords.getLoginInfo());
     }
 
