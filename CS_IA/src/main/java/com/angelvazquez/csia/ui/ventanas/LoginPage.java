@@ -3,7 +3,6 @@ package com.angelvazquez.csia.ui.ventanas;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.SQLException;
-import java.util.HashMap;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -28,11 +27,7 @@ public class LoginPage implements ActionListener {
     private final JLabel userPasswordLabel = new JLabel("Contraseña:");
     private final AuthService authService;
 
-    /**
-     * Mantiene la firma histórica durante la transición. El mapa legado ya no
-     * interviene en la autenticación.
-     */
-    public LoginPage(HashMap<String, String> loginInfoOriginal) {
+    public LoginPage() {
         UsuarioRepository repository = new UsuarioRepository(
                 new DatabaseConnectionFactory(), Main.getConfiguracion());
         authService = new AuthService(repository, new PasswordHasher());
