@@ -32,6 +32,20 @@ public class LoginPage implements ActionListener {
                 new DatabaseConnectionFactory(), Main.getConfiguracion());
         authService = new AuthService(repository, new PasswordHasher());
 
+        try {
+            if (!repository.existeAlgunUsuario()
+                    && !RegistroInicialUsuario.solicitar(Main.getConfiguracion())) {
+                return;
+            }
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(
+                    null,
+                    "No se ha podido inicializar el acceso de usuarios.\n" + ex.getMessage(),
+                    "Error de base de datos",
+                    JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
         userIDLabel.setBounds(50, 100, 75, 25);
         userPasswordLabel.setBounds(35, 150, 90, 25);
         userIDField.setBounds(125, 100, 200, 25);
