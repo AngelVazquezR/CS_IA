@@ -3,15 +3,12 @@ package com.angelvazquez.csia.ui.ventanas;
 import java.awt.BorderLayout;
 import java.awt.GridLayout;
 import java.awt.Window;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -28,11 +25,10 @@ import com.angelvazquez.csia.model.Profesor;
 import com.github.lgooddatepicker.components.DatePicker;
 import com.github.lgooddatepicker.components.TimePicker;
 
-public class AsignarTab extends JFrame {
+public class AsignarTab extends VentanaSecundaria {
 
     private static final long serialVersionUID = 1L;
 
-    private final Window parent;
     private final JComboBox<Object> profesorCombo = new JComboBox<>();
     private final JComboBox<Object> alumnoCombo = new JComboBox<>();
     private final JComboBox<DiaSemana> diaCombo = new JComboBox<>(DiaSemana.values());
@@ -52,7 +48,7 @@ public class AsignarTab extends JFrame {
     }
 
     public AsignarTab(Window parent) {
-        this.parent = parent;
+        super(parent);
 
         DatabaseConnectionFactory connectionFactory = new DatabaseConnectionFactory();
         alumnoRepository = new AlumnoRepository(connectionFactory, Main.getConfiguracion());
@@ -66,13 +62,6 @@ public class AsignarTab extends JFrame {
 
     private void configurarVentana() {
         setTitle("Asignar profesor a alumno");
-        setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-        addWindowListener(new WindowAdapter() {
-            @Override
-            public void windowClosing(WindowEvent e) {
-                volverAlPadre();
-            }
-        });
         setBounds(100, 100, 620, 360);
 
         JPanel contentPane = new JPanel(new BorderLayout(10, 10));
@@ -135,14 +124,6 @@ public class AsignarTab extends JFrame {
         asignarButton.addActionListener(e -> guardarAsignacion());
     }
 
-    private void volverAlPadre() {
-        if (parent != null) {
-            parent.setVisible(true);
-            parent.toFront();
-        }
-        dispose();
-    }
-
     private void guardarAsignacion() {
         Object profesorSeleccionado = profesorCombo.getSelectedItem();
         Object alumnoSeleccionado = alumnoCombo.getSelectedItem();
@@ -199,16 +180,12 @@ public class AsignarTab extends JFrame {
         dispose();
     }
 
-    /** Compatibilidad temporal mientras ConectionSQL termina de retirarse. */
     @Deprecated
     public static void AddAlumPop(String alum) {
-        // Ya no se usa: los alumnos se cargan por AlumnoRepository con STUDENT_ID.
     }
 
-    /** Compatibilidad temporal mientras ConectionSQL termina de retirarse. */
     @Deprecated
     public static void AddProfePop(String profe) {
-        // Ya no se usa: los profesores se cargan por ProfesorRepository con TEACHER_ID.
     }
 
     private record OpcionPersona(Integer id, String nombre, String dni) {
