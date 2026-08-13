@@ -2,8 +2,6 @@ package com.angelvazquez.csia.ui.ventanas;
 
 import java.awt.BorderLayout;
 import java.awt.Window;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.sql.SQLException;
 import java.util.regex.Pattern;
 import javax.swing.*;
@@ -18,10 +16,9 @@ import com.angelvazquez.csia.database.repository.ProfesorRepository;
 import com.angelvazquez.csia.model.Alumno;
 import com.angelvazquez.csia.tablemodel.AlumnoTableModel;
 
-public class VisualizarAlumnos extends JFrame {
+public class VisualizarAlumnos extends VentanaSecundaria {
     private static final long serialVersionUID = 1L;
     private static final AlumnoTableModel modeloAlumno = new AlumnoTableModel();
-    private final Window parent;
     private final JTable tabla = new JTable(modeloAlumno);
     private final TableRowSorter<AlumnoTableModel> sorter = new TableRowSorter<>(modeloAlumno);
     private final JTextField nombre = new JTextField(10);
@@ -38,7 +35,7 @@ public class VisualizarAlumnos extends JFrame {
     public VisualizarAlumnos() { this(null); }
 
     public VisualizarAlumnos(Window parent) {
-        this.parent = parent;
+        super(parent);
         DatabaseConnectionFactory factory = new DatabaseConnectionFactory();
         repository = new AlumnoRepository(factory, Main.getConfiguracion());
         controller = new PersonasTableController(repository,
@@ -50,10 +47,6 @@ public class VisualizarAlumnos extends JFrame {
 
     private void configurarVentana() {
         setTitle("Visualizar alumnos");
-        setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
-        addWindowListener(new WindowAdapter() {
-            @Override public void windowClosing(WindowEvent e) { volverAlPadre(); }
-        });
         setLayout(new BorderLayout());
         setBounds(100, 100, 1200, 500);
         tabla.setRowSorter(sorter);
@@ -85,11 +78,6 @@ public class VisualizarAlumnos extends JFrame {
         modificar.addActionListener(e -> modificar());
         eliminar.addActionListener(e -> eliminar());
         atras.addActionListener(e -> volverAlPadre());
-    }
-
-    private void volverAlPadre() {
-        if (parent != null) { parent.setVisible(true); parent.toFront(); }
-        dispose();
     }
 
     private void seleccionar() {
