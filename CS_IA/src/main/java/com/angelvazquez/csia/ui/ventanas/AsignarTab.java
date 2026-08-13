@@ -1,9 +1,10 @@
 package com.angelvazquez.csia.ui.ventanas;
 
 import java.awt.BorderLayout;
-import java.awt.Component;
 import java.awt.GridLayout;
 import java.awt.Window;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -14,7 +15,6 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 
 import com.angelvazquez.csia.Main;
@@ -32,6 +32,7 @@ public class AsignarTab extends JFrame {
 
     private static final long serialVersionUID = 1L;
 
+    private final Window parent;
     private final JComboBox<Object> profesorCombo = new JComboBox<>();
     private final JComboBox<Object> alumnoCombo = new JComboBox<>();
     private final JComboBox<DiaSemana> diaCombo = new JComboBox<>(DiaSemana.values());
@@ -47,6 +48,12 @@ public class AsignarTab extends JFrame {
     private final AsignacionRepository asignacionRepository;
 
     public AsignarTab() {
+        this(null);
+    }
+
+    public AsignarTab(Window parent) {
+        this.parent = parent;
+
         DatabaseConnectionFactory connectionFactory = new DatabaseConnectionFactory();
         alumnoRepository = new AlumnoRepository(connectionFactory, Main.getConfiguracion());
         profesorRepository = new ProfesorRepository(connectionFactory, Main.getConfiguracion());
@@ -59,7 +66,13 @@ public class AsignarTab extends JFrame {
 
     private void configurarVentana() {
         setTitle("Asignar profesor a alumno");
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                volverAlPadre();
+            }
+        });
         setBounds(100, 100, 620, 360);
 
         JPanel contentPane = new JPanel(new BorderLayout(10, 10));
@@ -118,11 +131,16 @@ public class AsignarTab extends JFrame {
     }
 
     private void configurarAcciones() {
-        atrasButton.addActionListener(e -> {
-            WelcomePage.RestaurarVentana();
-            CerrarVentana();
-        });
+        atrasButton.addActionListener(e -> volverAlPadre());
         asignarButton.addActionListener(e -> guardarAsignacion());
+    }
+
+    private void volverAlPadre() {
+        if (parent != null) {
+            parent.setVisible(true);
+            parent.toFront();
+        }
+        dispose();
     }
 
     private void guardarAsignacion() {
@@ -178,12 +196,7 @@ public class AsignarTab extends JFrame {
     }
 
     public void CerrarVentana() {
-        Component com = SwingUtilities.getRoot(this);
-        if (com instanceof Window window) {
-            window.dispose();
-        } else {
-            dispose();
-        }
+        dispose();
     }
 
     /** Compatibilidad temporal mientras ConectionSQL termina de retirarse. */
