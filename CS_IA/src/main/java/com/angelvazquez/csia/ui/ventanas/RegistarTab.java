@@ -3,8 +3,6 @@ package com.angelvazquez.csia.ui.ventanas;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.sql.SQLException;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -14,9 +12,8 @@ import com.angelvazquez.csia.database.repository.UsuarioRepository;
 import com.angelvazquez.csia.security.AuthService;
 import com.angelvazquez.csia.security.PasswordHasher;
 
-public class RegistarTab extends JFrame implements ActionListener {
+public class RegistarTab extends VentanaSecundaria implements ActionListener {
     private static final long serialVersionUID = 1L;
-    private final Window parent;
     private final JPanel contentPane;
     private final JTextField usuarioField = new JTextField();
     private final JPasswordField passwordField = new JPasswordField();
@@ -27,14 +24,10 @@ public class RegistarTab extends JFrame implements ActionListener {
     public RegistarTab() { this(null); }
 
     public RegistarTab(Window parent) {
-        this.parent = parent;
+        super(parent);
         UsuarioRepository repository = new UsuarioRepository(
                 new DatabaseConnectionFactory(), Main.getConfiguracion());
         authService = new AuthService(repository, new PasswordHasher());
-        setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-        addWindowListener(new WindowAdapter() {
-            @Override public void windowClosing(WindowEvent e) { volverAlPadre(); }
-        });
         setBounds(100, 100, 450, 300);
         contentPane = new JPanel();
         contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -58,11 +51,6 @@ public class RegistarTab extends JFrame implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == registrarButton) registrarUsuario();
         else if (e.getSource() == atrasButton) volverAlPadre();
-    }
-
-    private void volverAlPadre() {
-        if (parent != null) { parent.setVisible(true); parent.toFront(); }
-        dispose();
     }
 
     private void registrarUsuario() {
