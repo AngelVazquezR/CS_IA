@@ -1,25 +1,15 @@
 package com.angelvazquez.csia.ui.ventanas;
 
 import java.awt.BorderLayout;
-import java.awt.Component;
 import java.awt.Window;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.sql.SQLException;
 import java.util.regex.Pattern;
-
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.JTextField;
-import javax.swing.RowFilter;
-import javax.swing.SwingUtilities;
+import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.table.TableRowSorter;
-
 import com.angelvazquez.csia.Main;
 import com.angelvazquez.csia.controller.PersonasTableController;
 import com.angelvazquez.csia.database.DatabaseConnectionFactory;
@@ -29,300 +19,141 @@ import com.angelvazquez.csia.model.Profesor;
 import com.angelvazquez.csia.tablemodel.ProfesorTableModel;
 
 public class VisualizarProfesores extends JFrame {
-
     private static final long serialVersionUID = 1L;
-
     private static final ProfesorTableModel modeloProfesor = new ProfesorTableModel();
-
-    private final JFrame frame = new JFrame("Visualizar profesores");
+    private final Window parent;
     private final JTable tabla = new JTable(modeloProfesor);
-    private final TableRowSorter<ProfesorTableModel> sorter =
-            new TableRowSorter<>(modeloProfesor);
-
-    private final JTextField nombreField = new JTextField(10);
-    private final JTextField apellidoField = new JTextField(10);
-    private final JTextField dniField = new JTextField(10);
-    private final JTextField asignaturaField = new JTextField(12);
-    private final JTextField emailField = new JTextField(15);
-
-    private final JButton btnAgregar = new JButton("Agregar");
-    private final JButton btnModificar = new JButton("Modificar");
-    private final JButton btnEliminar = new JButton("Eliminar");
-    private final JButton btnAtras = new JButton("Atrás");
-
-    private final ProfesorRepository profesorRepository;
+    private final TableRowSorter<ProfesorTableModel> sorter = new TableRowSorter<>(modeloProfesor);
+    private final JTextField nombre = new JTextField(10);
+    private final JTextField apellido = new JTextField(10);
+    private final JTextField dni = new JTextField(10);
+    private final JTextField asignatura = new JTextField(12);
+    private final JTextField email = new JTextField(15);
+    private final JButton agregar = new JButton("Agregar");
+    private final JButton modificar = new JButton("Modificar");
+    private final JButton eliminar = new JButton("Eliminar");
+    private final JButton atras = new JButton("Atrás");
+    private final ProfesorRepository repository;
     private final PersonasTableController controller;
 
-    public VisualizarProfesores() {
-        DatabaseConnectionFactory connectionFactory = new DatabaseConnectionFactory();
-        AlumnoRepository alumnoRepository = new AlumnoRepository(
-                connectionFactory,
-                Main.getConfiguracion()
-        );
-        profesorRepository = new ProfesorRepository(
-                connectionFactory,
-                Main.getConfiguracion()
-        );
-        controller = new PersonasTableController(
-                alumnoRepository,
-                profesorRepository
-        );
+    public VisualizarProfesores() { this(null); }
 
+    public VisualizarProfesores(Window parent) {
+        this.parent = parent;
+        DatabaseConnectionFactory factory = new DatabaseConnectionFactory();
+        repository = new ProfesorRepository(factory, Main.getConfiguracion());
+        controller = new PersonasTableController(
+                new AlumnoRepository(factory, Main.getConfiguracion()), repository);
         configurarVentana();
-        configurarSeleccion();
         configurarAcciones();
         recargarDatos();
     }
 
     private void configurarVentana() {
-        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        frame.setLayout(new BorderLayout());
-        frame.setBounds(100, 100, 1350, 500);
-
+        setTitle("Visualizar profesores");
+        setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
+        addWindowListener(new WindowAdapter() {
+            @Override public void windowClosing(WindowEvent e) { volverAlPadre(); }
+        });
+        setLayout(new BorderLayout());
+        setBounds(100, 100, 1350, 500);
         tabla.setRowSorter(sorter);
-        frame.add(new JScrollPane(tabla), BorderLayout.CENTER);
-
-        JTextField filtroField = new JTextField(15);
-        frame.add(filtroField, BorderLayout.NORTH);
-        instalarFiltro(filtroField);
-
-        JPanel panel = new JPanel();
-        panel.add(new JLabel("Nombre:"));
-        panel.add(nombreField);
-        panel.add(new JLabel("Apellido:"));
-        panel.add(apellidoField);
-        panel.add(new JLabel("DNI:"));
-        panel.add(dniField);
-        panel.add(new JLabel("Asignatura:"));
-        panel.add(asignaturaField);
-        panel.add(new JLabel("Email:"));
-        panel.add(emailField);
-        panel.add(btnAgregar);
-        panel.add(btnModificar);
-        panel.add(btnEliminar);
-        panel.add(btnAtras);
-        frame.add(panel, BorderLayout.SOUTH);
-
-        btnModificar.setEnabled(false);
-        btnEliminar.setEnabled(false);
-        frame.setVisible(true);
-    }
-
-    private void instalarFiltro(JTextField filtroField) {
-        filtroField.getDocument().addDocumentListener(new DocumentListener() {
-            @Override
-            public void insertUpdate(DocumentEvent e) {
-                filtrar(filtroField.getText());
+        add(new JScrollPane(tabla), BorderLayout.CENTER);
+        JTextField filtro = new JTextField(15);
+        filtro.getDocument().addDocumentListener(new DocumentListener() {
+            private void actualizar() {
+                String t = filtro.getText();
+                sorter.setRowFilter(t.isBlank() ? null : RowFilter.regexFilter("(?i)" + Pattern.quote(t)));
             }
-
-            @Override
-            public void removeUpdate(DocumentEvent e) {
-                filtrar(filtroField.getText());
-            }
-
-            @Override
-            public void changedUpdate(DocumentEvent e) {
-                filtrar(filtroField.getText());
-            }
+            @Override public void insertUpdate(DocumentEvent e) { actualizar(); }
+            @Override public void removeUpdate(DocumentEvent e) { actualizar(); }
+            @Override public void changedUpdate(DocumentEvent e) { actualizar(); }
         });
-    }
-
-    private void filtrar(String texto) {
-        if (texto == null || texto.isBlank()) {
-            sorter.setRowFilter(null);
-        } else {
-            sorter.setRowFilter(
-                    RowFilter.regexFilter("(?i)" + Pattern.quote(texto))
-            );
-        }
-    }
-
-    private void configurarSeleccion() {
-        tabla.getSelectionModel().addListSelectionListener(e -> {
-            if (e.getValueIsAdjusting()) {
-                return;
-            }
-
-            Profesor profesor = profesorSeleccionado();
-            if (profesor == null) {
-                btnModificar.setEnabled(false);
-                btnEliminar.setEnabled(false);
-                return;
-            }
-
-            cargarFormulario(profesor);
-            btnModificar.setEnabled(true);
-            btnEliminar.setEnabled(true);
-        });
+        add(filtro, BorderLayout.NORTH);
+        JPanel p = new JPanel();
+        p.add(new JLabel("Nombre:")); p.add(nombre);
+        p.add(new JLabel("Apellido:")); p.add(apellido);
+        p.add(new JLabel("DNI:")); p.add(dni);
+        p.add(new JLabel("Asignatura:")); p.add(asignatura);
+        p.add(new JLabel("Email:")); p.add(email);
+        p.add(agregar); p.add(modificar); p.add(eliminar); p.add(atras);
+        add(p, BorderLayout.SOUTH);
+        modificar.setEnabled(false); eliminar.setEnabled(false);
+        tabla.getSelectionModel().addListSelectionListener(e -> seleccionar());
     }
 
     private void configurarAcciones() {
-        btnAgregar.addActionListener(e -> agregarProfesor());
-        btnModificar.addActionListener(e -> modificarProfesor());
-        btnEliminar.addActionListener(e -> eliminarProfesor());
-        btnAtras.addActionListener(e -> {
-            Main.Welcome();
-            CerrarVentana();
-        });
+        agregar.addActionListener(e -> agregar());
+        modificar.addActionListener(e -> modificar());
+        eliminar.addActionListener(e -> eliminar());
+        atras.addActionListener(e -> volverAlPadre());
     }
 
-    private void agregarProfesor() {
-        if (!formularioValido()) {
-            return;
-        }
-
-        Profesor profesor = new Profesor(
-                nombreField.getText().trim(),
-                apellidoField.getText().trim(),
-                dniField.getText().trim(),
-                asignaturaField.getText().trim(),
-                emailField.getText().trim()
-        );
-
-        try {
-            if (profesorRepository.existeDni(profesor.GetDNI())) {
-                mostrarError("Ya existe un profesor con ese DNI.");
-                return;
-            }
-
-            profesorRepository.agregar(profesor);
-            recargarDatos();
-            limpiarFormulario();
-        } catch (SQLException ex) {
-            mostrarError("No se ha podido agregar el profesor: " + ex.getMessage());
-        }
+    private void volverAlPadre() {
+        if (parent != null) { parent.setVisible(true); parent.toFront(); }
+        dispose();
     }
 
-    private void modificarProfesor() {
-        Profesor profesor = profesorSeleccionado();
-        if (profesor == null || !formularioValido()) {
-            return;
-        }
-
-        profesor.SetNombre(nombreField.getText().trim());
-        profesor.SetApellido(apellidoField.getText().trim());
-        profesor.DNI = dniField.getText().trim();
-        profesor.setAsignatura(asignaturaField.getText().trim());
-        profesor.setEmail(emailField.getText().trim());
-
-        try {
-            profesorRepository.modificar(profesor);
-            recargarDatos();
-            limpiarFormulario();
-        } catch (SQLException ex) {
-            mostrarError("No se ha podido modificar el profesor: " + ex.getMessage());
-        }
+    private void seleccionar() {
+        Profesor p = seleccionado();
+        boolean hay = p != null;
+        modificar.setEnabled(hay); eliminar.setEnabled(hay);
+        if (!hay) return;
+        nombre.setText(p.GetNombre()); apellido.setText(p.GetApellido()); dni.setText(p.GetDNI());
+        asignatura.setText(p.getAsignatura()); email.setText(p.getEmail());
     }
 
-    private void eliminarProfesor() {
-        Profesor profesor = profesorSeleccionado();
-        if (profesor == null || profesor.getDatabaseId() == null) {
-            mostrarError("Selecciona un profesor para eliminar.");
-            return;
-        }
-
-        int confirmacion = JOptionPane.showConfirmDialog(
-                frame,
-                "¿Eliminar al profesor seleccionado?",
-                "Confirmar eliminación",
-                JOptionPane.YES_NO_OPTION
-        );
-
-        if (confirmacion != JOptionPane.YES_OPTION) {
-            return;
-        }
-
-        try {
-            profesorRepository.eliminar(profesor.getDatabaseId());
-            recargarDatos();
-            limpiarFormulario();
-        } catch (SQLException ex) {
-            mostrarError(
-                    "No se ha podido eliminar el profesor. "
-                            + "Comprueba si tiene asignaciones activas.\n"
-                            + ex.getMessage()
-            );
-        }
+    private Profesor seleccionado() {
+        int row = tabla.getSelectedRow();
+        return row < 0 ? null : modeloProfesor.getAt(tabla.convertRowIndexToModel(row));
     }
 
-    private boolean formularioValido() {
-        if (nombreField.getText().isBlank()
-                || apellidoField.getText().isBlank()
-                || dniField.getText().isBlank()
-                || asignaturaField.getText().isBlank()
-                || emailField.getText().isBlank()) {
-            mostrarError(
-                    "Nombre, apellido, DNI, asignatura y email son obligatorios."
-            );
-            return false;
+    private boolean valido() {
+        if (nombre.getText().isBlank() || apellido.getText().isBlank() || dni.getText().isBlank()
+                || asignatura.getText().isBlank() || email.getText().isBlank()) {
+            error("Nombre, apellido, DNI, asignatura y email son obligatorios."); return false;
         }
         return true;
     }
 
-    private Profesor profesorSeleccionado() {
-        int viewRow = tabla.getSelectedRow();
-        if (viewRow < 0) {
-            return null;
-        }
-        return modeloProfesor.getAt(tabla.convertRowIndexToModel(viewRow));
+    private void agregar() {
+        if (!valido()) return;
+        Profesor p = new Profesor(nombre.getText().trim(), apellido.getText().trim(), dni.getText().trim(),
+                asignatura.getText().trim(), email.getText().trim());
+        try {
+            if (repository.existeDni(p.GetDNI())) { error("Ya existe un profesor con ese DNI."); return; }
+            repository.agregar(p); recargarDatos(); limpiar();
+        } catch (SQLException e) { error("No se ha podido agregar el profesor: " + e.getMessage()); }
     }
 
-    private void cargarFormulario(Profesor profesor) {
-        nombreField.setText(profesor.GetNombre());
-        apellidoField.setText(profesor.GetApellido());
-        dniField.setText(profesor.GetDNI());
-        asignaturaField.setText(profesor.getAsignatura());
-        emailField.setText(profesor.getEmail());
+    private void modificar() {
+        Profesor p = seleccionado(); if (p == null || !valido()) return;
+        p.SetNombre(nombre.getText().trim()); p.SetApellido(apellido.getText().trim()); p.DNI = dni.getText().trim();
+        p.setAsignatura(asignatura.getText().trim()); p.setEmail(email.getText().trim());
+        try { repository.modificar(p); recargarDatos(); limpiar(); }
+        catch (SQLException e) { error("No se ha podido modificar el profesor: " + e.getMessage()); }
     }
 
-    private void limpiarFormulario() {
-        tabla.clearSelection();
-        nombreField.setText("");
-        apellidoField.setText("");
-        dniField.setText("");
-        asignaturaField.setText("");
-        emailField.setText("");
-        btnModificar.setEnabled(false);
-        btnEliminar.setEnabled(false);
+    private void eliminar() {
+        Profesor p = seleccionado();
+        if (p == null || p.getDatabaseId() == null) { error("Selecciona un profesor para eliminar."); return; }
+        if (JOptionPane.showConfirmDialog(this, "¿Eliminar al profesor seleccionado?", "Confirmar eliminación",
+                JOptionPane.YES_NO_OPTION) != JOptionPane.YES_OPTION) return;
+        try { repository.eliminar(p.getDatabaseId()); recargarDatos(); limpiar(); }
+        catch (SQLException e) { error("No se ha podido eliminar el profesor. Comprueba si tiene asignaciones activas.\n" + e.getMessage()); }
+    }
+
+    private void limpiar() {
+        tabla.clearSelection(); nombre.setText(""); apellido.setText(""); dni.setText("");
+        asignatura.setText(""); email.setText(""); modificar.setEnabled(false); eliminar.setEnabled(false);
     }
 
     private void recargarDatos() {
-        try {
-            controller.cargarProfesores(modeloProfesor);
-        } catch (SQLException ex) {
-            mostrarError("No se han podido cargar los profesores: " + ex.getMessage());
-        }
+        try { controller.cargarProfesores(modeloProfesor); }
+        catch (SQLException e) { error("No se han podido cargar los profesores: " + e.getMessage()); }
     }
 
-    private void mostrarError(String mensaje) {
-        JOptionPane.showMessageDialog(
-                frame,
-                mensaje,
-                "Error",
-                JOptionPane.ERROR_MESSAGE
-        );
-    }
-
-    /** Compatibilidad temporal con ConectionSQL durante la migración. */
-    @Deprecated
-    public static void AddRow(
-            String nombre,
-            String apellido,
-            String dni,
-            String fAlta,
-            String fBaja) {
-        modeloProfesor.add(new Profesor(nombre, apellido, dni, "", ""));
-    }
-
-    public void RecargarVentana() {
-        recargarDatos();
-    }
-
-    public void CerrarVentana() {
-        Component com = SwingUtilities.getRoot(this);
-        if (com instanceof Window window) {
-            window.dispose();
-        }
-        frame.dispose();
-    }
+    private void error(String mensaje) { JOptionPane.showMessageDialog(this, mensaje, "Error", JOptionPane.ERROR_MESSAGE); }
+    public void RecargarVentana() { recargarDatos(); }
+    public void CerrarVentana() { dispose(); }
 }
