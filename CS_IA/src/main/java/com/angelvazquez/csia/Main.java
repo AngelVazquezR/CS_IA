@@ -3,7 +3,6 @@ package com.angelvazquez.csia;
 import com.angelvazquez.csia.database.ConfigDB;
 import com.angelvazquez.csia.database.ConfiguracionManager;
 import com.angelvazquez.csia.ui.ventanas.AsignarTab;
-import com.angelvazquez.csia.ui.ventanas.GestionarTab;
 import com.angelvazquez.csia.ui.ventanas.LoginPage;
 import com.angelvazquez.csia.ui.ventanas.RegistarTab;
 import com.angelvazquez.csia.ui.ventanas.VisualizarAlumnos;
@@ -42,11 +41,6 @@ public class Main {
     public static void Asignar() {
         AsignarTab asignarTab = new AsignarTab();
         asignarTab.setVisible(true);
-    }
-
-    public static void Gestionar() {
-        GestionarTab gestionarTab = new GestionarTab();
-        gestionarTab.setVisible(true);
     }
 
     public static void Welcome() {
