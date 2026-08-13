@@ -62,9 +62,14 @@ Adaptar la aplicación al nuevo modelo relacional basado en STUDENTS, TEACHERS, 
 - [x] Eliminar `ConectionSQL` y las consultas activas contra `ALUMNOS`, `PROFESORES` y `USUARIOS`.
 - [x] Eliminar `GestionarTab`, `AlumnoTableModelOld` y pantallas experimentales obsoletas.
 - [x] Simplificar `Main` y `WelcomePage` para retirar rutas legadas.
-- [ ] Validar la limpieza con `mvn clean test`.
+- [x] Validar la limpieza con `mvn clean test` (21 tests correctos).
+- [x] Completar configuración inicial MySQL/SQLite con selector de motor y valores JDBC predeterminados.
+- [x] Permitir SQLite sin usuario/contraseña y generar URL desde el nombre del fichero añadiendo `.db`.
+- [x] Crear automáticamente el directorio/fichero SQLite e inicializar el esquema v2 de forma idempotente.
+- [x] Añadir pruebas automatizadas de configuración SQLite, creación desde cero y reapertura sin pérdida de datos.
+- [ ] Validar los nuevos tests con `mvn clean test` (se esperan 25 tests).
 - [ ] Ejecutar `mvn clean package`.
-- [ ] Completar configuración inicial MySQL/SQLite portable y arranque SQLite desde cero.
+- [ ] Prueba manual de configuración inicial SQLite desde cero.
 - [ ] Prueba manual de alta/modificación/baja de alumnos.
 - [ ] Prueba manual de alta/modificación/baja de profesores.
 - [ ] Prueba manual de asignaciones y persistencia tras reinicio.
