@@ -6,12 +6,9 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
@@ -43,8 +40,8 @@ class RepositoryV2IntegrationTest {
         config.url = "jdbc:sqlite:" + tempDir.resolve("repository-v2.db");
         factory = new DatabaseConnectionFactory();
 
-        try (Connection connection = factory.open(config)) {
-            ejecutarEsquema(connection);
+        try (Connection ignored = factory.open(config)) {
+            // DatabaseConnectionFactory inicializa automaticamente el esquema SQLite v2.
         }
     }
 
@@ -139,24 +136,5 @@ class RepositoryV2IntegrationTest {
 
         assertTrue(asignaciones.eliminar(id));
         assertTrue(asignaciones.listar().isEmpty());
-    }
-
-    private void ejecutarEsquema(Connection connection) throws Exception {
-        String sql;
-        try (InputStream input = getClass().getClassLoader().getResourceAsStream("modelo_sqlite.sql")) {
-            if (input == null) {
-                throw new IllegalStateException("No se encuentra modelo_sqlite.sql.");
-            }
-            sql = new String(input.readAllBytes(), StandardCharsets.UTF_8);
-        }
-
-        try (Statement statement = connection.createStatement()) {
-            for (String sentencia : sql.split(";")) {
-                String limpia = sentencia.trim();
-                if (!limpia.isEmpty()) {
-                    statement.execute(limpia);
-                }
-            }
-        }
     }
 }
