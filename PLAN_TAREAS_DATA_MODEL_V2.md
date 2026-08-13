@@ -45,7 +45,7 @@ Adaptar la aplicación al nuevo modelo relacional basado en STUDENTS, TEACHERS, 
 - [x] Añadir validaciones básicas y mensajes de error en las pantallas migradas.
 - [x] Validar compilación y tests después del cableado de UI (16 tests correctos).
 - [x] Retirar `GestionarTab` y pantallas auxiliares experimentales que duplicaban funcionalidad.
-- [ ] Realizar prueba manual de las tres pantallas migradas.
+- [x] Realizar prueba manual de las tres pantallas migradas.
 
 ## Fase 5 - Seguridad y autenticación
 - [x] Migrar `LoginPage` y `RegistarTab` de `USUARIOS/CONTRASEÑA` a `UsuarioRepository` sobre `USERS/PASSWORD_HASH`.
@@ -67,14 +67,28 @@ Adaptar la aplicación al nuevo modelo relacional basado en STUDENTS, TEACHERS, 
 - [x] Permitir SQLite sin usuario/contraseña y generar URL desde el nombre del fichero añadiendo `.db`.
 - [x] Crear automáticamente el directorio/fichero SQLite e inicializar el esquema v2 de forma idempotente.
 - [x] Añadir pruebas automatizadas de configuración SQLite, creación desde cero y reapertura sin pérdida de datos.
-- [ ] Validar los nuevos tests con `mvn clean test` (se esperan 25 tests).
-- [ ] Ejecutar `mvn clean package`.
-- [ ] Prueba manual de configuración inicial SQLite desde cero.
-- [ ] Prueba manual de alta/modificación/baja de alumnos.
-- [ ] Prueba manual de alta/modificación/baja de profesores.
-- [ ] Prueba manual de asignaciones y persistencia tras reinicio.
-- [ ] Prueba manual de login/registro.
+- [x] Validar los nuevos tests con `mvn clean test` (25 tests, 0 fallos, 0 errores).
+- [x] Ejecutar `mvn clean package` correctamente y generar el JAR sombreado.
+- [x] Prueba manual de configuración inicial SQLite desde cero, creación de BD y alta obligatoria del primer usuario.
+- [x] Prueba manual de login con el primer usuario creado.
+- [x] Prueba manual de alta/modificación/baja de alumnos y detección de DNI duplicado.
+- [x] Prueba manual de alta/modificación/baja de profesores y detección de DNI duplicado.
+- [x] Prueba manual de asignaciones.
+- [x] Prueba manual de persistencia de alumnos, profesores y asignaciones tras reinicio.
 - [x] Añadir comprobación automatizada del esquema SQLite esperado.
 
+## Evidencias de validación manual final
+- Alta de profesor: correcta.
+- Alta de alumno: correcta.
+- Modificación de profesor: correcta.
+- Modificación de alumno: correcta.
+- Alta duplicada de profesor: rechazada como se esperaba.
+- Alta duplicada de alumno: rechazada como se esperaba.
+- Persistencia tras cierre y nuevo arranque: correcta.
+- Alta de nuevos profesor y alumno tras reinicio: correcta.
+- Eliminación de profesor existente: correcta.
+- Eliminación de alumno existente: correcta.
+- Segunda comprobación de persistencia tras reinicio: correcta.
+
 ## Criterio de integración
-La rama solo se propondrá para merge a `main` cuando el modelo, repositories, UI y pruebas estén adaptados, no queden consultas activas contra las tablas antiguas `ALUMNOS`, `PROFESORES` o `USUARIOS`, `mvn clean package` sea correcto y se hayan completado las pruebas manuales críticas.
+[x] Cumplido. El modelo, repositories, UI, autenticación y pruebas están adaptados; no quedan consultas activas contra `ALUMNOS`, `PROFESORES` o `USUARIOS`; `mvn clean package` es correcto y las pruebas manuales críticas han finalizado con el resultado esperado. La rama `feature/data-model-v2` queda preparada para revisión y fusión a `main`.
