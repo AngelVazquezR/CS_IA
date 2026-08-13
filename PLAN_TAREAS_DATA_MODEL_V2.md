@@ -9,7 +9,7 @@ Adaptar la aplicación al nuevo modelo relacional basado en STUDENTS, TEACHERS, 
 - [x] Añadir representación de dominio para asignaciones profesor-alumno.
 - [x] Adaptar `Persona`, `Alumno` y `Profesor` de forma compatible con la UI existente.
 - [x] Preparar el dominio para IDs numéricos autoincrementales manteniendo compatibilidad temporal con IDs de texto.
-- [x] Añadir entidad `Usuario` para `USER_ID`, `USERNAME` y `PASSWORD_HASH` manteniendo temporalmente `Users` para la UI antigua.
+- [x] Añadir entidad `Usuario` para `USER_ID`, `USERNAME` y `PASSWORD_HASH`.
 - [x] Añadir pruebas unitarias del dominio v2.
 - [x] Añadir prueba de integración del esquema SQLite v2.
 
@@ -30,8 +30,7 @@ Adaptar la aplicación al nuevo modelo relacional basado en STUDENTS, TEACHERS, 
 - [x] Añadir `setData` y actualización tipada para cargas desde repositories.
 - [x] Añadir `PersonasTableController` para desacoplar la carga de tablas del SQL directo en las ventanas.
 - [x] Añadir pruebas unitarias de los TableModels v2.
-- [x] Marcar `AlumnoTableModelOld` como legado.
-- [ ] Eliminar `AlumnoTableModelOld` cuando no existan referencias tras migrar toda la UI.
+- [x] Eliminar `AlumnoTableModelOld` tras migrar las vistas.
 
 ## Fase 4 - UI
 - [x] Conservar la configuración de ejecución en `Main` para compartirla con las ventanas.
@@ -45,8 +44,8 @@ Adaptar la aplicación al nuevo modelo relacional basado en STUDENTS, TEACHERS, 
 - [x] Cargar profesores y alumnos de la asignación por ID desde sus repositories.
 - [x] Añadir validaciones básicas y mensajes de error en las pantallas migradas.
 - [x] Validar compilación y tests después del cableado de UI (16 tests correctos).
+- [x] Retirar `GestionarTab` y pantallas auxiliares experimentales que duplicaban funcionalidad.
 - [ ] Realizar prueba manual de las tres pantallas migradas.
-- [ ] Revisar/eliminar pantallas auxiliares antiguas que ya no formen parte del flujo.
 
 ## Fase 5 - Seguridad y autenticación
 - [x] Migrar `LoginPage` y `RegistarTab` de `USUARIOS/CONTRASEÑA` a `UsuarioRepository` sobre `USERS/PASSWORD_HASH`.
@@ -56,12 +55,16 @@ Adaptar la aplicación al nuevo modelo relacional basado en STUDENTS, TEACHERS, 
 - [x] Evitar logs de contraseñas o hashes en el flujo nuevo.
 - [x] Retirar la inicialización de `ConectionSQL` del arranque.
 - [x] Añadir pruebas unitarias del hasher y pruebas de integración de autenticación sobre SQLite.
-- [ ] Validar la fase con `mvn clean test`.
-- [ ] Eliminar compatibilidad de autenticación antigua cuando se haya validado el flujo manual.
+- [x] Validar la fase con `mvn clean test` (21 tests correctos).
+- [x] Eliminar `IDandPasswords`, `Users` y la firma de login basada en el mapa legado.
 
-## Fase 6 - Validación
-- [ ] Ejecutar `mvn clean test` con todos los tests del modelo v2.
+## Fase 6 - Limpieza y validación final
+- [x] Eliminar `ConectionSQL` y las consultas activas contra `ALUMNOS`, `PROFESORES` y `USUARIOS`.
+- [x] Eliminar `GestionarTab`, `AlumnoTableModelOld` y pantallas experimentales obsoletas.
+- [x] Simplificar `Main` y `WelcomePage` para retirar rutas legadas.
+- [ ] Validar la limpieza con `mvn clean test`.
 - [ ] Ejecutar `mvn clean package`.
+- [ ] Completar configuración inicial MySQL/SQLite portable y arranque SQLite desde cero.
 - [ ] Prueba manual de alta/modificación/baja de alumnos.
 - [ ] Prueba manual de alta/modificación/baja de profesores.
 - [ ] Prueba manual de asignaciones y persistencia tras reinicio.
@@ -69,4 +72,4 @@ Adaptar la aplicación al nuevo modelo relacional basado en STUDENTS, TEACHERS, 
 - [x] Añadir comprobación automatizada del esquema SQLite esperado.
 
 ## Criterio de integración
-La rama solo se propondrá para merge a `main` cuando el modelo, repositorios, UI y pruebas estén adaptados y no queden consultas activas contra las tablas antiguas `ALUMNOS`, `PROFESORES` o `USUARIOS`.
+La rama solo se propondrá para merge a `main` cuando el modelo, repositories, UI y pruebas estén adaptados, no queden consultas activas contra las tablas antiguas `ALUMNOS`, `PROFESORES` o `USUARIOS`, `mvn clean package` sea correcto y se hayan completado las pruebas manuales críticas.
