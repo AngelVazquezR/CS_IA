@@ -1,14 +1,7 @@
 package com.angelvazquez.csia;
 
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Random;
-
 import com.angelvazquez.csia.database.ConfigDB;
 import com.angelvazquez.csia.database.ConfiguracionManager;
-import com.angelvazquez.csia.database.IDandPasswords;
-import com.angelvazquez.csia.model.Profesor;
-import com.angelvazquez.csia.model.Users;
 import com.angelvazquez.csia.ui.ventanas.AsignarTab;
 import com.angelvazquez.csia.ui.ventanas.GestionarTab;
 import com.angelvazquez.csia.ui.ventanas.LoginPage;
@@ -18,9 +11,6 @@ import com.angelvazquez.csia.ui.ventanas.VisualizarProfesores;
 import com.angelvazquez.csia.ui.ventanas.WelcomePage;
 
 public class Main {
-    public static Users user1;
-    static Random rand = new Random();
-    static HashMap<String, String> map = new LinkedHashMap<>();
 
     private static ConfigDB configuracion;
 
@@ -33,8 +23,7 @@ public class Main {
             return;
         }
 
-        IDandPasswords idandpasswords = new IDandPasswords();
-        new LoginPage(idandpasswords.getLoginInfo());
+        new LoginPage();
     }
 
     public static ConfigDB getConfiguracion() {
@@ -46,14 +35,8 @@ public class Main {
         return configuracion;
     }
 
-    public static String randomChar(String[] array) {
-        System.out.println(rand.nextInt(array.length));
-        return array[rand.nextInt(array.length)];
-    }
-
     public static void LogIn() {
-        IDandPasswords idandpasswords = new IDandPasswords();
-        new LoginPage(idandpasswords.getLoginInfo());
+        new LoginPage();
     }
 
     public static void Asignar() {
@@ -82,10 +65,5 @@ public class Main {
     public static void RegistrarUser() {
         RegistarTab registrarTab = new RegistarTab();
         registrarTab.setVisible(true);
-    }
-
-    public static void CreateProfesor(String id, String name, String apellido, String DNI) {
-        Profesor profe = new Profesor(name, apellido, id, DNI, "", "");
-        map.put(profe.GetID(), profe.GetNombre());
     }
 }
