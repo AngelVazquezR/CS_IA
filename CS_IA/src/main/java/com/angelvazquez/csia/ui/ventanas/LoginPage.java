@@ -8,116 +8,87 @@ import java.util.HashMap;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
-import com.angelvazquez.csia.database.ConectionSQL;
-import com.angelvazquez.csia.util.Algoritmos;
-
-import javax.swing.JOptionPane;
-
+import com.angelvazquez.csia.Main;
+import com.angelvazquez.csia.database.DatabaseConnectionFactory;
+import com.angelvazquez.csia.database.repository.UsuarioRepository;
+import com.angelvazquez.csia.security.AuthService;
+import com.angelvazquez.csia.security.PasswordHasher;
 
 public class LoginPage implements ActionListener {
-	
-	JFrame frame = new JFrame();
-	JButton loginbutton = new JButton("Login");
-	JTextField userIDField = new JTextField("");
-	JPasswordField userPasswordField = new JPasswordField("");
-	JLabel userIDLabel = new JLabel("User ID:");
-	JLabel userPasswordLabel = new JLabel("User password:");
-	HashMap<String,String> logininfo = new HashMap<String,String>();
-	
-	public LoginPage(HashMap<String,String> loginInfoOriginal){
-		logininfo = loginInfoOriginal;
-		
-		userIDLabel.setBounds(50,100,75,25);
-		userPasswordLabel.setBounds(0,150,150,25);
-		
-		userIDField.setBounds(125,100,200,25);
-		userPasswordField.setBounds(125,150,200,25);
-		
-		loginbutton.setBounds(125,200,100,25);
-		loginbutton.setFocusable(false);
-		loginbutton.addActionListener(this);
-				
-		
-		frame.add(userIDLabel);
-		frame.add(userPasswordLabel);
-		frame.add(userIDField);
-		frame.add(userPasswordField);
-		frame.add(loginbutton);
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setSize(420,420);
-		frame.setLayout(null);
-		frame.setVisible(true);
-		
-		
-		
-		
-	}
 
-	public String getHash(String password) {
-		return password;
-	}
-	
-	public String TransformPassword(String password) {
-		String hashPassword;
-		
-		
-		
-		hashPassword = password;
-		return hashPassword;
-	}
-	
+    private final JFrame frame = new JFrame();
+    private final JButton loginbutton = new JButton("Login");
+    private final JTextField userIDField = new JTextField("");
+    private final JPasswordField userPasswordField = new JPasswordField("");
+    private final JLabel userIDLabel = new JLabel("Usuario:");
+    private final JLabel userPasswordLabel = new JLabel("Contraseña:");
+    private final AuthService authService;
 
-	@Override
-	public void actionPerformed(ActionEvent e) {
-		
-		if(e.getSource()==loginbutton) {
-			
-			String userID = userIDField.getText();
-			String password = String.valueOf(userPasswordField.getPassword());
-			String hashPassword ="";
-			
-			hashPassword = ConectionSQL.RecuperaPassword(userID);
-			try {
-				ConectionSQL.Conection();
-			} catch (SQLException e1) {
-				
-				e1.printStackTrace();
-			}
-			// quitar una vez se cree la base de datos con los usuarios y contraseñas, y dejar solo el de hash
-			if(hashPassword.equals(password)) {
-				System.out.println("Correct Login");
+    /**
+     * Mantiene la firma histórica durante la transición. El mapa legado ya no
+     * interviene en la autenticación.
+     */
+    public LoginPage(HashMap<String, String> loginInfoOriginal) {
+        UsuarioRepository repository = new UsuarioRepository(
+                new DatabaseConnectionFactory(), Main.getConfiguracion());
+        authService = new AuthService(repository, new PasswordHasher());
 
-				WelcomePage welcomepage = new WelcomePage();
-				welcomepage.setVisible(true);
-				frame.dispose();
-				
-			}else if(hashPassword.equals(Algoritmos.hashAlgorithm(password))) {
-				System.out.println("Correct Login");
+        userIDLabel.setBounds(50, 100, 75, 25);
+        userPasswordLabel.setBounds(35, 150, 90, 25);
+        userIDField.setBounds(125, 100, 200, 25);
+        userPasswordField.setBounds(125, 150, 200, 25);
+        loginbutton.setBounds(125, 200, 100, 25);
+        loginbutton.setFocusable(false);
+        loginbutton.addActionListener(this);
 
-				WelcomePage welcomepage = new WelcomePage();
-				welcomepage.setVisible(true);
-				frame.dispose();{
-					
-				}
-			}}else {
-				JOptionPane.showMessageDialog(null, "Usuario o contraseña incorrecta", null,JOptionPane.INFORMATION_MESSAGE);
-			/*
-			if(logininfo.containsKey(userID)){
-				if (logininfo.get(userID).equals(password)) {
-					System.out.println("Correct Login");
-					
-					WelcomePage welcomepage = new WelcomePage();
-					welcomepage.setVisible(true);
-					frame.dispose();
-					
-				}
-			}*/
-			
-		}
-		
-	}
+        frame.add(userIDLabel);
+        frame.add(userPasswordLabel);
+        frame.add(userIDField);
+        frame.add(userPasswordField);
+        frame.add(loginbutton);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setSize(420, 420);
+        frame.setLayout(null);
+        frame.setVisible(true);
+    }
 
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        if (e.getSource() != loginbutton) {
+            return;
+        }
+
+        try {
+            boolean correcto = authService.autenticar(
+                    userIDField.getText(), userPasswordField.getPassword());
+
+            if (correcto) {
+                WelcomePage welcomepage = new WelcomePage();
+                welcomepage.setVisible(true);
+                frame.dispose();
+            } else {
+                mostrarCredencialesIncorrectas();
+            }
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(
+                    frame,
+                    "No se ha podido consultar el usuario.\n" + ex.getMessage(),
+                    "Error de base de datos",
+                    JOptionPane.ERROR_MESSAGE);
+        } finally {
+            userPasswordField.setText("");
+        }
+    }
+
+    private void mostrarCredencialesIncorrectas() {
+        JOptionPane.showMessageDialog(
+                frame,
+                "Usuario o contraseña incorrecta",
+                "Acceso denegado",
+                JOptionPane.INFORMATION_MESSAGE);
+    }
 }
