@@ -22,6 +22,12 @@ public final class UsuarioRepository {
             WHERE USERNAME = ?
             """;
 
+    private static final String EXISTS_ANY = """
+            SELECT 1
+            FROM USERS
+            LIMIT 1
+            """;
+
     private static final String INSERT = """
             INSERT INTO USERS (USERNAME, PASSWORD_HASH)
             VALUES (?, ?)
@@ -50,6 +56,14 @@ public final class UsuarioRepository {
                         rows.getString("PASSWORD_HASH")
                 ));
             }
+        }
+    }
+
+    public boolean existeAlgunUsuario() throws SQLException {
+        try (Connection connection = connectionFactory.open(configuration);
+             PreparedStatement statement = connection.prepareStatement(EXISTS_ANY);
+             ResultSet rows = statement.executeQuery()) {
+            return rows.next();
         }
     }
 
