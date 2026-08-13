@@ -1,5 +1,7 @@
 package com.angelvazquez.csia;
 
+import java.awt.Window;
+
 import com.angelvazquez.csia.database.ConfigDB;
 import com.angelvazquez.csia.database.ConfiguracionManager;
 import com.angelvazquez.csia.ui.ventanas.AsignarTab;
@@ -14,22 +16,16 @@ public class Main {
     private static ConfigDB configuracion;
 
     public static void main(String[] args) {
-        ConfiguracionManager manager = new ConfiguracionManager();
-        configuracion = manager.inicializarConfiguracion();
-
+        configuracion = new ConfiguracionManager().inicializarConfiguracion();
         if (configuracion == null) {
-            System.out.println("Arranque cancelado por falta de configuración.");
             return;
         }
-
         new LoginPage();
     }
 
     public static ConfigDB getConfiguracion() {
         if (configuracion == null) {
-            throw new IllegalStateException(
-                    "La configuración de base de datos no está inicializada."
-            );
+            throw new IllegalStateException("Configuración no inicializada");
         }
         return configuracion;
     }
@@ -38,26 +34,44 @@ public class Main {
         new LoginPage();
     }
 
-    public static void Asignar() {
-        AsignarTab asignarTab = new AsignarTab();
-        asignarTab.setVisible(true);
+    public static void Welcome() {
+        WelcomePage ventana = new WelcomePage();
+        ventana.setVisible(true);
     }
 
-    public static void Welcome() {
-        WelcomePage welcomePage = new WelcomePage();
-        welcomePage.setVisible(true);
+    public static void Asignar() {
+        Asignar(null);
+    }
+
+    public static void Asignar(Window parent) {
+        AsignarTab ventana = new AsignarTab(parent);
+        ventana.setVisible(true);
     }
 
     public static void AlumTabla() {
-        new VisualizarAlumnos();
+        AlumTabla(null);
+    }
+
+    public static void AlumTabla(Window parent) {
+        VisualizarAlumnos ventana = new VisualizarAlumnos(parent);
+        ventana.setVisible(true);
     }
 
     public static void ProfeTabla() {
-        new VisualizarProfesores();
+        ProfeTabla(null);
+    }
+
+    public static void ProfeTabla(Window parent) {
+        VisualizarProfesores ventana = new VisualizarProfesores(parent);
+        ventana.setVisible(true);
     }
 
     public static void RegistrarUser() {
-        RegistarTab registrarTab = new RegistarTab();
-        registrarTab.setVisible(true);
+        RegistrarUser(null);
+    }
+
+    public static void RegistrarUser(Window parent) {
+        RegistarTab ventana = new RegistarTab(parent);
+        ventana.setVisible(true);
     }
 }
