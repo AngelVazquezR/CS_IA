@@ -46,6 +46,9 @@ Adaptar la aplicación al nuevo modelo relacional basado en STUDENTS, TEACHERS, 
 - [x] Validar compilación y tests después del cableado de UI (16 tests correctos).
 - [x] Retirar `GestionarTab` y pantallas auxiliares experimentales que duplicaban funcionalidad.
 - [x] Realizar prueba manual de las tres pantallas migradas.
+- [x] Unificar la navegación de ventanas secundarias para que `Atrás` y la `X` tengan el mismo comportamiento.
+- [x] Eliminar el doble `JFrame` interno en las ventanas de alumnos y profesores.
+- [x] Evitar `EXIT_ON_CLOSE` en ventanas secundarias.
 
 ## Fase 5 - Seguridad y autenticación
 - [x] Migrar `LoginPage` y `RegistarTab` de `USUARIOS/CONTRASEÑA` a `UsuarioRepository` sobre `USERS/PASSWORD_HASH`.
@@ -76,6 +79,12 @@ Adaptar la aplicación al nuevo modelo relacional basado en STUDENTS, TEACHERS, 
 - [x] Prueba manual de asignaciones.
 - [x] Prueba manual de persistencia de alumnos, profesores y asignaciones tras reinicio.
 - [x] Añadir comprobación automatizada del esquema SQLite esperado.
+- [x] Ejecutar regresión tras refactor de navegación: 25 tests, 0 fallos, 0 errores, BUILD SUCCESS.
+- [x] Validar manualmente navegación de Alumnos mediante Atrás y X.
+- [x] Validar manualmente navegación de Profesores mediante Atrás y X.
+- [x] Validar manualmente navegación de Asignaciones mediante Atrás y X.
+- [x] Validar manualmente navegación de Crear usuario mediante Atrás y X.
+- [x] Validar Cerrar sesión hacia Login y salida de aplicación desde Login/Welcome.
 
 ## Evidencias de validación manual final
 - Alta de profesor: correcta.
@@ -89,6 +98,13 @@ Adaptar la aplicación al nuevo modelo relacional basado en STUDENTS, TEACHERS, 
 - Eliminación de profesor existente: correcta.
 - Eliminación de alumno existente: correcta.
 - Segunda comprobación de persistencia tras reinicio: correcta.
+- Alumnos: Atrás y X regresan correctamente a Welcome.
+- Profesores: Atrás y X regresan correctamente a Welcome.
+- Asignaciones: Atrás y X regresan correctamente a Welcome.
+- Crear usuario: Atrás y X regresan correctamente a Welcome.
+- Cerrar sesión regresa correctamente a Login.
+- X en Login termina correctamente la aplicación.
+- Acciones > Salir termina correctamente la aplicación.
 
 ## Criterio de integración
-[x] Cumplido. El modelo, repositories, UI, autenticación y pruebas están adaptados; no quedan consultas activas contra `ALUMNOS`, `PROFESORES` o `USUARIOS`; `mvn clean package` es correcto y las pruebas manuales críticas han finalizado con el resultado esperado. La rama `feature/data-model-v2` queda preparada para revisión y fusión a `main`.
+[x] Cumplido. El modelo, repositories, UI, autenticación, navegación y pruebas están adaptados; no quedan consultas activas contra `ALUMNOS`, `PROFESORES` o `USUARIOS`; `mvn clean package` es correcto; la regresión final mantiene 25 tests correctos y las pruebas manuales críticas, incluida la navegación, han finalizado con el resultado esperado. La rama `feature/data-model-v2` queda preparada para revisión y fusión a `main`.
