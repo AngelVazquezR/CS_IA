@@ -44,14 +44,20 @@ Adaptar la aplicación al nuevo modelo relacional basado en STUDENTS, TEACHERS, 
 - [x] Añadir selección única de día de semana, hora de inicio, fecha inicial y fecha final a la asignación.
 - [x] Cargar profesores y alumnos de la asignación por ID desde sus repositories.
 - [x] Añadir validaciones básicas y mensajes de error en las pantallas migradas.
-- [ ] Validar compilación y tests después del cableado de UI.
+- [x] Validar compilación y tests después del cableado de UI (16 tests correctos).
 - [ ] Realizar prueba manual de las tres pantallas migradas.
 - [ ] Revisar/eliminar pantallas auxiliares antiguas que ya no formen parte del flujo.
 
 ## Fase 5 - Seguridad y autenticación
-- [ ] Migrar consultas de `USUARIOS/CONTRASEÑA` a `USERS/PASSWORD_HASH`.
-- [ ] Evitar almacenamiento y logs de contraseñas en texto plano.
-- [ ] Mantener compatibilidad temporal solo mientras se migra la UI de autenticación.
+- [x] Migrar `LoginPage` y `RegistarTab` de `USUARIOS/CONTRASEÑA` a `UsuarioRepository` sobre `USERS/PASSWORD_HASH`.
+- [x] Añadir `AuthService` para desacoplar autenticación y registro de Swing.
+- [x] Sustituir SHA-256 directo por PBKDF2-HMAC-SHA256 con sal aleatoria para las nuevas credenciales.
+- [x] Usar `JPasswordField` y limpiar arrays/campos de contraseña después de utilizarlos.
+- [x] Evitar logs de contraseñas o hashes en el flujo nuevo.
+- [x] Retirar la inicialización de `ConectionSQL` del arranque.
+- [x] Añadir pruebas unitarias del hasher y pruebas de integración de autenticación sobre SQLite.
+- [ ] Validar la fase con `mvn clean test`.
+- [ ] Eliminar compatibilidad de autenticación antigua cuando se haya validado el flujo manual.
 
 ## Fase 6 - Validación
 - [ ] Ejecutar `mvn clean test` con todos los tests del modelo v2.
