@@ -1,7 +1,7 @@
 # Plan de tareas - Data Model v2
 
 ## Objetivo
-Adaptar la aplicación al nuevo modelo relacional basado en STUDENTS, TEACHERS, USERS y ASSIGNMENTS, manteniendo SQLite/MySQL y evitando regresiones durante la migración.
+Adaptar la aplicación al nuevo modelo relacional basado en STUDENTS, TEACHERS, USERS y ASSIGNMENTS. La versión v2 se cierra funcionalmente sobre SQLite; MySQL permanece en la arquitectura, pero deshabilitado mediante feature flag hasta completar la mejora #5.
 
 ## Fase 1 - Esquema y dominio
 - [x] Crear rama `feature/data-model-v2` desde `main`.
@@ -87,8 +87,15 @@ Adaptar la aplicación al nuevo modelo relacional basado en STUDENTS, TEACHERS, 
 - [x] Validar manualmente navegación de Asignaciones mediante Atrás y X.
 - [x] Validar manualmente navegación de Crear usuario mediante Atrás y X.
 - [x] Validar Cerrar sesión hacia Login y salida de aplicación desde Login/Welcome.
-- [ ] Ejecutar regresión final tras extraer `VentanaSecundaria` (`mvn clean test`).
+- [x] Cerrar el alcance v2 sobre SQLite y aplazar MySQL a la mejora #5.
+- [x] Añadir feature flag por motor en `DatabaseType` (`SQLITE=true`, `MYSQL=false`).
+- [x] Mostrar en configuración inicial únicamente los motores habilitados.
+- [x] Rechazar configuraciones existentes que seleccionen un motor deshabilitado.
+- [x] Bloquear en `DatabaseConnectionFactory` cualquier motor deshabilitado antes de abrir JDBC.
+- [x] Añadir pruebas automatizadas para visibilidad y bloqueo del feature flag.
+- [ ] Ejecutar regresión final tras `VentanaSecundaria` y feature flags (`mvn clean test`; esperado: 28 tests).
 - [ ] Revalidar manualmente Atrás/X en las cuatro ventanas secundarias tras la abstracción.
+- [ ] Validar manualmente que una configuración nueva solo ofrece SQLite.
 
 ## Evidencias de validación manual final
 - Alta de profesor: correcta.
@@ -111,4 +118,4 @@ Adaptar la aplicación al nuevo modelo relacional basado en STUDENTS, TEACHERS, 
 - Acciones > Salir termina correctamente la aplicación.
 
 ## Criterio de integración
-Pendiente únicamente de la regresión final automática y de la revalidación manual de navegación tras extraer `VentanaSecundaria`. Una vez completadas, la rama `feature/data-model-v2` quedará preparada para revisión y fusión a `main`.
+Pendiente únicamente de la regresión final automática y de la revalidación manual de navegación/configuración. MySQL queda deliberadamente deshabilitado por feature flag y su soporte v2 completo se gestionará en la mejora #5. Una vez completadas estas validaciones, la rama `feature/data-model-v2` quedará preparada para revisión y fusión a `main`.
