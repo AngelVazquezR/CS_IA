@@ -1,173 +1,224 @@
 package com.angelvazquez.csia.ui.ventanas;
 
-import java.awt.Component;
+import java.awt.BorderLayout;
+import java.awt.GridLayout;
 import java.awt.Window;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.HashMap;
+import java.sql.SQLException;
+import java.time.LocalDate;
+import java.time.LocalTime;
 
 import javax.swing.JButton;
-import javax.swing.JFrame;
+import javax.swing.JComboBox;
 import javax.swing.JLabel;
-import javax.swing.JTextField;
-import javax.swing.SwingUtilities;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
-import javax.swing.JRadioButton;
+
+import com.angelvazquez.csia.Main;
+import com.angelvazquez.csia.database.DatabaseConnectionFactory;
+import com.angelvazquez.csia.database.repository.AlumnoRepository;
+import com.angelvazquez.csia.database.repository.AsignacionRepository;
+import com.angelvazquez.csia.database.repository.ProfesorRepository;
+import com.angelvazquez.csia.model.Alumno;
+import com.angelvazquez.csia.model.Asignacion;
+import com.angelvazquez.csia.model.Profesor;
+import com.github.lgooddatepicker.components.DatePicker;
 import com.github.lgooddatepicker.components.TimePicker;
 
-import com.angelvazquez.csia.database.ConectionSQL;
+public class AsignarTab extends VentanaSecundaria {
 
-import javax.swing.JMenuBar;
-import javax.swing.JMenu;
-import javax.swing.JPopupMenu;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
-import javax.swing.JSeparator;
-import javax.swing.JFormattedTextField;
-import javax.swing.JComboBox;
+    private static final long serialVersionUID = 1L;
 
-public class AsignarTab extends JFrame implements ActionListener{
+    private final JComboBox<Object> profesorCombo = new JComboBox<>();
+    private final JComboBox<Object> alumnoCombo = new JComboBox<>();
+    private final JComboBox<DiaSemana> diaCombo = new JComboBox<>(DiaSemana.values());
+    private final TimePicker horaInicioPicker = new TimePicker();
+    private final DatePicker fechaInicioPicker = new DatePicker();
+    private final DatePicker fechaFinPicker = new DatePicker();
 
-	private final long serialVersionUID = 1L;
-	private JPanel contentPane;
+    private final JButton asignarButton = new JButton("Asignar");
+    private final JButton atrasButton = new JButton("Atrás");
 
-	JLabel AsignarLabel = new JLabel("Asiganar");
-	JLabel ProfeLabel = new JLabel("Nombre del profesor");
-	JLabel AlumnoLabel = new JLabel("Nombre del alumno");
-	
-	JButton AsignarButton = new JButton("Asignar");
-	JButton AtrasButton = new JButton("Atras");
-	
-	
-	
-	static JComboBox profeComboBox = new JComboBox();
-	static JComboBox alumComboBox = new JComboBox();
-	
-	
-	public AsignarTab() {
-		//setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 500, 350);
-		contentPane = new JPanel();
-		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
-		setContentPane(contentPane);
-		contentPane.setLayout(null);
-		
-		AsignarLabel.setBounds(6, 6, 61, 16);
-		contentPane.add(AsignarLabel);
-		
-		ProfeLabel.setBounds(16, 37, 130, 16);
-		contentPane.add(ProfeLabel);
-		
-		AlumnoLabel.setBounds(170, 37, 142, 16);
-		contentPane.add(AlumnoLabel);
-		
+    private final AlumnoRepository alumnoRepository;
+    private final ProfesorRepository profesorRepository;
+    private final AsignacionRepository asignacionRepository;
 
-		
-		AsignarButton.setBounds(101, 287, 117, 29);
-		AsignarButton.addActionListener(this);
-		contentPane.add(AsignarButton);
-		
-		
-		AtrasButton.setBounds(6, 287, 83, 29);
-		AtrasButton.addActionListener(this);
-		contentPane.add(AtrasButton);
-		
-		JLabel lblNewLabel = new JLabel("Dias");
-		lblNewLabel.setBounds(16, 100, 61, 16);
-		contentPane.add(lblNewLabel);
-		
-		JRadioButton rdbtnNewRadioButton = new JRadioButton("Lunes");
-		rdbtnNewRadioButton.setBounds(6, 122, 83, 23);
-		contentPane.add(rdbtnNewRadioButton);
-		
-		JRadioButton rdbtnNewRadioButton_1 = new JRadioButton("Martes");
-		rdbtnNewRadioButton_1.setBounds(5, 145, 84, 23);
-		contentPane.add(rdbtnNewRadioButton_1);
-		
-		JRadioButton rdbtnNewRadioButton_2 = new JRadioButton("Miercoles");
-		rdbtnNewRadioButton_2.setBounds(6, 169, 97, 23);
-		contentPane.add(rdbtnNewRadioButton_2);
-		
-		JRadioButton rdbtnNewRadioButton_3 = new JRadioButton("Jueves");
-		rdbtnNewRadioButton_3.setBounds(101, 122, 80, 23);
-		contentPane.add(rdbtnNewRadioButton_3);
-		
-		JRadioButton rdbtnNewRadioButton_4 = new JRadioButton("Viernes");
-		rdbtnNewRadioButton_4.setBounds(101, 145, 80, 23);
-		contentPane.add(rdbtnNewRadioButton_4);
-		
-		JRadioButton rdbtnNewRadioButton_5 = new JRadioButton("Sabado");
-		rdbtnNewRadioButton_5.setBounds(101, 169, 83, 23);
-		contentPane.add(rdbtnNewRadioButton_5);
-		
-		JRadioButton rdbtnNewRadioButton_6 = new JRadioButton("Domingo");
-		rdbtnNewRadioButton_6.setBounds(193, 122, 97, 23);
-		contentPane.add(rdbtnNewRadioButton_6);
-		
-		JLabel lblNewLabel_1 = new JLabel("Hora de inicio");
-		lblNewLabel_1.setBounds(6, 202, 97, 16);
-		contentPane.add(lblNewLabel_1);
-		
-		JLabel lblNewLabel_2 = new JLabel("Hora de final");
-		lblNewLabel_2.setBounds(159, 202, 83, 16);
-		contentPane.add(lblNewLabel_2);
-		
-		TimePicker timePicker = new TimePicker();
-		timePicker.setBounds(6, 230, 145, 29);
-		contentPane.add(timePicker);
-		
-		TimePicker timePicker_1 = new TimePicker();
-		timePicker_1.setBounds(158, 230, 145, 29);
-		contentPane.add(timePicker_1);
-		
-		alumComboBox.addItem("Alumno");
-		alumComboBox.setBounds(180, 65, 107, 27);
-		contentPane.add(alumComboBox);
-		
-		profeComboBox.addItem("Profesor");
-		profeComboBox.setBounds(26, 65, 107, 27);
-		contentPane.add(profeComboBox);
-		
+    public AsignarTab() {
+        this(null);
+    }
 
-	     // Crear elementos de menú
-	     
-	     ConectionSQL.FillAlumPop();
-	     ConectionSQL.FillProfePop();
+    public AsignarTab(Window parent) {
+        super(parent);
 
-	}
+        DatabaseConnectionFactory connectionFactory = new DatabaseConnectionFactory();
+        alumnoRepository = new AlumnoRepository(connectionFactory, Main.getConfiguracion());
+        profesorRepository = new ProfesorRepository(connectionFactory, Main.getConfiguracion());
+        asignacionRepository = new AsignacionRepository(connectionFactory, Main.getConfiguracion());
 
-	public void CerrarVentana() {
-		Component com = SwingUtilities.getRoot(this);
-		 ((Window) com).dispose();
-	}
+        configurarVentana();
+        cargarPersonas();
+        configurarAcciones();
+    }
 
-	public static void AddAlumPop(String alum) {	
-		alumComboBox.addItem(alum);			
-	}
-	public static void AddProfePop(String alum) {	
-		profeComboBox.addItem(alum);			
-	}
-	
-	@Override
-	public void actionPerformed(ActionEvent e) {
-		if(e.getSource()==AtrasButton) {
-			WelcomePage.RestaurarVentana();
-			//Main.Welcome();
-			CerrarVentana();
-		}
-		if (e.getSource()== AsignarButton) {
-			if(profeComboBox.getSelectedItem().toString() != "Profesor") {
-				
-			
-			ConectionSQL.AsignarProf( profeComboBox.getSelectedItem().toString().toUpperCase(), 
-					alumComboBox.getSelectedItem().toString().toUpperCase());
-			}
-		}
-		
-	}
-	
-	
+    private void configurarVentana() {
+        setTitle("Asignar profesor a alumno");
+        setBounds(100, 100, 620, 360);
+
+        JPanel contentPane = new JPanel(new BorderLayout(10, 10));
+        contentPane.setBorder(new EmptyBorder(12, 12, 12, 12));
+        setContentPane(contentPane);
+
+        JPanel formulario = new JPanel(new GridLayout(6, 2, 8, 8));
+        formulario.add(new JLabel("Profesor:"));
+        formulario.add(profesorCombo);
+        formulario.add(new JLabel("Alumno:"));
+        formulario.add(alumnoCombo);
+        formulario.add(new JLabel("Día de la semana:"));
+        formulario.add(diaCombo);
+        formulario.add(new JLabel("Hora de inicio:"));
+        formulario.add(horaInicioPicker);
+        formulario.add(new JLabel("Fecha de inicio:"));
+        formulario.add(fechaInicioPicker);
+        formulario.add(new JLabel("Fecha de fin:"));
+        formulario.add(fechaFinPicker);
+        contentPane.add(formulario, BorderLayout.CENTER);
+
+        JPanel botones = new JPanel();
+        botones.add(atrasButton);
+        botones.add(asignarButton);
+        contentPane.add(botones, BorderLayout.SOUTH);
+
+        fechaInicioPicker.setDate(LocalDate.now());
+        fechaFinPicker.setDate(LocalDate.now());
+    }
+
+    private void cargarPersonas() {
+        profesorCombo.removeAllItems();
+        alumnoCombo.removeAllItems();
+        profesorCombo.addItem("Selecciona un profesor");
+        alumnoCombo.addItem("Selecciona un alumno");
+
+        try {
+            for (Profesor profesor : profesorRepository.listar()) {
+                profesorCombo.addItem(new OpcionPersona(
+                        profesor.getDatabaseId(),
+                        profesor.GetNombre() + " " + profesor.GetApellido(),
+                        profesor.GetDNI()
+                ));
+            }
+
+            for (Alumno alumno : alumnoRepository.listar()) {
+                alumnoCombo.addItem(new OpcionPersona(
+                        alumno.getDatabaseId(),
+                        alumno.GetNombre() + " " + alumno.GetApellido(),
+                        alumno.GetDNI()
+                ));
+            }
+        } catch (SQLException ex) {
+            mostrarError("No se han podido cargar alumnos y profesores: " + ex.getMessage());
+        }
+    }
+
+    private void configurarAcciones() {
+        atrasButton.addActionListener(e -> volverAlPadre());
+        asignarButton.addActionListener(e -> guardarAsignacion());
+    }
+
+    private void guardarAsignacion() {
+        Object profesorSeleccionado = profesorCombo.getSelectedItem();
+        Object alumnoSeleccionado = alumnoCombo.getSelectedItem();
+        LocalTime horaInicio = horaInicioPicker.getTime();
+        LocalDate fechaInicio = fechaInicioPicker.getDate();
+        LocalDate fechaFin = fechaFinPicker.getDate();
+        DiaSemana dia = (DiaSemana) diaCombo.getSelectedItem();
+
+        if (!(profesorSeleccionado instanceof OpcionPersona profesor)
+                || !(alumnoSeleccionado instanceof OpcionPersona alumno)) {
+            mostrarError("Selecciona un profesor y un alumno.");
+            return;
+        }
+
+        if (horaInicio == null || fechaInicio == null || fechaFin == null || dia == null) {
+            mostrarError("Día, hora de inicio y fechas son obligatorios.");
+            return;
+        }
+
+        Asignacion asignacion = new Asignacion(
+                profesor.id(),
+                alumno.id(),
+                dia.numero(),
+                horaInicio,
+                fechaInicio,
+                fechaFin
+        );
+
+        try {
+            int id = asignacionRepository.agregar(asignacion);
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Asignación creada correctamente (ID " + id + ").",
+                    "Asignación",
+                    JOptionPane.INFORMATION_MESSAGE
+            );
+        } catch (IllegalArgumentException ex) {
+            mostrarError(ex.getMessage());
+        } catch (SQLException ex) {
+            mostrarError("No se ha podido guardar la asignación: " + ex.getMessage());
+        }
+    }
+
+    private void mostrarError(String mensaje) {
+        JOptionPane.showMessageDialog(
+                this,
+                mensaje,
+                "Error",
+                JOptionPane.ERROR_MESSAGE
+        );
+    }
+
+    public void CerrarVentana() {
+        dispose();
+    }
+
+    @Deprecated
+    public static void AddAlumPop(String alum) {
+    }
+
+    @Deprecated
+    public static void AddProfePop(String profe) {
+    }
+
+    private record OpcionPersona(Integer id, String nombre, String dni) {
+        @Override
+        public String toString() {
+            return nombre + " (" + dni + ")";
+        }
+    }
+
+    private enum DiaSemana {
+        LUNES(1, "Lunes"),
+        MARTES(2, "Martes"),
+        MIERCOLES(3, "Miércoles"),
+        JUEVES(4, "Jueves"),
+        VIERNES(5, "Viernes"),
+        SABADO(6, "Sábado"),
+        DOMINGO(7, "Domingo");
+
+        private final int numero;
+        private final String etiqueta;
+
+        DiaSemana(int numero, String etiqueta) {
+            this.numero = numero;
+            this.etiqueta = etiqueta;
+        }
+
+        int numero() {
+            return numero;
+        }
+
+        @Override
+        public String toString() {
+            return etiqueta;
+        }
+    }
 }

@@ -1,18 +1,10 @@
 package com.angelvazquez.csia;
 
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Random;
+import java.awt.Window;
 
 import com.angelvazquez.csia.database.ConfigDB;
 import com.angelvazquez.csia.database.ConfiguracionManager;
-
-import com.angelvazquez.csia.database.ConectionSQL;
-import com.angelvazquez.csia.database.IDandPasswords;
-import com.angelvazquez.csia.model.Profesor;
-import com.angelvazquez.csia.model.Users;
 import com.angelvazquez.csia.ui.ventanas.AsignarTab;
-import com.angelvazquez.csia.ui.ventanas.GestionarTab;
 import com.angelvazquez.csia.ui.ventanas.LoginPage;
 import com.angelvazquez.csia.ui.ventanas.RegistarTab;
 import com.angelvazquez.csia.ui.ventanas.VisualizarAlumnos;
@@ -20,63 +12,66 @@ import com.angelvazquez.csia.ui.ventanas.VisualizarProfesores;
 import com.angelvazquez.csia.ui.ventanas.WelcomePage;
 
 public class Main {
-	public static Users user1;
-	static Random rand = new Random();
-	static HashMap<String,String> map = new LinkedHashMap();
-	
-	public static void main(String[] args) {
-		
-		// Comprobamos si existe el fichero de configuracion
-		ConfiguracionManager manager = new ConfiguracionManager();
-		ConfigDB configuracion = manager.inicializarConfiguracion();
-		if (configuracion == null) {
-            System.out.println("Arranque cancelado por falta de configuración.");
 
+    private static ConfigDB configuracion;
+
+    public static void main(String[] args) {
+        configuracion = new ConfiguracionManager().inicializarConfiguracion();
+        if (configuracion == null) {
             return;
         }
-		
-		IDandPasswords idandpasswords = new IDandPasswords();
-		ConectionSQL conectionSQL = new ConectionSQL();
-		LoginPage loginpage = new LoginPage(idandpasswords.getLoginInfo());
-	}
-	
-	public static String randomChar(String[] array) {
-		System.out.println(rand.nextInt(array.length));
-		return array[rand.nextInt(array.length)];
-	}
-	
-	public static void LogIn() {
-		IDandPasswords idandpasswords = new IDandPasswords();
-		LoginPage loginpage = new LoginPage(idandpasswords.getLoginInfo());
-	}
-	public static void Asignar() {
-		AsignarTab asignarTab = new AsignarTab();
-		asignarTab.setVisible(true);
-	}
-	public static void Gestionar() {
-		GestionarTab gestionarTab = new GestionarTab();
-		gestionarTab.setVisible(true);
-	}
-	public static void Welcome() {
-		WelcomePage welcomePage = new WelcomePage();
-		welcomePage.setVisible(true);
-	}
-	public static void AlumTabla() {
-		VisualizarAlumnos vis = new VisualizarAlumnos();
-		//vis.setVisible(true);
-	}
-	public static void ProfeTabla() {
-		VisualizarProfesores v = new VisualizarProfesores();
-		//vis.setVisible(true);
-	}
-	public static void RegistrarUser() {
-		RegistarTab registrarTab = new RegistarTab();
-		registrarTab.setVisible(true);
-	}
-		
-	public static void CreateProfesor(String id, String name, String apellido, String DNI) {
-		Profesor profe = new Profesor(name, apellido, id, DNI, "", "");
-		map.put(profe.GetID(), profe.GetNombre());
-	}
+        new LoginPage();
+    }
 
+    public static ConfigDB getConfiguracion() {
+        if (configuracion == null) {
+            throw new IllegalStateException("Configuración no inicializada");
+        }
+        return configuracion;
+    }
+
+    public static void LogIn() {
+        new LoginPage();
+    }
+
+    public static void Welcome() {
+        WelcomePage ventana = new WelcomePage();
+        ventana.setVisible(true);
+    }
+
+    public static void Asignar() {
+        Asignar(null);
+    }
+
+    public static void Asignar(Window parent) {
+        AsignarTab ventana = new AsignarTab(parent);
+        ventana.setVisible(true);
+    }
+
+    public static void AlumTabla() {
+        AlumTabla(null);
+    }
+
+    public static void AlumTabla(Window parent) {
+        VisualizarAlumnos ventana = new VisualizarAlumnos(parent);
+        ventana.setVisible(true);
+    }
+
+    public static void ProfeTabla() {
+        ProfeTabla(null);
+    }
+
+    public static void ProfeTabla(Window parent) {
+        VisualizarProfesores ventana = new VisualizarProfesores(parent);
+        ventana.setVisible(true);
+    }
+
+    public static void RegistrarUser() {
+        RegistrarUser(null);
+    }
+
+    public static void RegistrarUser(Window parent) {
+        RegistarTab ventana = new RegistarTab(parent);
+        ventana.setVisible(true);
+    }
 }
