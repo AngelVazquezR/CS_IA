@@ -2,12 +2,15 @@ package com.angelvazquez.csia.database;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.HashSet;
 import java.util.Set;
@@ -19,6 +22,17 @@ class ConfiguracionSqliteFinalTest {
 
     @TempDir
     Path temporal;
+
+    @Test
+    void selectorSoloMuestraMotoresHabilitados() {
+        ConfiguracionInicialPanel panel = new ConfiguracionInicialPanel();
+
+        assertTrue(DatabaseType.SQLITE.isEnabled());
+        assertFalse(DatabaseType.MYSQL.isEnabled());
+        assertEquals(1, panel.numeroTiposDisponibles());
+        assertTrue(panel.contieneTipo(DatabaseType.SQLITE));
+        assertFalse(panel.contieneTipo(DatabaseType.MYSQL));
+    }
 
     @Test
     void selectorSqliteCompletaDriverUrlYCredencialesOpcionales() {
@@ -44,6 +58,47 @@ class ConfiguracionSqliteFinalTest {
         panel.establecerNombreSqlite("academia.db");
 
         assertEquals("jdbc:sqlite:data/academia.db", panel.obtenerUrl());
+    }
+
+    @Test
+    void configuracionMysqlExistenteSeRechazaMientrasEsteDeshabilitada()
+            throws Exception {
+        Path ruta = temporal.resolve("configuracion-mysql.xml");
+        Files.writeString(ruta, """
+                <configuracion>
+                    <baseDatos>
+                        <tipo>mysql</tipo>
+                        <driver>com.mysql.cj.jdbc.Driver</driver>
+                        <url>jdbc:mysql://localhost:3306/</url>
+                        <usuario>usuario</usuario>
+                        <password>clave</password>
+                        <db>csia</db>
+                    </baseDatos>
+                </configuracion>
+                """);
+
+        IOException error = assertThrows(
+                IOException.class,
+                () -> new ConfiguracionManager(temporal).leerConfiguracion(ruta)
+        );
+        assertTrue(error.getMessage().contains("no está habilitado"));
+    }
+
+    @Test
+    void factoryRechazaMysqlAntesDeIntentarConectar() {
+        ConfigDB configuracion = new ConfigDB();
+        configuracion.databaseType = DatabaseType.MYSQL;
+        configuracion.driver = "com.mysql.cj.jdbc.Driver";
+        configuracion.url = "jdbc:mysql://localhost:3306/";
+        configuracion.db = "csia";
+        configuracion.user = "usuario";
+        configuracion.password = "clave";
+
+        SQLException error = assertThrows(
+                SQLException.class,
+                () -> new DatabaseConnectionFactory().open(configuracion)
+        );
+        assertTrue(error.getMessage().contains("no está habilitado"));
     }
 
     @Test
