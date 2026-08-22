@@ -21,6 +21,16 @@ public final class DatabaseConnectionFactory {
     public Connection open(ConfigDB configuration) throws SQLException {
         Objects.requireNonNull(configuration, "La configuracion no puede ser null.");
 
+        if (configuration.databaseType == null) {
+            throw new SQLException("No se ha indicado el motor de base de datos.");
+        }
+        if (!configuration.databaseType.isEnabled()) {
+            throw new SQLException(
+                    "El motor de base de datos " + configuration.databaseType
+                            + " no está habilitado en esta versión."
+            );
+        }
+
         if (configuration.driver != null && !configuration.driver.isBlank()) {
             try {
                 Class.forName(configuration.driver);
