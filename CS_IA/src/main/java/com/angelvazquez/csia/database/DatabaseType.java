@@ -1,19 +1,32 @@
 package com.angelvazquez.csia.database;
 
+import java.util.Arrays;
 import java.util.Locale;
 
 public enum DatabaseType {
-    MYSQL("mysql"),
-    SQLITE("sqlite");
+    MYSQL("mysql", false),
+    SQLITE("sqlite", true);
 
     private final String configValue;
+    private final boolean enabled;
 
-    DatabaseType(String configValue) {
+    DatabaseType(String configValue, boolean enabled) {
         this.configValue = configValue;
+        this.enabled = enabled;
     }
 
     public String getConfigValue() {
         return configValue;
+    }
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public static DatabaseType[] enabledValues() {
+        return Arrays.stream(values())
+                .filter(DatabaseType::isEnabled)
+                .toArray(DatabaseType[]::new);
     }
 
     public static DatabaseType fromConfigValue(String value) {
