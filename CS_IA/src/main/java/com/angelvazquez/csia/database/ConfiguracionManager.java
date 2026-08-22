@@ -139,6 +139,8 @@ public class ConfiguracionManager {
             }
         }
 
+        validarMotorHabilitado(configuracion.databaseType);
+
         configuracion.driver = obtenerValor(baseDatos, "driver");
         configuracion.url = obtenerValor(baseDatos, "url");
         configuracion.db = obtenerValor(baseDatos, "db");
@@ -200,6 +202,8 @@ public class ConfiguracionManager {
 
     void guardarConfiguracion(Path ruta, ConfigDB configuracion)
             throws Exception {
+        validarMotorHabilitado(configuracion.databaseType);
+
         Path directorio = ruta.toAbsolutePath().normalize().getParent();
         if (directorio == null) {
             throw new IOException(
@@ -245,6 +249,18 @@ public class ConfiguracionManager {
             return DatabaseType.SQLITE;
         }
         return DatabaseType.MYSQL;
+    }
+
+    private void validarMotorHabilitado(DatabaseType tipo) throws IOException {
+        if (tipo == null) {
+            throw new IOException("No se ha indicado el motor de base de datos.");
+        }
+        if (!tipo.isEnabled()) {
+            throw new IOException(
+                    "El motor de base de datos " + tipo
+                            + " no está habilitado en esta versión."
+            );
+        }
     }
 
     private void agregarElemento(Document document, Element padre,
