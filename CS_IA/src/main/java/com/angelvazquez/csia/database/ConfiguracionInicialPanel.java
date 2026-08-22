@@ -15,7 +15,7 @@ import javax.swing.JTextField;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
-/** Formulario para crear la configuración inicial MySQL o SQLite. */
+/** Formulario para crear la configuración inicial de motores habilitados. */
 final class ConfiguracionInicialPanel extends JPanel {
 
     static final String DRIVER_MYSQL = "com.mysql.cj.jdbc.Driver";
@@ -25,7 +25,7 @@ final class ConfiguracionInicialPanel extends JPanel {
     static final String PREFIJO_URL_SQLITE = "jdbc:sqlite:data/";
 
     private final JComboBox<DatabaseType> campoTipo =
-            new JComboBox<>(DatabaseType.values());
+            new JComboBox<>(DatabaseType.enabledValues());
     private final JTextField campoDriver = new JTextField(30);
     private final JTextField campoUrl = new JTextField(30);
     private final JTextField campoDB = new JTextField(30);
@@ -145,22 +145,27 @@ final class ConfiguracionInicialPanel extends JPanel {
     }
 
     String validar() {
+        DatabaseType tipo = obtenerTipo();
+        if (tipo == null || !tipo.isEnabled()) {
+            return "No hay un motor de base de datos habilitado para esta versión.";
+        }
+
         if (campoDriver.getText().isBlank() || campoUrl.getText().isBlank()) {
             return "Driver y URL son obligatorios.";
         }
 
         if (campoDB.getText().isBlank()) {
-            return obtenerTipo() == DatabaseType.SQLITE
+            return tipo == DatabaseType.SQLITE
                     ? "Para SQLite, el nombre de la base de datos es obligatorio."
                     : "Para MySQL, la base de datos es obligatoria.";
         }
 
-        if (obtenerTipo() == DatabaseType.MYSQL
+        if (tipo == DatabaseType.MYSQL
                 && campoUsuario.getText().isBlank()) {
             return "Para MySQL, el usuario es obligatorio.";
         }
 
-        if (obtenerTipo() == DatabaseType.SQLITE) {
+        if (tipo == DatabaseType.SQLITE) {
             String nombre = campoDB.getText().trim();
             if (nombre.equals(".") || nombre.equals("..")
                     || nombre.matches(".*[\\\\/:*?\"<>|].*")) {
@@ -210,5 +215,18 @@ final class ConfiguracionInicialPanel extends JPanel {
 
     boolean estanHabilitadasLasCredenciales() {
         return campoUsuario.isEnabled() && campoPassword.isEnabled();
+    }
+
+    int numeroTiposDisponibles() {
+        return campoTipo.getItemCount();
+    }
+
+    boolean contieneTipo(DatabaseType tipo) {
+        for (int i = 0; i < campoTipo.getItemCount(); i++) {
+            if (campoTipo.getItemAt(i) == tipo) {
+                return true;
+            }
+        }
+        return false;
     }
 }
