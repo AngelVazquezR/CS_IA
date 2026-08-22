@@ -93,9 +93,10 @@ Adaptar la aplicación al nuevo modelo relacional basado en STUDENTS, TEACHERS, 
 - [x] Rechazar configuraciones existentes que seleccionen un motor deshabilitado.
 - [x] Bloquear en `DatabaseConnectionFactory` cualquier motor deshabilitado antes de abrir JDBC.
 - [x] Añadir pruebas automatizadas para visibilidad y bloqueo del feature flag.
-- [ ] Ejecutar regresión final tras `VentanaSecundaria` y feature flags (`mvn clean test`; esperado: 28 tests).
-- [ ] Revalidar manualmente Atrás/X en las cuatro ventanas secundarias tras la abstracción.
-- [ ] Validar manualmente que una configuración nueva solo ofrece SQLite.
+- [x] Ejecutar regresión final tras `VentanaSecundaria` y feature flags (`mvn clean test`: 28 tests, 0 fallos, 0 errores, BUILD SUCCESS).
+- [x] Ejecutar `mvn clean package` final correctamente y generar el JAR sombreado con 28 tests correctos.
+- [x] Revalidar manualmente Atrás/X en las cuatro ventanas secundarias tras la abstracción.
+- [x] Validar manualmente que una configuración nueva solo ofrece SQLite.
 
 ## Evidencias de validación manual final
 - Alta de profesor: correcta.
@@ -109,13 +110,14 @@ Adaptar la aplicación al nuevo modelo relacional basado en STUDENTS, TEACHERS, 
 - Eliminación de profesor existente: correcta.
 - Eliminación de alumno existente: correcta.
 - Segunda comprobación de persistencia tras reinicio: correcta.
-- Alumnos: Atrás y X regresan correctamente a Welcome antes de la extracción de la clase base.
-- Profesores: Atrás y X regresan correctamente a Welcome antes de la extracción de la clase base.
-- Asignaciones: Atrás y X regresan correctamente a Welcome antes de la extracción de la clase base.
-- Crear usuario: Atrás y X regresan correctamente a Welcome antes de la extracción de la clase base.
+- Alumnos: Atrás y X regresan correctamente a Welcome después de la extracción de `VentanaSecundaria`.
+- Profesores: Atrás y X regresan correctamente a Welcome después de la extracción de `VentanaSecundaria`.
+- Asignaciones: Atrás y X regresan correctamente a Welcome después de la extracción de `VentanaSecundaria`.
+- Crear usuario: Atrás y X regresan correctamente a Welcome después de la extracción de `VentanaSecundaria`.
+- Configuración inicial: solo SQLite aparece como motor disponible.
 - Cerrar sesión regresa correctamente a Login.
 - X en Login termina correctamente la aplicación.
 - Acciones > Salir termina correctamente la aplicación.
 
 ## Criterio de integración
-Pendiente únicamente de la regresión final automática y de la revalidación manual de navegación/configuración. MySQL queda deliberadamente deshabilitado por feature flag y su soporte v2 completo se gestionará en la mejora #5. Una vez completadas estas validaciones, la rama `feature/data-model-v2` quedará preparada para revisión y fusión a `main`.
+[x] Cumplido. El modelo v2, repositories, UI, autenticación, navegación, configuración SQLite y feature flags están adaptados y validados. La regresión final ejecuta 28 tests con 0 fallos y 0 errores, `mvn clean package` genera correctamente el JAR sombreado y las pruebas manuales finales han finalizado correctamente. MySQL permanece deliberadamente deshabilitado y su soporte v2 completo se gestionará en la mejora #5. La rama `feature/data-model-v2` queda preparada para revisión y fusión a `main`.
