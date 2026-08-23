@@ -10,6 +10,7 @@ import com.angelvazquez.csia.config.StartupManager;
 import com.angelvazquez.csia.database.ConfigDB;
 import com.angelvazquez.csia.database.DatabaseConnectionFactory;
 import com.angelvazquez.csia.database.repository.UsuarioRepository;
+import com.angelvazquez.csia.i18n.I18n;
 import com.angelvazquez.csia.ui.ventanas.AsignarTab;
 import com.angelvazquez.csia.ui.ventanas.LoginPage;
 import com.angelvazquez.csia.ui.ventanas.PreferenciasPage;
@@ -41,8 +42,8 @@ public class Main {
             return RegistroInicialUsuario.solicitar(configuracion);
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(null,
-                    "No se ha podido inicializar el acceso de usuarios.\n" + ex.getMessage(),
-                    "Error de base de datos", JOptionPane.ERROR_MESSAGE);
+                    I18n.get("user.accessInitError", ex.getMessage()),
+                    I18n.get("database.error.title"), JOptionPane.ERROR_MESSAGE);
             return false;
         }
     }
