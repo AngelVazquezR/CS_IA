@@ -12,6 +12,7 @@ import com.angelvazquez.csia.database.DatabaseConnectionFactory;
 import com.angelvazquez.csia.database.repository.UsuarioRepository;
 import com.angelvazquez.csia.ui.ventanas.AsignarTab;
 import com.angelvazquez.csia.ui.ventanas.LoginPage;
+import com.angelvazquez.csia.ui.ventanas.PreferenciasPage;
 import com.angelvazquez.csia.ui.ventanas.RegistarTab;
 import com.angelvazquez.csia.ui.ventanas.RegistroInicialUsuario;
 import com.angelvazquez.csia.ui.ventanas.VisualizarAlumnos;
@@ -25,15 +26,10 @@ public class Main {
 
     public static void main(String[] args) {
         appConfig = new StartupManager().inicializar();
-        if (appConfig == null) {
-            return;
-        }
+        if (appConfig == null) return;
 
         configuracion = appConfig.getDatabase();
-        if (!asegurarUsuarioInicial()) {
-            return;
-        }
-
+        if (!asegurarUsuarioInicial()) return;
         new LoginPage();
     }
 
@@ -41,76 +37,59 @@ public class Main {
         UsuarioRepository repository = new UsuarioRepository(
                 new DatabaseConnectionFactory(), configuracion);
         try {
-            if (repository.existeAlgunUsuario()) {
-                return true;
-            }
+            if (repository.existeAlgunUsuario()) return true;
             return RegistroInicialUsuario.solicitar(configuracion);
         } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(
-                    null,
+            JOptionPane.showMessageDialog(null,
                     "No se ha podido inicializar el acceso de usuarios.\n" + ex.getMessage(),
-                    "Error de base de datos",
-                    JOptionPane.ERROR_MESSAGE);
+                    "Error de base de datos", JOptionPane.ERROR_MESSAGE);
             return false;
         }
     }
 
     public static ConfigDB getConfiguracion() {
-        if (configuracion == null) {
-            throw new IllegalStateException("Configuración no inicializada");
-        }
+        if (configuracion == null) throw new IllegalStateException("Configuración no inicializada");
         return configuracion;
     }
 
     public static AppConfig getAppConfig() {
-        if (appConfig == null) {
-            throw new IllegalStateException("Configuración de aplicación no inicializada");
-        }
+        if (appConfig == null) throw new IllegalStateException("Configuración de aplicación no inicializada");
         return appConfig;
     }
 
-    public static void LogIn() {
-        new LoginPage();
-    }
+    public static void LogIn() { new LoginPage(); }
 
     public static void Welcome() {
         WelcomePage ventana = new WelcomePage();
         ventana.setVisible(true);
     }
 
-    public static void Asignar() {
-        Asignar(null);
-    }
-
+    public static void Asignar() { Asignar(null); }
     public static void Asignar(Window parent) {
         AsignarTab ventana = new AsignarTab(parent);
         ventana.setVisible(true);
     }
 
-    public static void AlumTabla() {
-        AlumTabla(null);
-    }
-
+    public static void AlumTabla() { AlumTabla(null); }
     public static void AlumTabla(Window parent) {
         VisualizarAlumnos ventana = new VisualizarAlumnos(parent);
         ventana.setVisible(true);
     }
 
-    public static void ProfeTabla() {
-        ProfeTabla(null);
-    }
-
+    public static void ProfeTabla() { ProfeTabla(null); }
     public static void ProfeTabla(Window parent) {
         VisualizarProfesores ventana = new VisualizarProfesores(parent);
         ventana.setVisible(true);
     }
 
-    public static void RegistrarUser() {
-        RegistrarUser(null);
-    }
-
+    public static void RegistrarUser() { RegistrarUser(null); }
     public static void RegistrarUser(Window parent) {
         RegistarTab ventana = new RegistarTab(parent);
+        ventana.setVisible(true);
+    }
+
+    public static void Preferencias(Window parent) {
+        PreferenciasPage ventana = new PreferenciasPage(parent);
         ventana.setVisible(true);
     }
 }
