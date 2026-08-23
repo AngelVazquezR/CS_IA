@@ -5,15 +5,24 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 
 import java.util.List;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
+import com.angelvazquez.csia.i18n.I18n;
+import com.angelvazquez.csia.i18n.Idioma;
 import com.angelvazquez.csia.model.Alumno;
 import com.angelvazquez.csia.model.Profesor;
 
 class TableModelV2Test {
 
+    @AfterEach
+    void restaurarIdioma() {
+        I18n.setIdioma(Idioma.predeterminado());
+    }
+
     @Test
     void alumnoTableModelMuestraIdNombreApellidoDniYEmail() {
+        I18n.setIdioma(Idioma.ESPANOL);
         AlumnoTableModel model = new AlumnoTableModel();
         Alumno alumno = new Alumno(7, "Ana", "Lopez", "12345678A", "ana@example.com");
 
@@ -21,7 +30,7 @@ class TableModelV2Test {
 
         assertEquals(5, model.getColumnCount());
         assertEquals("ID", model.getColumnName(0));
-        assertEquals("Email", model.getColumnName(4));
+        assertEquals(I18n.get("person.email.label"), model.getColumnName(4));
         assertEquals(7, model.getValueAt(0, AlumnoTableModel.COL_ID));
         assertEquals("Ana", model.getValueAt(0, AlumnoTableModel.COL_NOMBRE));
         assertEquals("ana@example.com", model.getValueAt(0, AlumnoTableModel.COL_EMAIL));
@@ -44,6 +53,7 @@ class TableModelV2Test {
 
     @Test
     void profesorTableModelMuestraAsignaturaYEmailEnLugarDeFechas() {
+        I18n.setIdioma(Idioma.ESPANOL);
         ProfesorTableModel model = new ProfesorTableModel();
         Profesor profesor = new Profesor(11, "Luis", "Perez", "87654321B",
                 "Matematicas", "luis@example.com");
@@ -51,8 +61,10 @@ class TableModelV2Test {
         model.add(profesor);
 
         assertEquals(6, model.getColumnCount());
-        assertEquals("Asignatura", model.getColumnName(ProfesorTableModel.COL_ASIGNATURA));
-        assertEquals("Email", model.getColumnName(ProfesorTableModel.COL_EMAIL));
+        assertEquals(I18n.get("person.subject.label"),
+                model.getColumnName(ProfesorTableModel.COL_ASIGNATURA));
+        assertEquals(I18n.get("person.email.label"),
+                model.getColumnName(ProfesorTableModel.COL_EMAIL));
         assertEquals("Matematicas", model.getValueAt(0, ProfesorTableModel.COL_ASIGNATURA));
         assertEquals("luis@example.com", model.getValueAt(0, ProfesorTableModel.COL_EMAIL));
         assertSame(profesor, model.getAt(0));
