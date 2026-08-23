@@ -15,6 +15,8 @@ import javax.swing.JTextField;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
+import com.angelvazquez.csia.i18n.I18n;
+
 /** Formulario para crear la configuración inicial de motores habilitados. */
 final class ConfiguracionInicialPanel extends JPanel {
 
@@ -31,7 +33,7 @@ final class ConfiguracionInicialPanel extends JPanel {
     private final JTextField campoDB = new JTextField(30);
     private final JTextField campoUsuario = new JTextField(30);
     private final JPasswordField campoPassword = new JPasswordField(30);
-    private final JLabel etiquetaDB = new JLabel("Base de datos:");
+    private final JLabel etiquetaDB = new JLabel();
 
     ConfiguracionInicialPanel() {
         super(new GridBagLayout());
@@ -87,12 +89,12 @@ final class ConfiguracionInicialPanel extends JPanel {
         constraints.anchor = GridBagConstraints.WEST;
         constraints.fill = GridBagConstraints.HORIZONTAL;
 
-        agregarFila(0, new JLabel("Tipo de base de datos:"), campoTipo, constraints);
-        agregarFila(1, new JLabel("Driver JDBC:"), campoDriver, constraints);
-        agregarFila(2, new JLabel("URL:"), campoUrl, constraints);
+        agregarFila(0, new JLabel(I18n.get("database.type.label")), campoTipo, constraints);
+        agregarFila(1, new JLabel(I18n.get("database.driver.label")), campoDriver, constraints);
+        agregarFila(2, new JLabel(I18n.get("database.url.label")), campoUrl, constraints);
         agregarFila(3, etiquetaDB, campoDB, constraints);
-        agregarFila(4, new JLabel("Usuario:"), campoUsuario, constraints);
-        agregarFila(5, new JLabel("Contraseña:"), campoPassword, constraints);
+        agregarFila(4, new JLabel(I18n.get("database.user.label")), campoUsuario, constraints);
+        agregarFila(5, new JLabel(I18n.get("database.password.label")), campoPassword, constraints);
     }
 
     private void agregarFila(int fila, JLabel etiqueta,
@@ -116,13 +118,13 @@ final class ConfiguracionInicialPanel extends JPanel {
         campoPassword.setEnabled(!sqlite);
 
         if (sqlite) {
-            etiquetaDB.setText("Nombre del fichero SQLite:");
+            etiquetaDB.setText(I18n.get("database.sqlite.file.label"));
             campoDB.setText(NOMBRE_DB_SQLITE);
             campoUsuario.setText("");
             campoPassword.setText("");
             actualizarUrlSqlite();
         } else {
-            etiquetaDB.setText("Base de datos:");
+            etiquetaDB.setText(I18n.get("database.name.label"));
             campoDB.setText("");
             campoUrl.setText(URL_MYSQL);
         }
@@ -147,29 +149,29 @@ final class ConfiguracionInicialPanel extends JPanel {
     String validar() {
         DatabaseType tipo = obtenerTipo();
         if (tipo == null || !tipo.isEnabled()) {
-            return "No hay un motor de base de datos habilitado para esta versión.";
+            return I18n.get("database.validation.noEngine");
         }
 
         if (campoDriver.getText().isBlank() || campoUrl.getText().isBlank()) {
-            return "Driver y URL son obligatorios.";
+            return I18n.get("database.validation.driverUrlRequired");
         }
 
         if (campoDB.getText().isBlank()) {
             return tipo == DatabaseType.SQLITE
-                    ? "Para SQLite, el nombre de la base de datos es obligatorio."
-                    : "Para MySQL, la base de datos es obligatoria.";
+                    ? I18n.get("database.validation.sqliteNameRequired")
+                    : I18n.get("database.validation.mysqlNameRequired");
         }
 
         if (tipo == DatabaseType.MYSQL
                 && campoUsuario.getText().isBlank()) {
-            return "Para MySQL, el usuario es obligatorio.";
+            return I18n.get("database.validation.mysqlUserRequired");
         }
 
         if (tipo == DatabaseType.SQLITE) {
             String nombre = campoDB.getText().trim();
             if (nombre.equals(".") || nombre.equals("..")
                     || nombre.matches(".*[\\\\/:*?\"<>|].*")) {
-                return "El nombre de SQLite debe ser un nombre de fichero válido, sin rutas.";
+                return I18n.get("database.validation.sqliteInvalidName");
             }
         }
 
