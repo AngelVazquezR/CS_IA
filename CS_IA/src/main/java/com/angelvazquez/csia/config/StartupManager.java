@@ -51,8 +51,8 @@ public final class StartupManager {
         } catch (Exception e) {
             JOptionPane.showMessageDialog(
                     null,
-                    "No se ha podido inicializar la aplicación.\n\n" + e.getMessage(),
-                    "Error",
+                    I18n.get("startup.initError", e.getMessage()),
+                    I18n.get("app.error"),
                     JOptionPane.ERROR_MESSAGE);
             e.printStackTrace();
             return null;
