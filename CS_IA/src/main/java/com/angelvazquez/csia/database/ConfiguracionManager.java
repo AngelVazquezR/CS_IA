@@ -18,6 +18,9 @@ import javax.xml.transform.stream.StreamResult;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import com.angelvazquez.csia.config.AppConfig;
+import com.angelvazquez.csia.i18n.Idioma;
+
 public class ConfiguracionManager {
 
     private static final String DIRECTORIO_CONFIG = "config";
@@ -106,13 +109,48 @@ public class ConfiguracionManager {
     }
 
     ConfigDB leerConfiguracion(Path ruta) throws Exception {
+        return leerConfiguracionAplicacion(ruta).getDatabase();
+    }
+
+    public AppConfig leerConfiguracionAplicacion(Path ruta) throws Exception {
+        Document document = leerDocumento(ruta);
+        Idioma idioma = leerIdioma(document);
+        ConfigDB database = leerConfiguracionBaseDatos(document);
+        return new AppConfig(idioma, database);
+    }
+
+    private Document leerDocumento(Path ruta) throws Exception {
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         configurarParserSeguro(factory);
 
         DocumentBuilder builder = factory.newDocumentBuilder();
         Document document = builder.parse(ruta.toFile());
         document.getDocumentElement().normalize();
+        return document;
+    }
 
+    private Idioma leerIdioma(Document document) throws IOException {
+        Element aplicacion = (Element) document
+                .getElementsByTagName("aplicacion")
+                .item(0);
+        if (aplicacion == null) {
+            return null;
+        }
+
+        String codigo = obtenerValorOpcional(aplicacion, "idioma");
+        if (codigo == null || codigo.isBlank()) {
+            return null;
+        }
+
+        return Idioma.desdeCodigo(codigo)
+                .orElseThrow(() -> new IOException(
+                        "El idioma configurado '" + codigo
+                                + "' no está soportado."
+                ));
+    }
+
+    private ConfigDB leerConfiguracionBaseDatos(Document document)
+            throws IOException {
         Element baseDatos = (Element) document
                 .getElementsByTagName("baseDatos")
                 .item(0);
@@ -202,7 +240,24 @@ public class ConfiguracionManager {
 
     void guardarConfiguracion(Path ruta, ConfigDB configuracion)
             throws Exception {
-        validarMotorHabilitado(configuracion.databaseType);
+        guardarDocumento(ruta, new AppConfig(null, configuracion), false);
+    }
+
+    public void guardarConfiguracionAplicacion(Path ruta, AppConfig configuracion)
+            throws Exception {
+        if (configuracion == null) {
+            throw new IllegalArgumentException("configuracion no puede ser null");
+        }
+        if (!configuracion.tieneIdiomaConfigurado()) {
+            throw new IOException("No se ha indicado el idioma de la aplicación.");
+        }
+        guardarDocumento(ruta, configuracion, true);
+    }
+
+    private void guardarDocumento(Path ruta, AppConfig configuracion,
+            boolean incluirAplicacion) throws Exception {
+        ConfigDB database = configuracion.getDatabase();
+        validarMotorHabilitado(database.databaseType);
 
         Path directorio = ruta.toAbsolutePath().normalize().getParent();
         if (directorio == null) {
@@ -218,18 +273,30 @@ public class ConfiguracionManager {
 
         Element configuracionXml = document.createElement("configuracion");
         document.appendChild(configuracionXml);
+
+        if (incluirAplicacion) {
+            Element aplicacion = document.createElement("aplicacion");
+            configuracionXml.appendChild(aplicacion);
+            agregarElemento(
+                    document,
+                    aplicacion,
+                    "idioma",
+                    configuracion.getIdioma().getCodigo()
+            );
+        }
+
         Element baseDatos = document.createElement("baseDatos");
         configuracionXml.appendChild(baseDatos);
 
         agregarElemento(
                 document, baseDatos, "tipo",
-                configuracion.databaseType.getConfigValue()
+                database.databaseType.getConfigValue()
         );
-        agregarElemento(document, baseDatos, "driver", configuracion.driver);
-        agregarElemento(document, baseDatos, "url", configuracion.url);
-        agregarElemento(document, baseDatos, "usuario", configuracion.user);
-        agregarElemento(document, baseDatos, "password", configuracion.password);
-        agregarElemento(document, baseDatos, "db", configuracion.db);
+        agregarElemento(document, baseDatos, "driver", database.driver);
+        agregarElemento(document, baseDatos, "url", database.url);
+        agregarElemento(document, baseDatos, "usuario", database.user);
+        agregarElemento(document, baseDatos, "password", database.password);
+        agregarElemento(document, baseDatos, "db", database.db);
 
         Transformer transformer = TransformerFactory
                 .newInstance()
