@@ -19,6 +19,7 @@ import com.angelvazquez.csia.database.DatabaseConnectionFactory;
 import com.angelvazquez.csia.database.repository.AlumnoRepository;
 import com.angelvazquez.csia.database.repository.AsignacionRepository;
 import com.angelvazquez.csia.database.repository.ProfesorRepository;
+import com.angelvazquez.csia.i18n.I18n;
 import com.angelvazquez.csia.model.Alumno;
 import com.angelvazquez.csia.model.Asignacion;
 import com.angelvazquez.csia.model.Profesor;
@@ -36,8 +37,8 @@ public class AsignarTab extends VentanaSecundaria {
     private final DatePicker fechaInicioPicker = new DatePicker();
     private final DatePicker fechaFinPicker = new DatePicker();
 
-    private final JButton asignarButton = new JButton("Asignar");
-    private final JButton atrasButton = new JButton("Atrás");
+    private final JButton asignarButton = new JButton(I18n.get("home.assign"));
+    private final JButton atrasButton = new JButton(I18n.get("app.back"));
 
     private final AlumnoRepository alumnoRepository;
     private final ProfesorRepository profesorRepository;
@@ -61,7 +62,7 @@ public class AsignarTab extends VentanaSecundaria {
     }
 
     private void configurarVentana() {
-        setTitle("Asignar profesor a alumno");
+        setTitle(I18n.get("assign.title"));
         setBounds(100, 100, 620, 360);
 
         JPanel contentPane = new JPanel(new BorderLayout(10, 10));
@@ -69,17 +70,17 @@ public class AsignarTab extends VentanaSecundaria {
         setContentPane(contentPane);
 
         JPanel formulario = new JPanel(new GridLayout(6, 2, 8, 8));
-        formulario.add(new JLabel("Profesor:"));
+        formulario.add(new JLabel(I18n.get("assign.teacher")));
         formulario.add(profesorCombo);
-        formulario.add(new JLabel("Alumno:"));
+        formulario.add(new JLabel(I18n.get("assign.student")));
         formulario.add(alumnoCombo);
-        formulario.add(new JLabel("Día de la semana:"));
+        formulario.add(new JLabel(I18n.get("assign.day")));
         formulario.add(diaCombo);
-        formulario.add(new JLabel("Hora de inicio:"));
+        formulario.add(new JLabel(I18n.get("assign.startTime")));
         formulario.add(horaInicioPicker);
-        formulario.add(new JLabel("Fecha de inicio:"));
+        formulario.add(new JLabel(I18n.get("assign.startDate")));
         formulario.add(fechaInicioPicker);
-        formulario.add(new JLabel("Fecha de fin:"));
+        formulario.add(new JLabel(I18n.get("assign.endDate")));
         formulario.add(fechaFinPicker);
         contentPane.add(formulario, BorderLayout.CENTER);
 
@@ -95,8 +96,8 @@ public class AsignarTab extends VentanaSecundaria {
     private void cargarPersonas() {
         profesorCombo.removeAllItems();
         alumnoCombo.removeAllItems();
-        profesorCombo.addItem("Selecciona un profesor");
-        alumnoCombo.addItem("Selecciona un alumno");
+        profesorCombo.addItem(I18n.get("assign.selectTeacher"));
+        alumnoCombo.addItem(I18n.get("assign.selectStudent"));
 
         try {
             for (Profesor profesor : profesorRepository.listar()) {
@@ -115,7 +116,7 @@ public class AsignarTab extends VentanaSecundaria {
                 ));
             }
         } catch (SQLException ex) {
-            mostrarError("No se han podido cargar alumnos y profesores: " + ex.getMessage());
+            mostrarError(I18n.get("assign.peopleLoadError", ex.getMessage()));
         }
     }
 
@@ -134,12 +135,12 @@ public class AsignarTab extends VentanaSecundaria {
 
         if (!(profesorSeleccionado instanceof OpcionPersona profesor)
                 || !(alumnoSeleccionado instanceof OpcionPersona alumno)) {
-            mostrarError("Selecciona un profesor y un alumno.");
+            mostrarError(I18n.get("assign.personRequired"));
             return;
         }
 
         if (horaInicio == null || fechaInicio == null || fechaFin == null || dia == null) {
-            mostrarError("Día, hora de inicio y fechas son obligatorios.");
+            mostrarError(I18n.get("assign.scheduleRequired"));
             return;
         }
 
@@ -156,14 +157,14 @@ public class AsignarTab extends VentanaSecundaria {
             int id = asignacionRepository.agregar(asignacion);
             JOptionPane.showMessageDialog(
                     this,
-                    "Asignación creada correctamente (ID " + id + ").",
-                    "Asignación",
+                    I18n.get("assign.success", id),
+                    I18n.get("assign.dialogTitle"),
                     JOptionPane.INFORMATION_MESSAGE
             );
         } catch (IllegalArgumentException ex) {
             mostrarError(ex.getMessage());
         } catch (SQLException ex) {
-            mostrarError("No se ha podido guardar la asignación: " + ex.getMessage());
+            mostrarError(I18n.get("assign.saveError", ex.getMessage()));
         }
     }
 
@@ -171,7 +172,7 @@ public class AsignarTab extends VentanaSecundaria {
         JOptionPane.showMessageDialog(
                 this,
                 mensaje,
-                "Error",
+                I18n.get("app.error"),
                 JOptionPane.ERROR_MESSAGE
         );
     }
@@ -196,20 +197,20 @@ public class AsignarTab extends VentanaSecundaria {
     }
 
     private enum DiaSemana {
-        LUNES(1, "Lunes"),
-        MARTES(2, "Martes"),
-        MIERCOLES(3, "Miércoles"),
-        JUEVES(4, "Jueves"),
-        VIERNES(5, "Viernes"),
-        SABADO(6, "Sábado"),
-        DOMINGO(7, "Domingo");
+        LUNES(1, "day.monday"),
+        MARTES(2, "day.tuesday"),
+        MIERCOLES(3, "day.wednesday"),
+        JUEVES(4, "day.thursday"),
+        VIERNES(5, "day.friday"),
+        SABADO(6, "day.saturday"),
+        DOMINGO(7, "day.sunday");
 
         private final int numero;
-        private final String etiqueta;
+        private final String clave;
 
-        DiaSemana(int numero, String etiqueta) {
+        DiaSemana(int numero, String clave) {
             this.numero = numero;
-            this.etiqueta = etiqueta;
+            this.clave = clave;
         }
 
         int numero() {
@@ -218,7 +219,7 @@ public class AsignarTab extends VentanaSecundaria {
 
         @Override
         public String toString() {
-            return etiqueta;
+            return I18n.get(clave);
         }
     }
 }

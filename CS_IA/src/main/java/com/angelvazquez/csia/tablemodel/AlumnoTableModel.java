@@ -6,6 +6,7 @@ import java.util.List;
 
 import javax.swing.table.AbstractTableModel;
 
+import com.angelvazquez.csia.i18n.I18n;
 import com.angelvazquez.csia.model.Alumno;
 
 /** Modelo Swing para alumnos del modelo de datos v2. */
@@ -19,12 +20,15 @@ public class AlumnoTableModel extends AbstractTableModel {
     public static final int COL_DNI = 3;
     public static final int COL_EMAIL = 4;
 
-    /** Alias temporal para código antiguo que todavía usa el typo histórico. */
     @Deprecated
     public static final int COL_NOMRE = COL_NOMBRE;
 
-    private static final String[] COLUMNAS = {
-            "ID", "Nombre", "Apellido", "DNI", "Email"
+    private static final String[] CLAVES_COLUMNAS = {
+            null, "table.name", "table.surname", null, null
+    };
+
+    private static final String[] COLUMNAS_FIJAS = {
+            "ID", null, null, "DNI", "Email"
     };
 
     private static final Class<?>[] TIPOS = {
@@ -40,7 +44,6 @@ public class AlumnoTableModel extends AbstractTableModel {
         return row;
     }
 
-    /** Sustituye todos los datos, pensado para cargas procedentes del repository. */
     public void setData(Collection<Alumno> alumnos) {
         data.clear();
         if (alumnos != null) {
@@ -54,7 +57,6 @@ public class AlumnoTableModel extends AbstractTableModel {
         fireTableRowsUpdated(row, row);
     }
 
-    /** API antigua conservada temporalmente: notifica que una fila ha cambiado. */
     @Deprecated
     public void updateRow(int row) {
         fireTableRowsUpdated(row, row);
@@ -76,12 +78,13 @@ public class AlumnoTableModel extends AbstractTableModel {
 
     @Override
     public int getColumnCount() {
-        return COLUMNAS.length;
+        return CLAVES_COLUMNAS.length;
     }
 
     @Override
     public String getColumnName(int col) {
-        return COLUMNAS[col];
+        String clave = CLAVES_COLUMNAS[col];
+        return clave == null ? COLUMNAS_FIJAS[col] : I18n.get(clave);
     }
 
     @Override

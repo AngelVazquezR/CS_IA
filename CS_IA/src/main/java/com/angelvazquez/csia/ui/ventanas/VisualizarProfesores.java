@@ -13,6 +13,7 @@ import com.angelvazquez.csia.controller.PersonasTableController;
 import com.angelvazquez.csia.database.DatabaseConnectionFactory;
 import com.angelvazquez.csia.database.repository.AlumnoRepository;
 import com.angelvazquez.csia.database.repository.ProfesorRepository;
+import com.angelvazquez.csia.i18n.I18n;
 import com.angelvazquez.csia.model.Profesor;
 import com.angelvazquez.csia.tablemodel.ProfesorTableModel;
 
@@ -26,10 +27,10 @@ public class VisualizarProfesores extends VentanaSecundaria {
     private final JTextField dni = new JTextField(10);
     private final JTextField asignatura = new JTextField(12);
     private final JTextField email = new JTextField(15);
-    private final JButton agregar = new JButton("Agregar");
-    private final JButton modificar = new JButton("Modificar");
-    private final JButton eliminar = new JButton("Eliminar");
-    private final JButton atras = new JButton("Atrás");
+    private final JButton agregar = new JButton(I18n.get("table.add"));
+    private final JButton modificar = new JButton(I18n.get("table.edit"));
+    private final JButton eliminar = new JButton(I18n.get("table.delete"));
+    private final JButton atras = new JButton(I18n.get("app.back"));
     private final ProfesorRepository repository;
     private final PersonasTableController controller;
 
@@ -47,7 +48,7 @@ public class VisualizarProfesores extends VentanaSecundaria {
     }
 
     private void configurarVentana() {
-        setTitle("Visualizar profesores");
+        setTitle(I18n.get("teachers.title"));
         setLayout(new BorderLayout());
         setBounds(100, 100, 1350, 500);
         tabla.setRowSorter(sorter);
@@ -64,10 +65,10 @@ public class VisualizarProfesores extends VentanaSecundaria {
         });
         add(filtro, BorderLayout.NORTH);
         JPanel p = new JPanel();
-        p.add(new JLabel("Nombre:")); p.add(nombre);
-        p.add(new JLabel("Apellido:")); p.add(apellido);
+        p.add(new JLabel(I18n.get("table.name") + ":")); p.add(nombre);
+        p.add(new JLabel(I18n.get("table.surname") + ":")); p.add(apellido);
         p.add(new JLabel("DNI:")); p.add(dni);
-        p.add(new JLabel("Asignatura:")); p.add(asignatura);
+        p.add(new JLabel(I18n.get("table.subject") + ":")); p.add(asignatura);
         p.add(new JLabel("Email:")); p.add(email);
         p.add(agregar); p.add(modificar); p.add(eliminar); p.add(atras);
         add(p, BorderLayout.SOUTH);
@@ -99,7 +100,7 @@ public class VisualizarProfesores extends VentanaSecundaria {
     private boolean valido() {
         if (nombre.getText().isBlank() || apellido.getText().isBlank() || dni.getText().isBlank()
                 || asignatura.getText().isBlank() || email.getText().isBlank()) {
-            error("Nombre, apellido, DNI, asignatura y email son obligatorios."); return false;
+            error(I18n.get("teachers.required")); return false;
         }
         return true;
     }
@@ -109,9 +110,9 @@ public class VisualizarProfesores extends VentanaSecundaria {
         Profesor p = new Profesor(nombre.getText().trim(), apellido.getText().trim(), dni.getText().trim(),
                 asignatura.getText().trim(), email.getText().trim());
         try {
-            if (repository.existeDni(p.GetDNI())) { error("Ya existe un profesor con ese DNI."); return; }
+            if (repository.existeDni(p.GetDNI())) { error(I18n.get("teachers.duplicateDni")); return; }
             repository.agregar(p); recargarDatos(); limpiar();
-        } catch (SQLException e) { error("No se ha podido agregar el profesor: " + e.getMessage()); }
+        } catch (SQLException e) { error(I18n.get("teachers.addError", e.getMessage())); }
     }
 
     private void modificar() {
@@ -119,16 +120,16 @@ public class VisualizarProfesores extends VentanaSecundaria {
         p.SetNombre(nombre.getText().trim()); p.SetApellido(apellido.getText().trim()); p.DNI = dni.getText().trim();
         p.setAsignatura(asignatura.getText().trim()); p.setEmail(email.getText().trim());
         try { repository.modificar(p); recargarDatos(); limpiar(); }
-        catch (SQLException e) { error("No se ha podido modificar el profesor: " + e.getMessage()); }
+        catch (SQLException e) { error(I18n.get("teachers.editError", e.getMessage())); }
     }
 
     private void eliminar() {
         Profesor p = seleccionado();
-        if (p == null || p.getDatabaseId() == null) { error("Selecciona un profesor para eliminar."); return; }
-        if (JOptionPane.showConfirmDialog(this, "¿Eliminar al profesor seleccionado?", "Confirmar eliminación",
+        if (p == null || p.getDatabaseId() == null) { error(I18n.get("teachers.selectDelete")); return; }
+        if (JOptionPane.showConfirmDialog(this, I18n.get("teachers.confirmDelete"), I18n.get("table.confirmDelete"),
                 JOptionPane.YES_NO_OPTION) != JOptionPane.YES_OPTION) return;
         try { repository.eliminar(p.getDatabaseId()); recargarDatos(); limpiar(); }
-        catch (SQLException e) { error("No se ha podido eliminar el profesor. Comprueba si tiene asignaciones activas.\n" + e.getMessage()); }
+        catch (SQLException e) { error(I18n.get("teachers.deleteError", e.getMessage())); }
     }
 
     private void limpiar() {
@@ -138,10 +139,10 @@ public class VisualizarProfesores extends VentanaSecundaria {
 
     private void recargarDatos() {
         try { controller.cargarProfesores(modeloProfesor); }
-        catch (SQLException e) { error("No se han podido cargar los profesores: " + e.getMessage()); }
+        catch (SQLException e) { error(I18n.get("teachers.loadError", e.getMessage())); }
     }
 
-    private void error(String mensaje) { JOptionPane.showMessageDialog(this, mensaje, "Error", JOptionPane.ERROR_MESSAGE); }
+    private void error(String mensaje) { JOptionPane.showMessageDialog(this, mensaje, I18n.get("app.error"), JOptionPane.ERROR_MESSAGE); }
     public void RecargarVentana() { recargarDatos(); }
     public void CerrarVentana() { dispose(); }
 }
