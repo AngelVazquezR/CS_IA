@@ -11,6 +11,7 @@ import javax.swing.JTextField;
 import com.angelvazquez.csia.database.ConfigDB;
 import com.angelvazquez.csia.database.DatabaseConnectionFactory;
 import com.angelvazquez.csia.database.repository.UsuarioRepository;
+import com.angelvazquez.csia.i18n.I18n;
 import com.angelvazquez.csia.security.AuthService;
 import com.angelvazquez.csia.security.PasswordHasher;
 
@@ -29,16 +30,16 @@ public final class RegistroInicialUsuario {
         JPasswordField passwordField = new JPasswordField(20);
 
         JPanel panel = new JPanel();
-        panel.add(new JLabel("Usuario:"));
+        panel.add(new JLabel(I18n.get("login.user")));
         panel.add(usuarioField);
-        panel.add(new JLabel("Contraseña:"));
+        panel.add(new JLabel(I18n.get("login.password")));
         panel.add(passwordField);
 
         while (true) {
             int resultado = JOptionPane.showConfirmDialog(
                     null,
                     panel,
-                    "Crear primer usuario",
+                    I18n.get("user.initial.title"),
                     JOptionPane.OK_CANCEL_OPTION,
                     JOptionPane.PLAIN_MESSAGE);
 
@@ -51,21 +52,21 @@ public final class RegistroInicialUsuario {
                 authService.registrar(usuarioField.getText(), passwordField.getPassword());
                 JOptionPane.showMessageDialog(
                         null,
-                        "Primer usuario creado correctamente.",
-                        "Configuración inicial",
+                        I18n.get("user.initial.success"),
+                        I18n.get("user.initial.configTitle"),
                         JOptionPane.INFORMATION_MESSAGE);
                 return true;
             } catch (IllegalArgumentException e) {
                 JOptionPane.showMessageDialog(
                         null,
                         e.getMessage(),
-                        "Datos no válidos",
+                        I18n.get("user.register.invalidTitle"),
                         JOptionPane.WARNING_MESSAGE);
             } catch (SQLException e) {
                 JOptionPane.showMessageDialog(
                         null,
-                        "No se ha podido crear el primer usuario.\n" + e.getMessage(),
-                        "Error de base de datos",
+                        I18n.get("user.initial.createError", e.getMessage()),
+                        I18n.get("database.error.title"),
                         JOptionPane.ERROR_MESSAGE);
                 return false;
             } finally {
