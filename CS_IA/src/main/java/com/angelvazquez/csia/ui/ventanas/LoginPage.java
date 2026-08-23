@@ -14,17 +14,18 @@ import javax.swing.JTextField;
 import com.angelvazquez.csia.Main;
 import com.angelvazquez.csia.database.DatabaseConnectionFactory;
 import com.angelvazquez.csia.database.repository.UsuarioRepository;
+import com.angelvazquez.csia.i18n.I18n;
 import com.angelvazquez.csia.security.AuthService;
 import com.angelvazquez.csia.security.PasswordHasher;
 
 public class LoginPage implements ActionListener {
 
-    private final JFrame frame = new JFrame();
-    private final JButton loginbutton = new JButton("Login");
+    private final JFrame frame = new JFrame(I18n.get("login.title"));
+    private final JButton loginbutton = new JButton(I18n.get("login.button"));
     private final JTextField userIDField = new JTextField("");
     private final JPasswordField userPasswordField = new JPasswordField("");
-    private final JLabel userIDLabel = new JLabel("Usuario:");
-    private final JLabel userPasswordLabel = new JLabel("Contraseña:");
+    private final JLabel userIDLabel = new JLabel(I18n.get("login.user"));
+    private final JLabel userPasswordLabel = new JLabel(I18n.get("login.password"));
     private final AuthService authService;
 
     public LoginPage() {
@@ -71,8 +72,8 @@ public class LoginPage implements ActionListener {
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(
                     frame,
-                    "No se ha podido consultar el usuario.\n" + ex.getMessage(),
-                    "Error de base de datos",
+                    I18n.get("login.queryError", ex.getMessage()),
+                    I18n.get("database.error.title"),
                     JOptionPane.ERROR_MESSAGE);
         } finally {
             userPasswordField.setText("");
@@ -82,8 +83,8 @@ public class LoginPage implements ActionListener {
     private void mostrarCredencialesIncorrectas() {
         JOptionPane.showMessageDialog(
                 frame,
-                "Usuario o contraseña incorrecta",
-                "Acceso denegado",
+                I18n.get("login.invalidCredentials"),
+                I18n.get("login.denied.title"),
                 JOptionPane.INFORMATION_MESSAGE);
     }
 }
