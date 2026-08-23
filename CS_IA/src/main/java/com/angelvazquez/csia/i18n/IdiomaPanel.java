@@ -20,13 +20,6 @@ public final class IdiomaPanel extends JPanel {
         comboIdioma.setSelectedItem(Idioma.desdeSistema());
         construirFormulario();
         actualizarTextos();
-        comboIdioma.addActionListener(event -> {
-            Idioma seleccionado = getIdiomaSeleccionado();
-            if (seleccionado != null) {
-                I18n.setIdioma(seleccionado);
-                actualizarTextos();
-            }
-        });
     }
 
     private void construirFormulario() {
