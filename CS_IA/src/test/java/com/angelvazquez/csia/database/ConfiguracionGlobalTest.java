@@ -9,16 +9,23 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import com.angelvazquez.csia.config.AppConfig;
+import com.angelvazquez.csia.i18n.I18n;
 import com.angelvazquez.csia.i18n.Idioma;
 
 class ConfiguracionGlobalTest {
 
     @TempDir
     Path temporal;
+
+    @AfterEach
+    void restaurarIdioma() {
+        I18n.setIdioma(Idioma.INGLES);
+    }
 
     @Test
     void leeConfiguracionGlobalConIdioma() throws Exception {
@@ -60,6 +67,7 @@ class ConfiguracionGlobalTest {
 
     @Test
     void rechazaIdiomaConfiguradoNoSoportado() throws Exception {
+        I18n.setIdioma(Idioma.ESPANOL);
         Path ruta = temporal.resolve("configuracion-fr.xml");
         Files.writeString(ruta, xml("fr"));
 
@@ -69,7 +77,7 @@ class ConfiguracionGlobalTest {
                         .leerConfiguracionAplicacion(ruta)
         );
 
-        assertTrue(error.getMessage().contains("no está soportado"));
+        assertEquals(I18n.get("config.unsupportedLanguage", "fr"), error.getMessage());
     }
 
     @Test
@@ -94,6 +102,7 @@ class ConfiguracionGlobalTest {
 
     @Test
     void noPermiteGuardarConfiguracionGlobalSinIdioma() {
+        I18n.setIdioma(Idioma.ESPANOL);
         Path ruta = temporal.resolve("configuracion.xml");
         AppConfig config = new AppConfig(null, sqlite());
 
@@ -103,7 +112,7 @@ class ConfiguracionGlobalTest {
                         .guardarConfiguracionAplicacion(ruta, config)
         );
 
-        assertTrue(error.getMessage().contains("idioma"));
+        assertEquals(I18n.get("config.languageRequired"), error.getMessage());
     }
 
     private ConfigDB sqlite() {

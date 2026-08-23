@@ -44,17 +44,17 @@ public class ConfiguracionManager {
             Path rutaConfiguracion = obtenerRutaConfiguracion();
 
             if (Files.isRegularFile(rutaConfiguracion)) {
-                System.out.println(
-                        "Fichero de configuración encontrado en: "
-                                + rutaConfiguracion.toAbsolutePath()
-                );
+                System.out.println(I18n.get(
+                        "config.fileFound",
+                        rutaConfiguracion.toAbsolutePath()
+                ));
                 return leerConfiguracion(rutaConfiguracion);
             }
 
-            System.out.println(
-                    "No existe el fichero de configuración en: "
-                            + rutaConfiguracion.toAbsolutePath()
-            );
+            System.out.println(I18n.get(
+                    "config.fileNotFound",
+                    rutaConfiguracion.toAbsolutePath()
+            ));
             return crearNuevaConfiguracion(rutaConfiguracion);
         } catch (Exception e) {
             mostrarError(I18n.get("config.initError", e.getMessage()));
@@ -142,8 +142,7 @@ public class ConfiguracionManager {
 
         return Idioma.desdeCodigo(codigo)
                 .orElseThrow(() -> new IOException(
-                        "El idioma configurado '" + codigo
-                                + "' no está soportado."
+                        I18n.get("config.unsupportedLanguage", codigo)
                 ));
     }
 
@@ -154,9 +153,7 @@ public class ConfiguracionManager {
                 .item(0);
 
         if (baseDatos == null) {
-            throw new IOException(
-                    "El fichero no contiene el elemento <baseDatos>."
-            );
+            throw new IOException(I18n.get("config.missingDatabaseElement"));
         }
 
         ConfigDB configuracion = new ConfigDB();
@@ -243,10 +240,10 @@ public class ConfiguracionManager {
     public void guardarConfiguracionAplicacion(Path ruta, AppConfig configuracion)
             throws Exception {
         if (configuracion == null) {
-            throw new IllegalArgumentException("configuracion no puede ser null");
+            throw new IllegalArgumentException(I18n.get("config.null"));
         }
         if (!configuracion.tieneIdiomaConfigurado()) {
-            throw new IOException("No se ha indicado el idioma de la aplicación.");
+            throw new IOException(I18n.get("config.languageRequired"));
         }
         guardarDocumento(ruta, configuracion, true);
     }
@@ -258,9 +255,7 @@ public class ConfiguracionManager {
 
         Path directorio = ruta.toAbsolutePath().normalize().getParent();
         if (directorio == null) {
-            throw new IOException(
-                    "No se puede determinar el directorio de configuración."
-            );
+            throw new IOException(I18n.get("config.directoryUnknown"));
         }
         Files.createDirectories(directorio);
 
@@ -335,9 +330,7 @@ public class ConfiguracionManager {
             throws IOException {
         String valor = obtenerValorOpcional(padre, etiqueta);
         if (valor == null) {
-            throw new IOException(
-                    "Falta el elemento <" + etiqueta + "> en configuracion.xml"
-            );
+            throw new IOException(I18n.get("config.missingElement", etiqueta));
         }
         return valor;
     }
@@ -369,9 +362,7 @@ public class ConfiguracionManager {
             factory.setXIncludeAware(false);
             factory.setExpandEntityReferences(false);
         } catch (Exception e) {
-            System.err.println(
-                    "Advertencia: no se han podido configurar todas las opciones de seguridad XML."
-            );
+            System.err.println(I18n.get("config.xmlSecurityWarning"));
         }
     }
 
