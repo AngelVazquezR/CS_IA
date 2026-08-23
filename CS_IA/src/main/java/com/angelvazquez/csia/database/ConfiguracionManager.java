@@ -19,6 +19,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import com.angelvazquez.csia.config.AppConfig;
+import com.angelvazquez.csia.i18n.I18n;
 import com.angelvazquez.csia.i18n.Idioma;
 
 public class ConfiguracionManager {
@@ -56,10 +57,7 @@ public class ConfiguracionManager {
             );
             return crearNuevaConfiguracion(rutaConfiguracion);
         } catch (Exception e) {
-            mostrarError(
-                    "No se ha podido inicializar la configuración.\n\n"
-                            + e.getMessage()
-            );
+            mostrarError(I18n.get("config.initError", e.getMessage()));
             e.printStackTrace();
             return null;
         }
@@ -206,9 +204,8 @@ public class ConfiguracionManager {
         guardarConfiguracion(rutaConfiguracion, configuracion);
         JOptionPane.showMessageDialog(
                 null,
-                "Configuración guardada correctamente en:\n"
-                        + rutaConfiguracion.toAbsolutePath(),
-                "Configuración",
+                I18n.get("config.savedPath", rutaConfiguracion.toAbsolutePath()),
+                I18n.get("config.title"),
                 JOptionPane.INFORMATION_MESSAGE
         );
         return configuracion;
@@ -221,7 +218,7 @@ public class ConfiguracionManager {
             int resultado = JOptionPane.showConfirmDialog(
                     null,
                     panel,
-                    "Configuración inicial de base de datos",
+                    I18n.get("database.config.title"),
                     JOptionPane.OK_CANCEL_OPTION,
                     JOptionPane.PLAIN_MESSAGE
             );
@@ -320,13 +317,10 @@ public class ConfiguracionManager {
 
     private void validarMotorHabilitado(DatabaseType tipo) throws IOException {
         if (tipo == null) {
-            throw new IOException("No se ha indicado el motor de base de datos.");
+            throw new IOException(I18n.get("database.validation.noEngine"));
         }
         if (!tipo.isEnabled()) {
-            throw new IOException(
-                    "El motor de base de datos " + tipo
-                            + " no está habilitado en esta versión."
-            );
+            throw new IOException(I18n.get("database.engine.disabled", tipo));
         }
     }
 
@@ -383,6 +377,6 @@ public class ConfiguracionManager {
 
     private void mostrarError(String mensaje) {
         JOptionPane.showMessageDialog(
-                null, mensaje, "Error", JOptionPane.ERROR_MESSAGE);
+                null, mensaje, I18n.get("app.error"), JOptionPane.ERROR_MESSAGE);
     }
 }
