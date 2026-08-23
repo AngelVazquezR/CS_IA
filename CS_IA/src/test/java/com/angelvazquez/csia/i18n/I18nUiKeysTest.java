@@ -8,10 +8,15 @@ import org.junit.jupiter.api.Test;
 class I18nUiKeysTest {
 
     private static final String[] CLAVES_CRITICAS = {
+            "startup.initError",
+            "config.title",
+            "config.initError",
+            "config.savedPath",
             "database.config.title",
             "database.validation.noEngine",
             "login.title",
             "login.invalidCredentials",
+            "user.accessInitError",
             "user.initial.title",
             "user.register.title",
             "home.title",
