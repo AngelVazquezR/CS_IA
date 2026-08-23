@@ -30,7 +30,7 @@ class TableModelV2Test {
 
         assertEquals(5, model.getColumnCount());
         assertEquals("ID", model.getColumnName(0));
-        assertEquals(I18n.get("person.email.label"), model.getColumnName(4));
+        assertEquals("Email", model.getColumnName(AlumnoTableModel.COL_EMAIL));
         assertEquals(7, model.getValueAt(0, AlumnoTableModel.COL_ID));
         assertEquals("Ana", model.getValueAt(0, AlumnoTableModel.COL_NOMBRE));
         assertEquals("ana@example.com", model.getValueAt(0, AlumnoTableModel.COL_EMAIL));
@@ -61,10 +61,9 @@ class TableModelV2Test {
         model.add(profesor);
 
         assertEquals(6, model.getColumnCount());
-        assertEquals(I18n.get("person.subject.label"),
+        assertEquals(I18n.get("table.subject"),
                 model.getColumnName(ProfesorTableModel.COL_ASIGNATURA));
-        assertEquals(I18n.get("person.email.label"),
-                model.getColumnName(ProfesorTableModel.COL_EMAIL));
+        assertEquals("Email", model.getColumnName(ProfesorTableModel.COL_EMAIL));
         assertEquals("Matematicas", model.getValueAt(0, ProfesorTableModel.COL_ASIGNATURA));
         assertEquals("luis@example.com", model.getValueAt(0, ProfesorTableModel.COL_EMAIL));
         assertSame(profesor, model.getAt(0));
