@@ -14,6 +14,7 @@ public class WelcomePage extends JFrame implements ActionListener {
     private final JLabel tablaLabel = new JLabel(I18n.get("home.tables"));
     private final JButton tablaProfesorbtn = new JButton(I18n.get("home.teacher"));
     private final JButton tablaAlumnobtn = new JButton(I18n.get("home.student"));
+    private final JButton tablaAsignacionesbtn = new JButton(I18n.get("home.assignments"));
     private final JButton asignarbtn = new JButton(I18n.get("home.assignTeacher"));
     private final JButton logoutbtn = new JButton(I18n.get("home.logout"));
     private final JButton nuevoUserbtn = new JButton(I18n.get("home.createUser"));
@@ -25,6 +26,8 @@ public class WelcomePage extends JFrame implements ActionListener {
     private final JMenu mnTablas = new JMenu(I18n.get("home.tablesMenu"));
     private final JMenuItem mntmProfeTabla = new JMenuItem(I18n.get("home.teachers"));
     private final JMenuItem mntmAlumnoTabla = new JMenuItem(I18n.get("home.students"));
+
+    private final JMenuItem mntmAsignacionesTabla = new JMenuItem(I18n.get("home.assignments"));
 
     public WelcomePage() {
         setTitle(I18n.get("home.title"));
@@ -41,6 +44,9 @@ public class WelcomePage extends JFrame implements ActionListener {
         mnTablas.add(mntmProfeTabla);
         mnTablas.add(new JSeparator());
         mnTablas.add(mntmAlumnoTabla);
+        mnTablas.add(new JSeparator());
+        mnTablas.add(mntmAsignacionesTabla);
+        mntmAsignacionesTabla.addActionListener(this);
         mniAccionesAsignar.addActionListener(this);
         mniPreferencias.addActionListener(this);
         mniAccionesSalir.addActionListener(this);
@@ -53,6 +59,7 @@ public class WelcomePage extends JFrame implements ActionListener {
         tablaLabel.setBounds(225, 39, 130, 16); contentPane.add(tablaLabel);
         tablaProfesorbtn.setBounds(220, 62, 130, 29); tablaProfesorbtn.addActionListener(this); contentPane.add(tablaProfesorbtn);
         tablaAlumnobtn.setBounds(220, 103, 130, 29); tablaAlumnobtn.addActionListener(this); contentPane.add(tablaAlumnobtn);
+        tablaAsignacionesbtn.setBounds(220, 144, 130, 29); tablaAsignacionesbtn.addActionListener(this); contentPane.add(tablaAsignacionesbtn);
         asignarbtn.setBounds(5, 62, 170, 29); asignarbtn.addActionListener(this); contentPane.add(asignarbtn);
         preferenciasbtn.setBounds(5, 103, 170, 29); preferenciasbtn.addActionListener(this); contentPane.add(preferenciasbtn);
         nuevoUserbtn.setBounds(25, 210, 140, 29); nuevoUserbtn.addActionListener(this); contentPane.add(nuevoUserbtn);
@@ -69,6 +76,7 @@ public class WelcomePage extends JFrame implements ActionListener {
         else if (s == mniAccionesAsignar || s == asignarbtn) abrir(() -> Main.Asignar(this));
         else if (s == mntmProfeTabla || s == tablaProfesorbtn) abrir(() -> Main.ProfeTabla(this));
         else if (s == mntmAlumnoTabla || s == tablaAlumnobtn) abrir(() -> Main.AlumTabla(this));
+        else if (s == mntmAsignacionesTabla || s == tablaAsignacionesbtn) abrir(() -> Main.AsignacionesTabla(this));
     }
 
     private void abrir(Runnable r) { setVisible(false); r.run(); }
