@@ -27,9 +27,9 @@ class AsignacionTableModelTest {
     @Test void resuelvePersonasPorIdYTraduceLosDias() {
         var modelo = new AsignacionTableModel();
         modelo.setData(List.of(asignacion(3, "2026-09-01")),
-                Map.of(10, "Ana Ruiz (123)"), Map.of(20, "Luis Pérez (456)"));
-        assertEquals("Ana Ruiz (123)", modelo.getValueAt(0, 1));
-        assertEquals("Luis Pérez (456)", modelo.getValueAt(0, 2));
+                Map.of(10, "Ruiz, Ana"), Map.of(20, "Pérez, Luis"));
+        assertEquals("Ruiz, Ana", modelo.getValueAt(0, 1));
+        assertEquals("Pérez, Luis", modelo.getValueAt(0, 2));
         I18n.setIdioma(Idioma.ESPANOL);
         assertEquals("Lunes", modelo.getValueAt(0, 3));
         I18n.setIdioma(Idioma.INGLES);
@@ -40,11 +40,11 @@ class AsignacionTableModelTest {
     @Test void ordenaFechasCronologicamenteYFiltraPorPersona() {
         var modelo = new AsignacionTableModel();
         modelo.setData(List.of(asignacion(1, "2027-01-01"), asignacion(2, "2026-12-31")),
-                Map.of(10, "Ana Ruiz (123)"), Map.of(20, "Luis Pérez (456)"));
+                Map.of(10, "Ruiz, Ana"), Map.of(20, "Pérez, Luis"));
         var sorter = new TableRowSorter<>(modelo);
         sorter.setSortKeys(List.of(new SortKey(5, SortOrder.ASCENDING)));
         assertEquals(1, sorter.convertRowIndexToModel(0));
-        sorter.setRowFilter(RowFilter.regexFilter("123"));
+        sorter.setRowFilter(RowFilter.regexFilter("Ruiz"));
         assertEquals(2, sorter.getViewRowCount());
         sorter.setRowFilter(RowFilter.regexFilter("inexistente"));
         assertEquals(0, sorter.getViewRowCount());
@@ -58,4 +58,21 @@ class AsignacionTableModelTest {
         modelo.setData(List.of(), Map.of(), Map.of());
         assertEquals(0, modelo.getRowCount());
     }
+    @Test void editarSeleccionOrdenadaNoMutaLosDatosAntesDeGuardar() {
+        var modelo = new AsignacionTableModel();
+        modelo.setData(List.of(asignacion(1, "2027-01-01"), asignacion(2, "2026-12-31")),
+                Map.of(), Map.of());
+        var sorter = new TableRowSorter<>(modelo);
+        sorter.setSortKeys(List.of(new SortKey(5, SortOrder.ASCENDING)));
+        Asignacion copia = modelo.getAt(sorter.convertRowIndexToModel(0));
+        assertEquals(2, copia.getId());
+        copia.setDiaSemana(5);
+        copia.setProfesorId(99);
+        copia.setFechaInicio(LocalDate.parse("2026-10-01"));
+        Asignacion original = modelo.getAt(1);
+        assertEquals(1, original.getDiaSemana());
+        assertEquals(10, original.getProfesorId());
+        assertEquals(LocalDate.parse("2026-12-31"), original.getFechaInicio());
+    }
+
 }

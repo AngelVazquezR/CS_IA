@@ -28,6 +28,13 @@ public class AsignacionTableModel extends AbstractTableModel {
         fireTableDataChanged();
     }
 
+    /** Copia independiente para editar sin cambiar la tabla antes de guardar. */
+    public Asignacion getAt(int row) {
+        Asignacion a = datos.get(row);
+        return new Asignacion(a.getId(), a.getProfesorId(), a.getAlumnoId(), a.getDiaSemana(),
+                a.getHoraInicio(), a.getFechaInicio(), a.getFechaFin());
+    }
+
     @Override public int getRowCount() { return datos.size(); }
     @Override public int getColumnCount() { return COLUMNAS.length; }
     @Override public String getColumnName(int col) { return I18n.get(COLUMNAS[col]); }

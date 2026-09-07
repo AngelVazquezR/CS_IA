@@ -2,6 +2,8 @@ package com.angelvazquez.csia.ui.ventanas;
 
 import java.awt.BorderLayout;
 import java.awt.Window;
+import java.awt.GridLayout;
+import java.sql.SQLException;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.util.HashMap;
@@ -34,6 +36,11 @@ public class VisualizarAsignaciones extends VentanaSecundaria {
     private final JScrollPane scroll = new JScrollPane(tabla);
     private final int[] anchosContenido = new int[modelo.getColumnCount()];
     private final JButton actualizar = new JButton(I18n.get("assignments.refresh"));
+    private final JButton agregar = new JButton(I18n.get("table.add"));
+    private final JButton modificar = new JButton(I18n.get("table.edit"));
+    private final JButton eliminar = new JButton(I18n.get("table.delete"));
+    private final JTextField[] detalle = new JTextField[modelo.getColumnCount()];
+    private boolean cargando;
     private final JLabel estado = new JLabel();
     private final ConfigDB configuracion;
 
@@ -79,16 +86,84 @@ public class VisualizarAsignaciones extends VentanaSecundaria {
         JButton atras = new JButton(I18n.get("app.back"));
         atras.addActionListener(e -> volverAlPadre());
         actualizar.addActionListener(e -> recargarDatos());
+        tabla.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        tabla.getSelectionModel().addListSelectionListener(e -> mostrarSeleccion());
+        agregar.addActionListener(e -> abrirFormulario(null));
+        modificar.addActionListener(e -> {
+            Asignacion a = seleccionada();
+            if (a != null) abrirFormulario(a);
+        });
+        eliminar.addActionListener(e -> eliminarSeleccionada());
+        JPanel campos = new JPanel(new GridLayout(2, modelo.getColumnCount(), 8, 4));
+        for (int col = 0; col < detalle.length; col++) {
+            detalle[col] = new JTextField();
+            detalle[col].setEditable(false);
+            JLabel etiquetaCampo = new JLabel(modelo.getColumnName(col));
+            etiquetaCampo.setLabelFor(detalle[col]);
+            campos.add(etiquetaCampo);
+        }
+        for (JTextField campo : detalle) campos.add(campo);
         JPanel acciones = new JPanel();
-        acciones.add(estado); acciones.add(actualizar); acciones.add(atras);
-        add(acciones, BorderLayout.SOUTH);
+        acciones.add(estado); acciones.add(agregar); acciones.add(modificar);
+        acciones.add(eliminar); acciones.add(actualizar); acciones.add(atras);
+        JPanel inferior = new JPanel(new BorderLayout(8, 8));
+        inferior.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
+        inferior.add(campos, BorderLayout.CENTER);
+        inferior.add(acciones, BorderLayout.SOUTH);
+        add(inferior, BorderLayout.SOUTH);
+        mostrarSeleccion();
         recargarDatos();
+    }
+
+    private Asignacion seleccionada() {
+        int fila = tabla.getSelectedRow();
+        return fila < 0 ? null : modelo.getAt(tabla.convertRowIndexToModel(fila));
+    }
+
+    private void mostrarSeleccion() {
+        int fila = tabla.getSelectedRow();
+        int filaModelo = fila < 0 ? -1 : tabla.convertRowIndexToModel(fila);
+        for (int col = 0; col < detalle.length; col++) {
+            if (detalle[col] != null) {
+                detalle[col].setText(filaModelo < 0 ? "" : String.valueOf(modelo.getValueAt(filaModelo, col)));
+                detalle[col].setCaretPosition(0);
+            }
+        }
+        modificar.setEnabled(!cargando && fila >= 0);
+        eliminar.setEnabled(!cargando && fila >= 0);
+    }
+
+    private void abrirFormulario(Asignacion a) {
+        AsignarTab formulario = new AsignarTab(this, a, this::recargarDatos);
+        setVisible(false);
+        formulario.setVisible(true);
+    }
+
+    private void eliminarSeleccionada() {
+        Asignacion a = seleccionada();
+        if (a == null) return;
+        if (JOptionPane.showConfirmDialog(this, I18n.get("assignments.confirmDelete", a.getId()),
+                I18n.get("table.confirmDelete"), JOptionPane.YES_NO_OPTION,
+                JOptionPane.WARNING_MESSAGE) != JOptionPane.YES_OPTION) return;
+        try {
+            if (!new AsignacionRepository(new DatabaseConnectionFactory(), configuracion).eliminar(a.getId())) {
+                JOptionPane.showMessageDialog(this, I18n.get("assignments.notFound"),
+                        I18n.get("app.error"), JOptionPane.ERROR_MESSAGE);
+            }
+            recargarDatos();
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, I18n.get("assignments.deleteError", e.getMessage()),
+                    I18n.get("app.error"), JOptionPane.ERROR_MESSAGE);
+        }
     }
 
     private record Datos(List<Asignacion> asignaciones, Map<Integer, String> profesores,
             Map<Integer, String> alumnos) { }
 
     private void recargarDatos() {
+        cargando = true;
+        agregar.setEnabled(false);
+        mostrarSeleccion();
         actualizar.setEnabled(false);
         estado.setText(I18n.get("assignments.loading"));
         new SwingWorker<Datos, Void>() {
@@ -117,7 +192,10 @@ public class VisualizarAsignaciones extends VentanaSecundaria {
                 } catch (ExecutionException e) {
                     mostrarError(e.getCause());
                 } finally {
+                    cargando = false;
+                    agregar.setEnabled(true);
                     actualizar.setEnabled(true);
+                    mostrarSeleccion();
                 }
             }
         }.execute();

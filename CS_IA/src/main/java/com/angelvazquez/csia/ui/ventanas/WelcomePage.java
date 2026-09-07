@@ -20,6 +20,7 @@ public class WelcomePage extends JFrame implements ActionListener {
     private final JButton nuevoUserbtn = new JButton(I18n.get("home.createUser"));
     private final JButton preferenciasbtn = new JButton(I18n.get("preferences.title"));
     private final JMenu mnAcciones = new JMenu(I18n.get("home.actions"));
+    private final JMenuItem mniCrearUsuario = new JMenuItem(I18n.get("home.createUser"));
     private final JMenuItem mniAccionesSalir = new JMenuItem(I18n.get("app.exit"));
     private final JMenuItem mniAccionesAsignar = new JMenuItem(I18n.get("home.assign"));
     private final JMenuItem mniPreferencias = new JMenuItem(I18n.get("preferences.title"));
@@ -36,7 +37,11 @@ public class WelcomePage extends JFrame implements ActionListener {
         JMenuBar menuBar = new JMenuBar();
         setJMenuBar(menuBar);
         menuBar.add(mnAcciones);
+        mnAcciones.add(mniCrearUsuario);
+        mnAcciones.add(new JSeparator());
         mnAcciones.add(mniAccionesAsignar);
+        mnAcciones.add(new JSeparator());
+        mniCrearUsuario.addActionListener(this);
         mnAcciones.add(mniPreferencias);
         mnAcciones.add(new JSeparator());
         mnAcciones.add(mniAccionesSalir);
@@ -69,7 +74,7 @@ public class WelcomePage extends JFrame implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         Object s = e.getSource();
-        if (s == nuevoUserbtn) abrir(() -> Main.RegistrarUser(this));
+        if (s == nuevoUserbtn || s == mniCrearUsuario) abrir(() -> Main.RegistrarUser(this));
         else if (s == preferenciasbtn || s == mniPreferencias) abrir(() -> Main.Preferencias(this));
         else if (s == logoutbtn) { Main.LogIn(); dispose(); }
         else if (s == mniAccionesSalir) { dispose(); System.exit(0); }
