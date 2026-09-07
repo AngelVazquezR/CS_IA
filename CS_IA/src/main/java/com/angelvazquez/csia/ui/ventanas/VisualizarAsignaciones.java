@@ -11,6 +11,9 @@ import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.table.TableRowSorter;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableColumn;
 import com.angelvazquez.csia.Main;
 import com.angelvazquez.csia.database.ConfigDB;
 import com.angelvazquez.csia.database.DatabaseConnectionFactory;
@@ -25,6 +28,7 @@ import com.angelvazquez.csia.tablemodel.AsignacionTableModel;
 public class VisualizarAsignaciones extends VentanaSecundaria {
     private static final long serialVersionUID = 1L;
     private final AsignacionTableModel modelo = new AsignacionTableModel();
+    private final JTable tabla = new JTable(modelo);
     private final JButton actualizar = new JButton(I18n.get("assignments.refresh"));
     private final JLabel estado = new JLabel();
     private final ConfigDB configuracion;
@@ -35,9 +39,19 @@ public class VisualizarAsignaciones extends VentanaSecundaria {
         setTitle(I18n.get("home.assignments"));
         setBounds(100, 100, 1100, 500);
         setLayout(new BorderLayout());
-        JTable tabla = new JTable(modelo);
+        // Mantener el ancho del contenido, sin repartir el espacio sobrante entre columnas.
+        tabla.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+        DefaultTableCellRenderer centrado = new DefaultTableCellRenderer();
+        centrado.setHorizontalAlignment(SwingConstants.CENTER);
+        for (int col = 4; col <= 6; col++) {
+            tabla.getColumnModel().getColumn(col).setCellRenderer(centrado);
+        }
+        DefaultTableCellRenderer izquierda = new DefaultTableCellRenderer();
+        izquierda.setHorizontalAlignment(SwingConstants.LEFT);
+        tabla.getColumnModel().getColumn(3).setCellRenderer(izquierda);
         TableRowSorter<AsignacionTableModel> sorter = new TableRowSorter<>(modelo);
         tabla.setRowSorter(sorter);
+        ajustarAnchos();
         add(new JScrollPane(tabla), BorderLayout.CENTER);
         JTextField filtro = new JTextField(25);
         JLabel etiqueta = new JLabel(I18n.get("assignments.search"));
@@ -75,11 +89,11 @@ public class VisualizarAsignaciones extends VentanaSecundaria {
                 DatabaseConnectionFactory factory = new DatabaseConnectionFactory();
                 Map<Integer, String> profesores = new HashMap<>();
                 for (var p : new ProfesorRepository(factory, configuracion).listar()) {
-                    profesores.put(p.getDatabaseId(), p.GetNombre() + " " + p.GetApellido() + " (" + p.GetDNI() + ")");
+                    profesores.put(p.getDatabaseId(), p.GetApellido() + ", " + p.GetNombre());
                 }
                 Map<Integer, String> alumnos = new HashMap<>();
                 for (var a : new AlumnoRepository(factory, configuracion).listar()) {
-                    alumnos.put(a.getDatabaseId(), a.GetNombre() + " " + a.GetApellido() + " (" + a.GetDNI() + ")");
+                    alumnos.put(a.getDatabaseId(), a.GetApellido() + ", " + a.GetNombre());
                 }
                 return new Datos(new AsignacionRepository(factory, configuracion).listar(), profesores, alumnos);
             }
@@ -88,6 +102,7 @@ public class VisualizarAsignaciones extends VentanaSecundaria {
                 try {
                     Datos datos = get();
                     modelo.setData(datos.asignaciones(), datos.profesores(), datos.alumnos());
+                    ajustarAnchos();
                     estado.setText(datos.asignaciones().isEmpty() ? I18n.get("assignments.empty") : "");
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
@@ -99,6 +114,30 @@ public class VisualizarAsignaciones extends VentanaSecundaria {
                 }
             }
         }.execute();
+    }
+
+    private void ajustarAnchos() {
+        for (int col = 0; col < tabla.getColumnCount(); col++) {
+            TableColumn columna = tabla.getColumnModel().getColumn(col);
+            int indiceModelo = columna.getModelIndex();
+            TableCellRenderer cabecera = columna.getHeaderRenderer();
+            if (cabecera == null) cabecera = tabla.getTableHeader().getDefaultRenderer();
+            int ancho = cabecera.getTableCellRendererComponent(tabla, columna.getHeaderValue(),
+                    false, false, -1, col).getPreferredSize().width;
+            TableCellRenderer celda = columna.getCellRenderer();
+            if (celda == null) celda = tabla.getDefaultRenderer(modelo.getColumnClass(indiceModelo));
+            // Medir todas las filas, incluso si hay un filtro activo al actualizar.
+            for (int fila = 0; fila < modelo.getRowCount(); fila++) {
+                int anchoCelda = celda.getTableCellRendererComponent(tabla,
+                        modelo.getValueAt(fila, indiceModelo), false, false, -1, col)
+                        .getPreferredSize().width;
+                ancho = Math.max(ancho, anchoCelda);
+            }
+            // Margen para el texto y el indicador de ordenación de la cabecera.
+            ancho += 24;
+            columna.setPreferredWidth(ancho);
+            columna.setWidth(ancho);
+        }
     }
 
     private void mostrarError(Throwable error) {
