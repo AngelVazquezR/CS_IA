@@ -2,6 +2,8 @@ package com.angelvazquez.csia.ui.ventanas;
 
 import java.awt.BorderLayout;
 import java.awt.Window;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,6 +31,8 @@ public class VisualizarAsignaciones extends VentanaSecundaria {
     private static final long serialVersionUID = 1L;
     private final AsignacionTableModel modelo = new AsignacionTableModel();
     private final JTable tabla = new JTable(modelo);
+    private final JScrollPane scroll = new JScrollPane(tabla);
+    private final int[] anchosContenido = new int[modelo.getColumnCount()];
     private final JButton actualizar = new JButton(I18n.get("assignments.refresh"));
     private final JLabel estado = new JLabel();
     private final ConfigDB configuracion;
@@ -39,7 +43,7 @@ public class VisualizarAsignaciones extends VentanaSecundaria {
         setTitle(I18n.get("home.assignments"));
         setBounds(100, 100, 1100, 500);
         setLayout(new BorderLayout());
-        // Mantener el ancho del contenido, sin repartir el espacio sobrante entre columnas.
+        // Repartir explícitamente el espacio sobrante solo entre Tutor y Alumno.
         tabla.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
         DefaultTableCellRenderer centrado = new DefaultTableCellRenderer();
         centrado.setHorizontalAlignment(SwingConstants.CENTER);
@@ -52,7 +56,10 @@ public class VisualizarAsignaciones extends VentanaSecundaria {
         TableRowSorter<AsignacionTableModel> sorter = new TableRowSorter<>(modelo);
         tabla.setRowSorter(sorter);
         ajustarAnchos();
-        add(new JScrollPane(tabla), BorderLayout.CENTER);
+        scroll.getViewport().addComponentListener(new ComponentAdapter() {
+            @Override public void componentResized(ComponentEvent e) { repartirEspacioLibre(); }
+        });
+        add(scroll, BorderLayout.CENTER);
         JTextField filtro = new JTextField(25);
         JLabel etiqueta = new JLabel(I18n.get("assignments.search"));
         etiqueta.setLabelFor(filtro);
@@ -135,6 +142,21 @@ public class VisualizarAsignaciones extends VentanaSecundaria {
             }
             // Margen para el texto y el indicador de ordenación de la cabecera.
             ancho += 24;
+            anchosContenido[indiceModelo] = Math.max(ancho, columna.getMinWidth());
+        }
+        repartirEspacioLibre();
+    }
+
+    private void repartirEspacioLibre() {
+        int anchoTotal = 0;
+        for (int ancho : anchosContenido) anchoTotal += ancho;
+        int sobrante = Math.max(0, scroll.getViewport().getExtentSize().width - anchoTotal);
+        for (int col = 0; col < tabla.getColumnCount(); col++) {
+            TableColumn columna = tabla.getColumnModel().getColumn(col);
+            int indiceModelo = columna.getModelIndex();
+            int ancho = anchosContenido[indiceModelo];
+            if (indiceModelo == 1) ancho += sobrante / 2;
+            else if (indiceModelo == 2) ancho += sobrante - sobrante / 2;
             columna.setPreferredWidth(ancho);
             columna.setWidth(ancho);
         }
