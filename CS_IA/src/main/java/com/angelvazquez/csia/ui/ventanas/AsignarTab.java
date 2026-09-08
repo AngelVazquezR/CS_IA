@@ -40,6 +40,8 @@ public class AsignarTab extends VentanaSecundaria {
     private final JButton asignarButton = new JButton(I18n.get("home.assign"));
     private final JButton atrasButton = new JButton(I18n.get("app.back"));
 
+    private final Integer asignacionId;
+    private final Runnable alGuardar;
     private final AlumnoRepository alumnoRepository;
     private final ProfesorRepository profesorRepository;
     private final AsignacionRepository asignacionRepository;
@@ -49,7 +51,13 @@ public class AsignarTab extends VentanaSecundaria {
     }
 
     public AsignarTab(Window parent) {
+        this(parent, null, null);
+    }
+
+    public AsignarTab(Window parent, Asignacion seleccionada, Runnable alGuardar) {
         super(parent);
+        this.asignacionId = seleccionada == null ? null : seleccionada.getId();
+        this.alGuardar = alGuardar;
 
         DatabaseConnectionFactory connectionFactory = new DatabaseConnectionFactory();
         alumnoRepository = new AlumnoRepository(connectionFactory, Main.getConfiguracion());
@@ -59,6 +67,28 @@ public class AsignarTab extends VentanaSecundaria {
         configurarVentana();
         cargarPersonas();
         configurarAcciones();
+        if (seleccionada != null) {
+            setTitle(I18n.get("assign.editTitle", asignacionId));
+            asignarButton.setText(I18n.get("assign.saveChanges"));
+            seleccionarPersona(profesorCombo, seleccionada.getProfesorId());
+            seleccionarPersona(alumnoCombo, seleccionada.getAlumnoId());
+            diaCombo.setSelectedIndex(seleccionada.getDiaSemana() - 1);
+            horaInicioPicker.setTime(seleccionada.getHoraInicio());
+            fechaInicioPicker.setDate(seleccionada.getFechaInicio());
+            fechaFinPicker.setDate(seleccionada.getFechaFin());
+        }
+    }
+
+    private void seleccionarPersona(JComboBox<Object> combo, Integer id) {
+        for (int i = 0; i < combo.getItemCount(); i++) {
+            if (combo.getItemAt(i) instanceof OpcionPersona persona && persona.id().equals(id)) {
+                combo.setSelectedIndex(i);
+                return;
+            }
+        }
+        // No sustituir silenciosamente una persona que ya no existe.
+        asignarButton.setEnabled(false);
+        mostrarError(I18n.get("assign.personMissing", id));
     }
 
     private void configurarVentana() {
@@ -144,6 +174,11 @@ public class AsignarTab extends VentanaSecundaria {
             return;
         }
 
+        if (fechaFin.isBefore(fechaInicio)) {
+            mostrarError(I18n.get("assign.invalidDates"));
+            return;
+        }
+
         Asignacion asignacion = new Asignacion(
                 profesor.id(),
                 alumno.id(),
@@ -154,13 +189,27 @@ public class AsignarTab extends VentanaSecundaria {
         );
 
         try {
-            int id = asignacionRepository.agregar(asignacion);
+            int id;
+            if (asignacionId == null) {
+                id = asignacionRepository.agregar(asignacion);
+            } else {
+                asignacion.setId(asignacionId);
+                if (!asignacionRepository.modificar(asignacion)) {
+                    mostrarError(I18n.get("assignments.notFound"));
+                    return;
+                }
+                id = asignacionId;
+            }
             JOptionPane.showMessageDialog(
                     this,
-                    I18n.get("assign.success", id),
+                    I18n.get(asignacionId == null ? "assign.success" : "assign.updated", id),
                     I18n.get("assign.dialogTitle"),
                     JOptionPane.INFORMATION_MESSAGE
             );
+            if (alGuardar != null) {
+                volverAlPadre();
+                alGuardar.run();
+            }
         } catch (IllegalArgumentException ex) {
             mostrarError(ex.getMessage());
         } catch (SQLException ex) {

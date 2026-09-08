@@ -17,6 +17,7 @@ import com.angelvazquez.csia.ui.ventanas.PreferenciasPage;
 import com.angelvazquez.csia.ui.ventanas.RegistarTab;
 import com.angelvazquez.csia.ui.ventanas.RegistroInicialUsuario;
 import com.angelvazquez.csia.ui.ventanas.VisualizarAlumnos;
+import com.angelvazquez.csia.ui.ventanas.VisualizarAsignaciones;
 import com.angelvazquez.csia.ui.ventanas.VisualizarProfesores;
 import com.angelvazquez.csia.ui.ventanas.WelcomePage;
 
@@ -75,6 +76,10 @@ public class Main {
     public static void AlumTabla(Window parent) {
         VisualizarAlumnos ventana = new VisualizarAlumnos(parent);
         ventana.setVisible(true);
+    }
+
+    public static void AsignacionesTabla(Window parent) {
+        new VisualizarAsignaciones(parent).setVisible(true);
     }
 
     public static void ProfeTabla() { ProfeTabla(null); }
