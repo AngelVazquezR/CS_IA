@@ -45,6 +45,9 @@
     <build>
         <resources>
             <resource>
+                <directory>src/main/resources</directory>
+            </resource>
+            <resource>
                 <directory>assets</directory>
                 <includes>
                     <include>modelo.sql</include>

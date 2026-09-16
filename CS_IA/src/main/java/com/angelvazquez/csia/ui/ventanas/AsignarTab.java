@@ -19,6 +19,7 @@ import com.angelvazquez.csia.database.DatabaseConnectionFactory;
 import com.angelvazquez.csia.database.repository.AlumnoRepository;
 import com.angelvazquez.csia.database.repository.AsignacionRepository;
 import com.angelvazquez.csia.database.repository.ProfesorRepository;
+import com.angelvazquez.csia.i18n.I18n;
 import com.angelvazquez.csia.model.Alumno;
 import com.angelvazquez.csia.model.Asignacion;
 import com.angelvazquez.csia.model.Profesor;
@@ -36,9 +37,11 @@ public class AsignarTab extends VentanaSecundaria {
     private final DatePicker fechaInicioPicker = new DatePicker();
     private final DatePicker fechaFinPicker = new DatePicker();
 
-    private final JButton asignarButton = new JButton("Asignar");
-    private final JButton atrasButton = new JButton("Atrás");
+    private final JButton asignarButton = new JButton(I18n.get("home.assign"));
+    private final JButton atrasButton = new JButton(I18n.get("app.back"));
 
+    private final Integer asignacionId;
+    private final Runnable alGuardar;
     private final AlumnoRepository alumnoRepository;
     private final ProfesorRepository profesorRepository;
     private final AsignacionRepository asignacionRepository;
@@ -48,7 +51,13 @@ public class AsignarTab extends VentanaSecundaria {
     }
 
     public AsignarTab(Window parent) {
+        this(parent, null, null);
+    }
+
+    public AsignarTab(Window parent, Asignacion seleccionada, Runnable alGuardar) {
         super(parent);
+        this.asignacionId = seleccionada == null ? null : seleccionada.getId();
+        this.alGuardar = alGuardar;
 
         DatabaseConnectionFactory connectionFactory = new DatabaseConnectionFactory();
         alumnoRepository = new AlumnoRepository(connectionFactory, Main.getConfiguracion());
@@ -58,10 +67,32 @@ public class AsignarTab extends VentanaSecundaria {
         configurarVentana();
         cargarPersonas();
         configurarAcciones();
+        if (seleccionada != null) {
+            setTitle(I18n.get("assign.editTitle", asignacionId));
+            asignarButton.setText(I18n.get("assign.saveChanges"));
+            seleccionarPersona(profesorCombo, seleccionada.getProfesorId());
+            seleccionarPersona(alumnoCombo, seleccionada.getAlumnoId());
+            diaCombo.setSelectedIndex(seleccionada.getDiaSemana() - 1);
+            horaInicioPicker.setTime(seleccionada.getHoraInicio());
+            fechaInicioPicker.setDate(seleccionada.getFechaInicio());
+            fechaFinPicker.setDate(seleccionada.getFechaFin());
+        }
+    }
+
+    private void seleccionarPersona(JComboBox<Object> combo, Integer id) {
+        for (int i = 0; i < combo.getItemCount(); i++) {
+            if (combo.getItemAt(i) instanceof OpcionPersona persona && persona.id().equals(id)) {
+                combo.setSelectedIndex(i);
+                return;
+            }
+        }
+        // No sustituir silenciosamente una persona que ya no existe.
+        asignarButton.setEnabled(false);
+        mostrarError(I18n.get("assign.personMissing", id));
     }
 
     private void configurarVentana() {
-        setTitle("Asignar profesor a alumno");
+        setTitle(I18n.get("assign.title"));
         setBounds(100, 100, 620, 360);
 
         JPanel contentPane = new JPanel(new BorderLayout(10, 10));
@@ -69,17 +100,17 @@ public class AsignarTab extends VentanaSecundaria {
         setContentPane(contentPane);
 
         JPanel formulario = new JPanel(new GridLayout(6, 2, 8, 8));
-        formulario.add(new JLabel("Profesor:"));
+        formulario.add(new JLabel(I18n.get("assign.teacher")));
         formulario.add(profesorCombo);
-        formulario.add(new JLabel("Alumno:"));
+        formulario.add(new JLabel(I18n.get("assign.student")));
         formulario.add(alumnoCombo);
-        formulario.add(new JLabel("Día de la semana:"));
+        formulario.add(new JLabel(I18n.get("assign.day")));
         formulario.add(diaCombo);
-        formulario.add(new JLabel("Hora de inicio:"));
+        formulario.add(new JLabel(I18n.get("assign.startTime")));
         formulario.add(horaInicioPicker);
-        formulario.add(new JLabel("Fecha de inicio:"));
+        formulario.add(new JLabel(I18n.get("assign.startDate")));
         formulario.add(fechaInicioPicker);
-        formulario.add(new JLabel("Fecha de fin:"));
+        formulario.add(new JLabel(I18n.get("assign.endDate")));
         formulario.add(fechaFinPicker);
         contentPane.add(formulario, BorderLayout.CENTER);
 
@@ -95,8 +126,8 @@ public class AsignarTab extends VentanaSecundaria {
     private void cargarPersonas() {
         profesorCombo.removeAllItems();
         alumnoCombo.removeAllItems();
-        profesorCombo.addItem("Selecciona un profesor");
-        alumnoCombo.addItem("Selecciona un alumno");
+        profesorCombo.addItem(I18n.get("assign.selectTeacher"));
+        alumnoCombo.addItem(I18n.get("assign.selectStudent"));
 
         try {
             for (Profesor profesor : profesorRepository.listar()) {
@@ -115,7 +146,7 @@ public class AsignarTab extends VentanaSecundaria {
                 ));
             }
         } catch (SQLException ex) {
-            mostrarError("No se han podido cargar alumnos y profesores: " + ex.getMessage());
+            mostrarError(I18n.get("assign.peopleLoadError", ex.getMessage()));
         }
     }
 
@@ -134,12 +165,17 @@ public class AsignarTab extends VentanaSecundaria {
 
         if (!(profesorSeleccionado instanceof OpcionPersona profesor)
                 || !(alumnoSeleccionado instanceof OpcionPersona alumno)) {
-            mostrarError("Selecciona un profesor y un alumno.");
+            mostrarError(I18n.get("assign.personRequired"));
             return;
         }
 
         if (horaInicio == null || fechaInicio == null || fechaFin == null || dia == null) {
-            mostrarError("Día, hora de inicio y fechas son obligatorios.");
+            mostrarError(I18n.get("assign.scheduleRequired"));
+            return;
+        }
+
+        if (fechaFin.isBefore(fechaInicio)) {
+            mostrarError(I18n.get("assign.invalidDates"));
             return;
         }
 
@@ -153,17 +189,31 @@ public class AsignarTab extends VentanaSecundaria {
         );
 
         try {
-            int id = asignacionRepository.agregar(asignacion);
+            int id;
+            if (asignacionId == null) {
+                id = asignacionRepository.agregar(asignacion);
+            } else {
+                asignacion.setId(asignacionId);
+                if (!asignacionRepository.modificar(asignacion)) {
+                    mostrarError(I18n.get("assignments.notFound"));
+                    return;
+                }
+                id = asignacionId;
+            }
             JOptionPane.showMessageDialog(
                     this,
-                    "Asignación creada correctamente (ID " + id + ").",
-                    "Asignación",
+                    I18n.get(asignacionId == null ? "assign.success" : "assign.updated", id),
+                    I18n.get("assign.dialogTitle"),
                     JOptionPane.INFORMATION_MESSAGE
             );
+            if (alGuardar != null) {
+                volverAlPadre();
+                alGuardar.run();
+            }
         } catch (IllegalArgumentException ex) {
             mostrarError(ex.getMessage());
         } catch (SQLException ex) {
-            mostrarError("No se ha podido guardar la asignación: " + ex.getMessage());
+            mostrarError(I18n.get("assign.saveError", ex.getMessage()));
         }
     }
 
@@ -171,7 +221,7 @@ public class AsignarTab extends VentanaSecundaria {
         JOptionPane.showMessageDialog(
                 this,
                 mensaje,
-                "Error",
+                I18n.get("app.error"),
                 JOptionPane.ERROR_MESSAGE
         );
     }
@@ -196,20 +246,20 @@ public class AsignarTab extends VentanaSecundaria {
     }
 
     private enum DiaSemana {
-        LUNES(1, "Lunes"),
-        MARTES(2, "Martes"),
-        MIERCOLES(3, "Miércoles"),
-        JUEVES(4, "Jueves"),
-        VIERNES(5, "Viernes"),
-        SABADO(6, "Sábado"),
-        DOMINGO(7, "Domingo");
+        LUNES(1, "day.monday"),
+        MARTES(2, "day.tuesday"),
+        MIERCOLES(3, "day.wednesday"),
+        JUEVES(4, "day.thursday"),
+        VIERNES(5, "day.friday"),
+        SABADO(6, "day.saturday"),
+        DOMINGO(7, "day.sunday");
 
         private final int numero;
-        private final String etiqueta;
+        private final String clave;
 
-        DiaSemana(int numero, String etiqueta) {
+        DiaSemana(int numero, String clave) {
             this.numero = numero;
-            this.etiqueta = etiqueta;
+            this.clave = clave;
         }
 
         int numero() {
@@ -218,7 +268,7 @@ public class AsignarTab extends VentanaSecundaria {
 
         @Override
         public String toString() {
-            return etiqueta;
+            return I18n.get(clave);
         }
     }
 }

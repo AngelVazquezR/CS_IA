@@ -15,13 +15,22 @@ import java.sql.Statement;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+
+import com.angelvazquez.csia.i18n.I18n;
+import com.angelvazquez.csia.i18n.Idioma;
 
 class ConfiguracionSqliteFinalTest {
 
     @TempDir
     Path temporal;
+
+    @AfterEach
+    void restaurarIdioma() {
+        I18n.setIdioma(Idioma.INGLES);
+    }
 
     @Test
     void selectorSoloMuestraMotoresHabilitados() {
@@ -63,6 +72,7 @@ class ConfiguracionSqliteFinalTest {
     @Test
     void configuracionMysqlExistenteSeRechazaMientrasEsteDeshabilitada()
             throws Exception {
+        I18n.setIdioma(Idioma.ESPANOL);
         Path ruta = temporal.resolve("configuracion-mysql.xml");
         Files.writeString(ruta, """
                 <configuracion>
@@ -81,7 +91,8 @@ class ConfiguracionSqliteFinalTest {
                 IOException.class,
                 () -> new ConfiguracionManager(temporal).leerConfiguracion(ruta)
         );
-        assertTrue(error.getMessage().contains("no está habilitado"));
+        assertEquals(I18n.get("database.engine.disabled", DatabaseType.MYSQL),
+                error.getMessage());
     }
 
     @Test

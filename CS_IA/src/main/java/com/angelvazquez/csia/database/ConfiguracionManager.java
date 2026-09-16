@@ -18,6 +18,10 @@ import javax.xml.transform.stream.StreamResult;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import com.angelvazquez.csia.config.AppConfig;
+import com.angelvazquez.csia.i18n.I18n;
+import com.angelvazquez.csia.i18n.Idioma;
+
 public class ConfiguracionManager {
 
     private static final String DIRECTORIO_CONFIG = "config";
@@ -40,23 +44,20 @@ public class ConfiguracionManager {
             Path rutaConfiguracion = obtenerRutaConfiguracion();
 
             if (Files.isRegularFile(rutaConfiguracion)) {
-                System.out.println(
-                        "Fichero de configuración encontrado en: "
-                                + rutaConfiguracion.toAbsolutePath()
-                );
+                System.out.println(I18n.get(
+                        "config.fileFound",
+                        rutaConfiguracion.toAbsolutePath()
+                ));
                 return leerConfiguracion(rutaConfiguracion);
             }
 
-            System.out.println(
-                    "No existe el fichero de configuración en: "
-                            + rutaConfiguracion.toAbsolutePath()
-            );
+            System.out.println(I18n.get(
+                    "config.fileNotFound",
+                    rutaConfiguracion.toAbsolutePath()
+            ));
             return crearNuevaConfiguracion(rutaConfiguracion);
         } catch (Exception e) {
-            mostrarError(
-                    "No se ha podido inicializar la configuración.\n\n"
-                            + e.getMessage()
-            );
+            mostrarError(I18n.get("config.initError", e.getMessage()));
             e.printStackTrace();
             return null;
         }
@@ -106,21 +107,53 @@ public class ConfiguracionManager {
     }
 
     ConfigDB leerConfiguracion(Path ruta) throws Exception {
+        return leerConfiguracionAplicacion(ruta).getDatabase();
+    }
+
+    public AppConfig leerConfiguracionAplicacion(Path ruta) throws Exception {
+        Document document = leerDocumento(ruta);
+        Idioma idioma = leerIdioma(document);
+        ConfigDB database = leerConfiguracionBaseDatos(document);
+        return new AppConfig(idioma, database);
+    }
+
+    private Document leerDocumento(Path ruta) throws Exception {
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         configurarParserSeguro(factory);
 
         DocumentBuilder builder = factory.newDocumentBuilder();
         Document document = builder.parse(ruta.toFile());
         document.getDocumentElement().normalize();
+        return document;
+    }
 
+    private Idioma leerIdioma(Document document) throws IOException {
+        Element aplicacion = (Element) document
+                .getElementsByTagName("aplicacion")
+                .item(0);
+        if (aplicacion == null) {
+            return null;
+        }
+
+        String codigo = obtenerValorOpcional(aplicacion, "idioma");
+        if (codigo == null || codigo.isBlank()) {
+            return null;
+        }
+
+        return Idioma.desdeCodigo(codigo)
+                .orElseThrow(() -> new IOException(
+                        I18n.get("config.unsupportedLanguage", codigo)
+                ));
+    }
+
+    private ConfigDB leerConfiguracionBaseDatos(Document document)
+            throws IOException {
         Element baseDatos = (Element) document
                 .getElementsByTagName("baseDatos")
                 .item(0);
 
         if (baseDatos == null) {
-            throw new IOException(
-                    "El fichero no contiene el elemento <baseDatos>."
-            );
+            throw new IOException(I18n.get("config.missingDatabaseElement"));
         }
 
         ConfigDB configuracion = new ConfigDB();
@@ -168,9 +201,8 @@ public class ConfiguracionManager {
         guardarConfiguracion(rutaConfiguracion, configuracion);
         JOptionPane.showMessageDialog(
                 null,
-                "Configuración guardada correctamente en:\n"
-                        + rutaConfiguracion.toAbsolutePath(),
-                "Configuración",
+                I18n.get("config.savedPath", rutaConfiguracion.toAbsolutePath()),
+                I18n.get("config.title"),
                 JOptionPane.INFORMATION_MESSAGE
         );
         return configuracion;
@@ -183,7 +215,7 @@ public class ConfiguracionManager {
             int resultado = JOptionPane.showConfirmDialog(
                     null,
                     panel,
-                    "Configuración inicial de base de datos",
+                    I18n.get("database.config.title"),
                     JOptionPane.OK_CANCEL_OPTION,
                     JOptionPane.PLAIN_MESSAGE
             );
@@ -202,13 +234,28 @@ public class ConfiguracionManager {
 
     void guardarConfiguracion(Path ruta, ConfigDB configuracion)
             throws Exception {
-        validarMotorHabilitado(configuracion.databaseType);
+        guardarDocumento(ruta, new AppConfig(null, configuracion), false);
+    }
+
+    public void guardarConfiguracionAplicacion(Path ruta, AppConfig configuracion)
+            throws Exception {
+        if (configuracion == null) {
+            throw new IllegalArgumentException(I18n.get("config.null"));
+        }
+        if (!configuracion.tieneIdiomaConfigurado()) {
+            throw new IOException(I18n.get("config.languageRequired"));
+        }
+        guardarDocumento(ruta, configuracion, true);
+    }
+
+    private void guardarDocumento(Path ruta, AppConfig configuracion,
+            boolean incluirAplicacion) throws Exception {
+        ConfigDB database = configuracion.getDatabase();
+        validarMotorHabilitado(database.databaseType);
 
         Path directorio = ruta.toAbsolutePath().normalize().getParent();
         if (directorio == null) {
-            throw new IOException(
-                    "No se puede determinar el directorio de configuración."
-            );
+            throw new IOException(I18n.get("config.directoryUnknown"));
         }
         Files.createDirectories(directorio);
 
@@ -218,18 +265,30 @@ public class ConfiguracionManager {
 
         Element configuracionXml = document.createElement("configuracion");
         document.appendChild(configuracionXml);
+
+        if (incluirAplicacion) {
+            Element aplicacion = document.createElement("aplicacion");
+            configuracionXml.appendChild(aplicacion);
+            agregarElemento(
+                    document,
+                    aplicacion,
+                    "idioma",
+                    configuracion.getIdioma().getCodigo()
+            );
+        }
+
         Element baseDatos = document.createElement("baseDatos");
         configuracionXml.appendChild(baseDatos);
 
         agregarElemento(
                 document, baseDatos, "tipo",
-                configuracion.databaseType.getConfigValue()
+                database.databaseType.getConfigValue()
         );
-        agregarElemento(document, baseDatos, "driver", configuracion.driver);
-        agregarElemento(document, baseDatos, "url", configuracion.url);
-        agregarElemento(document, baseDatos, "usuario", configuracion.user);
-        agregarElemento(document, baseDatos, "password", configuracion.password);
-        agregarElemento(document, baseDatos, "db", configuracion.db);
+        agregarElemento(document, baseDatos, "driver", database.driver);
+        agregarElemento(document, baseDatos, "url", database.url);
+        agregarElemento(document, baseDatos, "usuario", database.user);
+        agregarElemento(document, baseDatos, "password", database.password);
+        agregarElemento(document, baseDatos, "db", database.db);
 
         Transformer transformer = TransformerFactory
                 .newInstance()
@@ -253,13 +312,10 @@ public class ConfiguracionManager {
 
     private void validarMotorHabilitado(DatabaseType tipo) throws IOException {
         if (tipo == null) {
-            throw new IOException("No se ha indicado el motor de base de datos.");
+            throw new IOException(I18n.get("database.validation.noEngine"));
         }
         if (!tipo.isEnabled()) {
-            throw new IOException(
-                    "El motor de base de datos " + tipo
-                            + " no está habilitado en esta versión."
-            );
+            throw new IOException(I18n.get("database.engine.disabled", tipo));
         }
     }
 
@@ -274,9 +330,7 @@ public class ConfiguracionManager {
             throws IOException {
         String valor = obtenerValorOpcional(padre, etiqueta);
         if (valor == null) {
-            throw new IOException(
-                    "Falta el elemento <" + etiqueta + "> en configuracion.xml"
-            );
+            throw new IOException(I18n.get("config.missingElement", etiqueta));
         }
         return valor;
     }
@@ -308,14 +362,12 @@ public class ConfiguracionManager {
             factory.setXIncludeAware(false);
             factory.setExpandEntityReferences(false);
         } catch (Exception e) {
-            System.err.println(
-                    "Advertencia: no se han podido configurar todas las opciones de seguridad XML."
-            );
+            System.err.println(I18n.get("config.xmlSecurityWarning"));
         }
     }
 
     private void mostrarError(String mensaje) {
         JOptionPane.showMessageDialog(
-                null, mensaje, "Error", JOptionPane.ERROR_MESSAGE);
+                null, mensaje, I18n.get("app.error"), JOptionPane.ERROR_MESSAGE);
     }
 }

@@ -13,6 +13,7 @@ import com.angelvazquez.csia.controller.PersonasTableController;
 import com.angelvazquez.csia.database.DatabaseConnectionFactory;
 import com.angelvazquez.csia.database.repository.AlumnoRepository;
 import com.angelvazquez.csia.database.repository.ProfesorRepository;
+import com.angelvazquez.csia.i18n.I18n;
 import com.angelvazquez.csia.model.Alumno;
 import com.angelvazquez.csia.tablemodel.AlumnoTableModel;
 
@@ -25,10 +26,10 @@ public class VisualizarAlumnos extends VentanaSecundaria {
     private final JTextField apellido = new JTextField(10);
     private final JTextField dni = new JTextField(10);
     private final JTextField email = new JTextField(15);
-    private final JButton agregar = new JButton("Agregar");
-    private final JButton modificar = new JButton("Modificar");
-    private final JButton eliminar = new JButton("Eliminar");
-    private final JButton atras = new JButton("Atrás");
+    private final JButton agregar = new JButton(I18n.get("table.add"));
+    private final JButton modificar = new JButton(I18n.get("table.edit"));
+    private final JButton eliminar = new JButton(I18n.get("table.delete"));
+    private final JButton atras = new JButton(I18n.get("app.back"));
     private final AlumnoRepository repository;
     private final PersonasTableController controller;
 
@@ -46,7 +47,7 @@ public class VisualizarAlumnos extends VentanaSecundaria {
     }
 
     private void configurarVentana() {
-        setTitle("Visualizar alumnos");
+        setTitle(I18n.get("students.title"));
         setLayout(new BorderLayout());
         setBounds(100, 100, 1200, 500);
         tabla.setRowSorter(sorter);
@@ -63,8 +64,8 @@ public class VisualizarAlumnos extends VentanaSecundaria {
         });
         add(filtro, BorderLayout.NORTH);
         JPanel p = new JPanel();
-        p.add(new JLabel("Nombre:")); p.add(nombre);
-        p.add(new JLabel("Apellido:")); p.add(apellido);
+        p.add(new JLabel(I18n.get("table.name") + ":")); p.add(nombre);
+        p.add(new JLabel(I18n.get("table.surname") + ":")); p.add(apellido);
         p.add(new JLabel("DNI:")); p.add(dni);
         p.add(new JLabel("Email:")); p.add(email);
         p.add(agregar); p.add(modificar); p.add(eliminar); p.add(atras);
@@ -97,7 +98,7 @@ public class VisualizarAlumnos extends VentanaSecundaria {
     private boolean valido() {
         if (nombre.getText().isBlank() || apellido.getText().isBlank()
                 || dni.getText().isBlank() || email.getText().isBlank()) {
-            error("Nombre, apellido, DNI y email son obligatorios."); return false;
+            error(I18n.get("students.required")); return false;
         }
         return true;
     }
@@ -107,9 +108,9 @@ public class VisualizarAlumnos extends VentanaSecundaria {
         Alumno a = new Alumno(nombre.getText().trim(), apellido.getText().trim(),
                 dni.getText().trim(), email.getText().trim());
         try {
-            if (repository.existeDni(a.GetDNI())) { error("Ya existe un alumno con ese DNI."); return; }
+            if (repository.existeDni(a.GetDNI())) { error(I18n.get("students.duplicateDni")); return; }
             repository.agregar(a); recargarDatos(); limpiar();
-        } catch (SQLException e) { error("No se ha podido agregar el alumno: " + e.getMessage()); }
+        } catch (SQLException e) { error(I18n.get("students.addError", e.getMessage())); }
     }
 
     private void modificar() {
@@ -117,16 +118,16 @@ public class VisualizarAlumnos extends VentanaSecundaria {
         a.SetNombre(nombre.getText().trim()); a.SetApellido(apellido.getText().trim());
         a.DNI = dni.getText().trim(); a.setEmail(email.getText().trim());
         try { repository.modificar(a); recargarDatos(); limpiar(); }
-        catch (SQLException e) { error("No se ha podido modificar el alumno: " + e.getMessage()); }
+        catch (SQLException e) { error(I18n.get("students.editError", e.getMessage())); }
     }
 
     private void eliminar() {
         Alumno a = seleccionado();
-        if (a == null || a.getDatabaseId() == null) { error("Selecciona un alumno para eliminar."); return; }
-        if (JOptionPane.showConfirmDialog(this, "¿Eliminar al alumno seleccionado?", "Confirmar eliminación",
+        if (a == null || a.getDatabaseId() == null) { error(I18n.get("students.selectDelete")); return; }
+        if (JOptionPane.showConfirmDialog(this, I18n.get("students.confirmDelete"), I18n.get("table.confirmDelete"),
                 JOptionPane.YES_NO_OPTION) != JOptionPane.YES_OPTION) return;
         try { repository.eliminar(a.getDatabaseId()); recargarDatos(); limpiar(); }
-        catch (SQLException e) { error("No se ha podido eliminar el alumno. Comprueba si tiene asignaciones activas.\n" + e.getMessage()); }
+        catch (SQLException e) { error(I18n.get("students.deleteError", e.getMessage())); }
     }
 
     private void limpiar() {
@@ -136,10 +137,10 @@ public class VisualizarAlumnos extends VentanaSecundaria {
 
     private void recargarDatos() {
         try { controller.cargarAlumnos(modeloAlumno); }
-        catch (SQLException e) { error("No se han podido cargar los alumnos: " + e.getMessage()); }
+        catch (SQLException e) { error(I18n.get("students.loadError", e.getMessage())); }
     }
 
-    private void error(String mensaje) { JOptionPane.showMessageDialog(this, mensaje, "Error", JOptionPane.ERROR_MESSAGE); }
+    private void error(String mensaje) { JOptionPane.showMessageDialog(this, mensaje, I18n.get("app.error"), JOptionPane.ERROR_MESSAGE); }
     public void RecargarVentana() { recargarDatos(); }
     public void CerrarVentana() { dispose(); }
 }
