@@ -18,6 +18,17 @@ public final class DatabaseConnectionFactory {
     private static final SqliteSchemaInitializer SQLITE_INITIALIZER =
             new SqliteSchemaInitializer();
 
+    /**
+     * Abre una conexión y, para SQLite, crea el directorio si procede, habilita
+     * claves foráneas e inicializa las tablas ausentes del esquema v2.
+     *
+     * @param configuration configuración no nula de un motor habilitado
+     * @return conexión abierta; el llamador debe cerrarla, preferiblemente con
+     *         try-with-resources
+     * @throws SQLException si falta el motor, está deshabilitado o falla la
+     *         preparación del directorio, la carga del driver o la operación JDBC
+     * @throws NullPointerException si la configuración es nula
+     */
     public Connection open(ConfigDB configuration) throws SQLException {
         Objects.requireNonNull(configuration, "La configuracion no puede ser null.");
 
@@ -48,10 +59,12 @@ public final class DatabaseConnectionFactory {
 
             try {
                 try (Statement statement = connection.createStatement()) {
+                    // La comprobación de claves foráneas se activa en cada conexión SQLite.
                     statement.execute("PRAGMA foreign_keys = ON");
                 }
                 SQLITE_INITIALIZER.initialize(connection);
                 return connection;
+            // Si la preparación falla, la conexión aún no se ha entregado al llamador.
             } catch (SQLException e) {
                 try {
                     connection.close();
@@ -69,6 +82,11 @@ public final class DatabaseConnectionFactory {
         );
     }
 
+    /**
+     * Prepara el directorio de una URL SQLite con ruta de fichero convencional.
+     * Las bases en memoria, las URI file: y los recursos quedan a cargo del driver;
+     * la parte posterior a '?' no forma parte de la ruta que se crea.
+     */
     private void crearDirectorioSqlite(String url) throws SQLException {
         if (url == null || !url.startsWith(SQLITE_URL_PREFIX)) {
             return;

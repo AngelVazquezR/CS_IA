@@ -24,6 +24,13 @@ public final class StartupManager {
         this.configuracionManager = configuracionManager;
     }
 
+    /**
+     * Recupera la configuración o guía el primer arranque: idioma y después
+     * base de datos. Aplica el idioma elegido y guarda la configuración completa.
+     *
+     * @return configuración lista para continuar, o {@code null} si se cancela
+     *         algún diálogo o falla la inicialización; los errores se muestran
+     */
     public AppConfig inicializar() {
         try {
             Path ruta = configuracionManager.obtenerRutaConfiguracion();
@@ -59,6 +66,7 @@ public final class StartupManager {
         }
     }
 
+    // Completa los XML antiguos sin idioma conservando su configuración de base de datos.
     private AppConfig completarIdiomaSiEsNecesario(
             Path ruta, AppConfig configuracion) throws Exception {
         if (configuracion.tieneIdiomaConfigurado()) {

@@ -8,6 +8,13 @@ import java.sql.Statement;
 /** Inicializa de forma idempotente el esquema SQLite v2. */
 final class SqliteSchemaInitializer {
 
+    /**
+     * Crea las tablas ausentes sin borrar las existentes ni cerrar la conexión.
+     * CREATE TABLE IF NOT EXISTS no migra la estructura de tablas ya creadas.
+     *
+     * @param connection conexión SQLite abierta, propiedad del llamador
+     * @throws SQLException si falla el DDL o falta alguna de las tablas esperadas
+     */
     void initialize(Connection connection) throws SQLException {
         try (Statement statement = connection.createStatement()) {
             statement.executeUpdate("""
@@ -59,6 +66,7 @@ final class SqliteSchemaInitializer {
         validarEsquema(connection);
     }
 
+    // Comprueba la existencia de tablas; no valida columnas, restricciones ni versiones.
     private void validarEsquema(Connection connection) throws SQLException {
         String[] tablas = {"STUDENTS", "TEACHERS", "USERS", "ASSIGNMENTS"};
 
