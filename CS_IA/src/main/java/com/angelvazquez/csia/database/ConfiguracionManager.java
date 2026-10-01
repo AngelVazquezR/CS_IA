@@ -22,6 +22,7 @@ import com.angelvazquez.csia.config.AppConfig;
 import com.angelvazquez.csia.i18n.I18n;
 import com.angelvazquez.csia.i18n.Idioma;
 
+/** Lee y guarda la configuración XML, manteniendo compatibilidad con ficheros sin idioma o tipo de motor. */
 public class ConfiguracionManager {
 
     private static final String DIRECTORIO_CONFIG = "config";
@@ -39,6 +40,12 @@ public class ConfiguracionManager {
                 .normalize();
     }
 
+    /**
+     * Lee la configuración existente o solicita y guarda una nueva mediante diálogos.
+     *
+     * @return configuración de base de datos, o {@code null} si se cancela o falla;
+     *         los errores se muestran al usuario
+     */
     public ConfigDB inicializarConfiguracion() {
         try {
             Path rutaConfiguracion = obtenerRutaConfiguracion();
@@ -63,6 +70,12 @@ public class ConfiguracionManager {
         }
     }
 
+    /**
+     * Localiza config/configuracion.xml respecto al directorio de la aplicación.
+     *
+     * @return ruta absoluta normalizada; este método no crea el fichero
+     * @throws URISyntaxException si la ubicación del código no se puede convertir en URI
+     */
     public Path obtenerRutaConfiguracion() throws URISyntaxException {
         Path rutaAplicacion = directorioAplicacion;
 
@@ -87,6 +100,10 @@ public class ConfiguracionManager {
                 .normalize();
     }
 
+    /**
+     * Usa el directorio del JAR si el código está en un fichero; en desarrollo busca
+     * el primer ancestro con pom.xml. Si no lo encuentra, usa el directorio de trabajo.
+     */
     static Path resolverDirectorioAplicacion(
             Path ubicacionCodigo, Path directorioTrabajo) {
         Path ubicacion = ubicacionCodigo.toAbsolutePath().normalize();
@@ -110,6 +127,13 @@ public class ConfiguracionManager {
         return leerConfiguracionAplicacion(ruta).getDatabase();
     }
 
+    /**
+     * Lee idioma y base de datos sin modificar el XML ni abrir conexiones JDBC.
+     *
+     * @param ruta fichero XML que se desea leer
+     * @return configuración; puede carecer de idioma si el fichero es antiguo
+     * @throws Exception si falla la lectura, el análisis XML o la validación de valores
+     */
     public AppConfig leerConfiguracionAplicacion(Path ruta) throws Exception {
         Document document = leerDocumento(ruta);
         Idioma idioma = leerIdioma(document);
@@ -127,6 +151,7 @@ public class ConfiguracionManager {
         return document;
     }
 
+    // La ausencia de idioma permite que StartupManager solicite y persista la elección.
     private Idioma leerIdioma(Document document) throws IOException {
         Element aplicacion = (Element) document
                 .getElementsByTagName("aplicacion")
@@ -159,6 +184,7 @@ public class ConfiguracionManager {
         ConfigDB configuracion = new ConfigDB();
         String tipo = obtenerValorOpcional(baseDatos, "tipo");
 
+        // Los XML antiguos no incluyen tipo: se infiere de la URL o del driver.
         if (tipo == null || tipo.isBlank()) {
             configuracion.databaseType = detectarTipoBaseDatos(
                     obtenerValorOpcional(baseDatos, "url"),
@@ -232,11 +258,20 @@ public class ConfiguracionManager {
         }
     }
 
+    // Escritura de solo base de datos usada antes de completar el idioma en el arranque.
     void guardarConfiguracion(Path ruta, ConfigDB configuracion)
             throws Exception {
         guardarDocumento(ruta, new AppConfig(null, configuracion), false);
     }
 
+    /**
+     * Guarda idioma y base de datos, creando los directorios y reemplazando el XML.
+     * Reconstruye el documento: no conserva elementos ajenos a esta configuración.
+     *
+     * @param ruta destino del fichero de configuración
+     * @param configuracion valores que se van a persistir, con idioma configurado
+     * @throws Exception si falta el idioma, el motor no está habilitado o falla la escritura
+     */
     public void guardarConfiguracionAplicacion(Path ruta, AppConfig configuracion)
             throws Exception {
         if (configuracion == null) {
@@ -351,6 +386,11 @@ public class ConfiguracionManager {
         return valor == null ? predeterminado : valor;
     }
 
+    /**
+     * Intenta bloquear DTD, entidades externas y XInclude para evitar resolver
+     * recursos externos al leer el XML. Si el parser rechaza una opción, se emite
+     * un aviso y continúa la lectura; las opciones posteriores no se aplican.
+     */
     private void configurarParserSeguro(DocumentBuilderFactory factory) {
         try {
             factory.setFeature(
