@@ -26,7 +26,7 @@ public class ProfesorTableModel extends AbstractTableModel {
     };
 
     private static final String[] COLUMNAS_FIJAS = {
-            "ID", null, null, "DNI", null, "Email"
+            "ID", null, null, "DNI/NIE", null, "Email"
     };
 
     private static final Class<?>[] TIPOS = {

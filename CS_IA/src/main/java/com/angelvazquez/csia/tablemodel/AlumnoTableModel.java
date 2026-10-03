@@ -28,7 +28,7 @@ public class AlumnoTableModel extends AbstractTableModel {
     };
 
     private static final String[] COLUMNAS_FIJAS = {
-            "ID", null, null, "DNI", "Email"
+            "ID", null, null, "DNI/NIE", "Email"
     };
 
     private static final Class<?>[] TIPOS = {
