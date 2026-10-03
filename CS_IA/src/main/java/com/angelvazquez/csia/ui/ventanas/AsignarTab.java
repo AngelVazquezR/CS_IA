@@ -26,6 +26,7 @@ import com.angelvazquez.csia.model.Profesor;
 import com.github.lgooddatepicker.components.DatePicker;
 import com.github.lgooddatepicker.components.TimePicker;
 
+/** Formulario de alta o edición de asignaciones con selección de personas por ID. */
 public class AsignarTab extends VentanaSecundaria {
 
     private static final long serialVersionUID = 1L;
@@ -54,6 +55,13 @@ public class AsignarTab extends VentanaSecundaria {
         this(parent, null, null);
     }
 
+    /**
+     * Inicializa el formulario con las personas actualmente disponibles.
+     * @param parent ventana de retorno, o null
+     * @param seleccionada asignación cuyos valores se precargan; null para un alta
+     * @param alGuardar callback opcional: tras guardar se vuelve al padre y se ejecuta;
+     *        sin callback el formulario permanece abierto
+     */
     public AsignarTab(Window parent, Asignacion seleccionada, Runnable alGuardar) {
         super(parent);
         this.asignacionId = seleccionada == null ? null : seleccionada.getId();
@@ -155,6 +163,11 @@ public class AsignarTab extends VentanaSecundaria {
         asignarButton.addActionListener(e -> guardarAsignacion());
     }
 
+    /**
+     * Valida personas, horario y orden de fechas antes de crear una entidad nueva.
+     * El ID recibido en el constructor distingue el alta de la actualización;
+     * no se modifica directamente la instancia usada para precargar el formulario.
+     */
     private void guardarAsignacion() {
         Object profesorSeleccionado = profesorCombo.getSelectedItem();
         Object alumnoSeleccionado = alumnoCombo.getSelectedItem();
@@ -245,6 +258,7 @@ public class AsignarTab extends VentanaSecundaria {
         }
     }
 
+    // Correspondencia persistida en DAY_OF_WEEK: lunes = 1, domingo = 7.
     private enum DiaSemana {
         LUNES(1, "day.monday"),
         MARTES(2, "day.tuesday"),
