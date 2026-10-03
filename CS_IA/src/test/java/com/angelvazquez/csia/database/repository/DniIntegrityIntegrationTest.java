@@ -131,4 +131,24 @@ class DniIntegrityIntegrationTest {
         assertEquals(1, alumnos().listar().size());
         assertEquals(1, profesores().listar().size());
     }
+    @ParameterizedTest @ValueSource(booleans = {true, false})
+    void duplicadoTienePrioridadSobreAutoasignacionEnBaseExistente(boolean alumno) throws Exception {
+        Alumno a = (Alumno) persona(true, "A"); Profesor p = (Profesor) persona(false, "B");
+        alumnos().agregar(a); profesores().agregar(p);
+        asignaciones().agregar(asignacion(p.getDatabaseId(), a.getDatabaseId()));
+        agregar(alumno, persona(alumno, alumno ? "B" : "A"));
+        // Simula el trigger anterior en una base ya utilizada con la primera versión.
+        String tabla = alumno ? "STUDENTS" : "TEACHERS";
+        try (Connection c = new DatabaseConnectionFactory().open(config()); Statement st = c.createStatement()) {
+            st.executeUpdate("CREATE TRIGGER CSIA_" + tabla + "_SELF_UPDATE BEFORE UPDATE OF DNI ON "
+                    + tabla + " BEGIN SELECT RAISE(ABORT, 'CSIA_SELF_ASSIGNMENT'); END");
+        }
+        Persona editada = alumno ? a : p; editada.DNI = alumno ? " b " : " a ";
+        IllegalArgumentException error = assertThrows(IllegalArgumentException.class,
+                () -> modificar(alumno, editada));
+        assertEquals(com.angelvazquez.csia.i18n.I18n.get(alumno ? "students.duplicateDni" : "teachers.duplicateDni"),
+                error.getMessage());
+        assertEquals(editada.getDatabaseId(), buscar(alumno, alumno ? "A" : "B").getDatabaseId());
+        assertEquals(1, asignaciones().listar().size());
+    }
 }

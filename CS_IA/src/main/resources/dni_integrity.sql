@@ -26,23 +26,37 @@ BEGIN
 END;
 -- statement
 -- También impide que un cambio de DNI convierta una asignación existente en autoasignación.
-CREATE TRIGGER IF NOT EXISTS CSIA_STUDENTS_SELF_UPDATE
+-- Sustituye la versión anterior para aplicar la prioridad también en bases existentes.
+DROP TRIGGER IF EXISTS CSIA_STUDENTS_SELF_UPDATE;
+-- statement
+CREATE TRIGGER IF NOT EXISTS CSIA_STUDENTS_SELF_UPDATE_V2
 BEFORE UPDATE OF DNI ON STUDENTS
 WHEN EXISTS (
     SELECT 1 FROM ASSIGNMENTS a JOIN TEACHERS p ON p.TEACHER_ID = a.TEACHER_ID
     WHERE a.STUDENT_ID = NEW.STUDENT_ID AND UPPER(TRIM(p.DNI)) = UPPER(TRIM(NEW.DNI))
 )
 BEGIN
+    -- Si ambas reglas fallan, informa primero del DNI duplicado en esta tabla.
+    SELECT RAISE(ABORT, 'CSIA_STUDENTS_DNI_UNIQUE')
+    WHERE EXISTS (SELECT 1 FROM STUDENTS
+        WHERE STUDENT_ID <> NEW.STUDENT_ID AND UPPER(TRIM(DNI)) = UPPER(TRIM(NEW.DNI)));
     SELECT RAISE(ABORT, 'CSIA_SELF_ASSIGNMENT');
 END;
 -- statement
 -- También impide que un cambio de DNI convierta una asignación existente en autoasignación.
-CREATE TRIGGER IF NOT EXISTS CSIA_TEACHERS_SELF_UPDATE
+-- Sustituye la versión anterior para aplicar la prioridad también en bases existentes.
+DROP TRIGGER IF EXISTS CSIA_TEACHERS_SELF_UPDATE;
+-- statement
+CREATE TRIGGER IF NOT EXISTS CSIA_TEACHERS_SELF_UPDATE_V2
 BEFORE UPDATE OF DNI ON TEACHERS
 WHEN EXISTS (
     SELECT 1 FROM ASSIGNMENTS a JOIN STUDENTS p ON p.STUDENT_ID = a.STUDENT_ID
     WHERE a.TEACHER_ID = NEW.TEACHER_ID AND UPPER(TRIM(p.DNI)) = UPPER(TRIM(NEW.DNI))
 )
 BEGIN
+    -- Si ambas reglas fallan, informa primero del DNI duplicado en esta tabla.
+    SELECT RAISE(ABORT, 'CSIA_TEACHERS_DNI_UNIQUE')
+    WHERE EXISTS (SELECT 1 FROM TEACHERS
+        WHERE TEACHER_ID <> NEW.TEACHER_ID AND UPPER(TRIM(DNI)) = UPPER(TRIM(NEW.DNI)));
     SELECT RAISE(ABORT, 'CSIA_SELF_ASSIGNMENT');
 END;
