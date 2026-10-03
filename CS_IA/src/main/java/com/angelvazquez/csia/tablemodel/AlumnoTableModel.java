@@ -35,6 +35,7 @@ public class AlumnoTableModel extends AbstractTableModel {
             Integer.class, String.class, String.class, String.class, String.class
     };
 
+    // Modelo en memoria: sus operaciones notifican a Swing, pero no escriben en la base de datos.
     private final List<Alumno> data = new ArrayList<>();
 
     public int add(Alumno alumno) {
@@ -44,6 +45,10 @@ public class AlumnoTableModel extends AbstractTableModel {
         return row;
     }
 
+    /**
+     * Reemplaza las filas y notifica una recarga completa; null deja el modelo vacío.
+     * Copia las referencias de la colección, no las entidades que contiene.
+     */
     public void setData(Collection<Alumno> alumnos) {
         data.clear();
         if (alumnos != null) {
@@ -52,6 +57,10 @@ public class AlumnoTableModel extends AbstractTableModel {
         fireTableDataChanged();
     }
 
+    /**
+     * Sustituye la entidad de la fila del modelo y notifica a Swing el cambio.
+     * La persistencia debe realizarse por separado.
+     */
     public void updateRow(int row, Alumno alumno) {
         data.set(row, alumno);
         fireTableRowsUpdated(row, row);
@@ -67,6 +76,11 @@ public class AlumnoTableModel extends AbstractTableModel {
         fireTableRowsDeleted(row, row);
     }
 
+    /**
+     * Devuelve la misma entidad almacenada, sin crear una copia para edición.
+     * El índice corresponde al modelo; una fila de JTable ordenada o filtrada debe convertirse.
+     * Modificar la entidad no notifica por sí solo a Swing ni persiste el cambio.
+     */
     public Alumno getAt(int row) {
         return data.get(row);
     }
