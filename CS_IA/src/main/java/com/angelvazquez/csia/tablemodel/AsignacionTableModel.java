@@ -21,6 +21,11 @@ public class AsignacionTableModel extends AbstractTableModel {
     private Map<Integer, String> profesores = Map.of();
     private Map<Integer, String> alumnos = Map.of();
 
+    /**
+     * Copia la lista y los mapas a contenedores no modificables y notifica la recarga.
+     * La copia de la lista es superficial: conserva las referencias a las asignaciones.
+     * Los argumentos y sus elementos deben ser no nulos.
+     */
     public void setData(List<Asignacion> datos, Map<Integer, String> profesores, Map<Integer, String> alumnos) {
         this.datos = List.copyOf(datos);
         this.profesores = Map.copyOf(profesores);
@@ -44,6 +49,7 @@ public class AsignacionTableModel extends AbstractTableModel {
         Asignacion a = datos.get(row);
         return switch (col) {
             case 0 -> a.getId();
+            // Si no se encuentra el nombre, se muestra el ID para conservar la referencia visible.
             case 1 -> profesores.getOrDefault(a.getProfesorId(), "ID " + a.getProfesorId());
             case 2 -> alumnos.getOrDefault(a.getAlumnoId(), "ID " + a.getAlumnoId());
             case 3 -> I18n.get(DIAS[a.getDiaSemana() - 1]);
