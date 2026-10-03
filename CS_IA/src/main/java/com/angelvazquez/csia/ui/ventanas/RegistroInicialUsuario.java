@@ -21,6 +21,13 @@ public final class RegistroInicialUsuario {
     private RegistroInicialUsuario() {
     }
 
+    /**
+     * Solicita el primer usuario con un diálogo; no comprueba si ya existen usuarios.
+     * El llamador debe decidir si corresponde ejecutar este flujo.
+     * Los errores de validación permiten reintentar; los SQL finalizan el flujo.
+     * @param configuracion configuración utilizada para registrar el usuario
+     * @return true si se registra; false si se cancela o falla una operación SQL
+     */
     public static boolean solicitar(ConfigDB configuracion) {
         UsuarioRepository repository = new UsuarioRepository(
                 new DatabaseConnectionFactory(), configuracion);

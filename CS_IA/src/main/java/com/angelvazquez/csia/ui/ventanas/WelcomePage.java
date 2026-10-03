@@ -7,6 +7,7 @@ import javax.swing.border.EmptyBorder;
 import com.angelvazquez.csia.Main;
 import com.angelvazquez.csia.i18n.I18n;
 
+/** Ventana principal que enlaza las consultas, altas y preferencias tras el login. */
 public class WelcomePage extends JFrame implements ActionListener {
     private static final long serialVersionUID = 1L;
     private final JPanel contentPane = new JPanel();
@@ -84,6 +85,10 @@ public class WelcomePage extends JFrame implements ActionListener {
         else if (s == mntmAsignacionesTabla || s == tablaAsignacionesbtn) abrir(() -> Main.AsignacionesTabla(this));
     }
 
+    /**
+     * Oculta esta ventana sin liberarla para que la secundaria pueda volver a mostrarla.
+     * Las acciones de apertura le pasan esta instancia como padre.
+     */
     private void abrir(Runnable r) { setVisible(false); r.run(); }
     public void CerrarVentana() { setVisible(false); }
     @Deprecated public static void RestaurarVentana() { }

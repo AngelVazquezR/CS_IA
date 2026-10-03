@@ -76,6 +76,7 @@ public class VisualizarAsignaciones extends VentanaSecundaria {
         filtro.getDocument().addDocumentListener(new DocumentListener() {
             private void filtrar() {
                 String texto = filtro.getText();
+                // Búsqueda literal con comparación de mayúsculas Unicode en todas las columnas.
                 sorter.setRowFilter(texto.isBlank() ? null
                         : RowFilter.regexFilter("(?iu)" + Pattern.quote(texto)));
             }
@@ -115,6 +116,9 @@ public class VisualizarAsignaciones extends VentanaSecundaria {
         recargarDatos();
     }
 
+    /**
+     * Convierte el índice visible al del modelo y obtiene una copia para edición.
+     */
     private Asignacion seleccionada() {
         int fila = tabla.getSelectedRow();
         return fila < 0 ? null : modelo.getAt(tabla.convertRowIndexToModel(fila));
@@ -133,6 +137,10 @@ public class VisualizarAsignaciones extends VentanaSecundaria {
         eliminar.setEnabled(!cargando && fila >= 0);
     }
 
+    /**
+     * Oculta la consulta y la pasa como padre del formulario.
+     * El callback recarga los datos después de guardar, no al cancelar.
+     */
     private void abrirFormulario(Asignacion a) {
         AsignarTab formulario = new AsignarTab(this, a, this::recargarDatos);
         setVisible(false);
@@ -160,6 +168,10 @@ public class VisualizarAsignaciones extends VentanaSecundaria {
     private record Datos(List<Asignacion> asignaciones, Map<Integer, String> profesores,
             Map<Integer, String> alumnos) { }
 
+    /**
+     * Deshabilita las acciones durante la carga. SwingWorker consulta en segundo plano
+     * y aplica el resultado a Swing en done; las consultas no comparten una transacción.
+     */
     private void recargarDatos() {
         cargando = true;
         agregar.setEnabled(false);
@@ -180,6 +192,7 @@ public class VisualizarAsignaciones extends VentanaSecundaria {
                 return new Datos(new AsignacionRepository(factory, configuracion).listar(), profesores, alumnos);
             }
             @Override protected void done() {
+                // Ignora el resultado si la ventana ya se ha liberado con dispose.
                 if (!isDisplayable()) return;
                 try {
                     Datos datos = get();

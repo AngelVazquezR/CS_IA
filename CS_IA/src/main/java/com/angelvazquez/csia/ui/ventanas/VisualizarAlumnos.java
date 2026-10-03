@@ -17,8 +17,10 @@ import com.angelvazquez.csia.i18n.I18n;
 import com.angelvazquez.csia.model.Alumno;
 import com.angelvazquez.csia.tablemodel.AlumnoTableModel;
 
+/** Consulta y edición de personas mediante formulario, repositorio y modelo de tabla. */
 public class VisualizarAlumnos extends VentanaSecundaria {
     private static final long serialVersionUID = 1L;
+    // El modelo es compartido por las instancias de esta ventana.
     private static final AlumnoTableModel modeloAlumno = new AlumnoTableModel();
     private final JTable tabla = new JTable(modeloAlumno);
     private final TableRowSorter<AlumnoTableModel> sorter = new TableRowSorter<>(modeloAlumno);
@@ -56,6 +58,7 @@ public class VisualizarAlumnos extends VentanaSecundaria {
         filtro.getDocument().addDocumentListener(new DocumentListener() {
             private void actualizar() {
                 String t = filtro.getText();
+                // Búsqueda literal sin distinguir mayúsculas, sin interpretar una regex del usuario.
                 sorter.setRowFilter(t.isBlank() ? null : RowFilter.regexFilter("(?i)" + Pattern.quote(t)));
             }
             @Override public void insertUpdate(DocumentEvent e) { actualizar(); }
@@ -90,11 +93,19 @@ public class VisualizarAlumnos extends VentanaSecundaria {
         dni.setText(a.GetDNI()); email.setText(a.getEmail());
     }
 
+    /**
+     * Convierte la fila visible al índice del modelo para respetar filtros y ordenación.
+     * Devuelve la entidad compartida del modelo, o null si no hay selección.
+     */
     private Alumno seleccionado() {
         int row = tabla.getSelectedRow();
         return row < 0 ? null : modeloAlumno.getAt(tabla.convertRowIndexToModel(row));
     }
 
+    /**
+     * Comprueba que los campos obligatorios no estén en blanco.
+     * No valida el formato de DNI o email ni consulta duplicados.
+     */
     private boolean valido() {
         if (nombre.getText().isBlank() || apellido.getText().isBlank()
                 || dni.getText().isBlank() || email.getText().isBlank()) {
@@ -113,6 +124,11 @@ public class VisualizarAlumnos extends VentanaSecundaria {
         } catch (SQLException e) { error(I18n.get("students.addError", e.getMessage())); }
     }
 
+    /**
+     * Modifica la entidad compartida antes de escribir en la base de datos.
+     * Si la escritura falla, aquí no se restaura su estado anterior.
+     * La comprobación previa de DNI duplicado se realiza en el alta, no en este método.
+     */
     private void modificar() {
         Alumno a = seleccionado(); if (a == null || !valido()) return;
         a.SetNombre(nombre.getText().trim()); a.SetApellido(apellido.getText().trim());
@@ -135,6 +151,10 @@ public class VisualizarAlumnos extends VentanaSecundaria {
         modificar.setEnabled(false); eliminar.setEnabled(false);
     }
 
+    /**
+     * Recarga el modelo desde persistencia mediante el controlador.
+     * La consulta es síncrona; no se utiliza un trabajador en segundo plano.
+     */
     private void recargarDatos() {
         try { controller.cargarAlumnos(modeloAlumno); }
         catch (SQLException e) { error(I18n.get("students.loadError", e.getMessage())); }

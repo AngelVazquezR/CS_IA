@@ -13,6 +13,7 @@ import com.angelvazquez.csia.i18n.I18n;
 import com.angelvazquez.csia.security.AuthService;
 import com.angelvazquez.csia.security.PasswordHasher;
 
+/** Formulario para registrar usuarios adicionales desde la ventana principal. */
 public class RegistarTab extends VentanaSecundaria implements ActionListener {
     private static final long serialVersionUID = 1L;
     private final JPanel contentPane;
@@ -55,6 +56,10 @@ public class RegistarTab extends VentanaSecundaria implements ActionListener {
         else if (e.getSource() == atrasButton) volverAlPadre();
     }
 
+    /**
+     * Delega validación y persistencia en AuthService; conserva el nombre al fallar.
+     * Vacía el campo visual de contraseña en todos los caminos que pasan por el try.
+     */
     private void registrarUsuario() {
         try {
             authService.registrar(usuarioField.getText(), passwordField.getPassword());
