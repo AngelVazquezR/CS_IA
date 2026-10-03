@@ -73,12 +73,13 @@ public final class AsignacionRepository {
     /**
      * Valida e inserta la asignación y actualiza su ID con la clave generada.
      * La validación comprueba datos obligatorios, día entre 1 y 7 y fecha final no anterior
-     * a la inicial; la existencia del profesor y alumno queda a cargo de la base de datos.
+     * a la inicial; la base comprueba referencias y rechaza profesor y alumno con el mismo DNI.
      *
      * @param asignacion entidad con IDs de profesor y alumno, hora y fechas no nulos
      * @return ASSIGNMENT_ID generado, también guardado en la entidad
      * @throws NullPointerException si la entidad o alguno de esos datos son nulos
-     * @throws IllegalArgumentException si el día o el orden de fechas no son válidos
+     * @throws IllegalArgumentException si el día o el orden de fechas no son válidos,
+     *         o profesor y alumno tienen el mismo DNI normalizado
      * @throws SQLException si falla la inserción o no se obtiene la clave generada
      */
     public int agregar(Asignacion asignacion) throws SQLException {
@@ -96,6 +97,8 @@ public final class AsignacionRepository {
                 asignacion.setId(id);
                 return id;
             }
+        } catch (SQLException e) {
+            throw RepositoryErrors.traducir(e);
         }
     }
 
@@ -106,7 +109,8 @@ public final class AsignacionRepository {
      * @param asignacion entidad con ID de asignación y datos obligatorios completos
      * @return true si JDBC informa de exactamente una fila afectada; false en otro caso
      * @throws NullPointerException si la entidad o un dato obligatorio son nulos
-     * @throws IllegalArgumentException si falta el ID, el día está fuera de 1 a 7 o las fechas no son válidas
+     * @throws IllegalArgumentException si falta el ID, el día o las fechas no son válidos,
+     *         o profesor y alumno tienen el mismo DNI normalizado
      * @throws SQLException si falla la actualización
      */
     public boolean modificar(Asignacion asignacion) throws SQLException {
@@ -119,6 +123,8 @@ public final class AsignacionRepository {
              PreparedStatement statement = connection.prepareStatement(UPDATE)) {
             bind(statement, asignacion, true);
             return statement.executeUpdate() == 1;
+        } catch (SQLException e) {
+            throw RepositoryErrors.traducir(e);
         }
     }
 
@@ -156,7 +162,7 @@ public final class AsignacionRepository {
 
     /**
      * Valida campos obligatorios y coherencia temporal antes de escribir.
-     * No consulta la existencia de personas ni detecta solapamientos con otras asignaciones.
+     * Las referencias y autoasignaciones se comprueban en la base; no detecta solapamientos.
      */
     private void validate(Asignacion asignacion) {
         Objects.requireNonNull(asignacion.getProfesorId(), "TEACHER_ID no puede ser null.");

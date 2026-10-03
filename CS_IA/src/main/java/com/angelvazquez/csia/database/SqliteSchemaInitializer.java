@@ -1,5 +1,8 @@
 package com.angelvazquez.csia.database;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -10,7 +13,8 @@ final class SqliteSchemaInitializer {
 
     /**
      * Crea las tablas ausentes sin borrar las existentes ni cerrar la conexión.
-     * CREATE TABLE IF NOT EXISTS no migra la estructura de tablas ya creadas.
+     * CREATE TABLE IF NOT EXISTS no migra columnas existentes; después instala
+     * la unicidad de DNI y el rechazo de autoasignaciones mediante índices y triggers.
      *
      * @param connection conexión SQLite abierta, propiedad del llamador
      * @throws SQLException si falla el DDL o falta alguna de las tablas esperadas
@@ -63,7 +67,27 @@ final class SqliteSchemaInitializer {
                     """);
         }
 
+        instalarIntegridadDni(connection);
         validarEsquema(connection);
+    }
+
+    /**
+     * Instala índices y triggers idempotentes sin cambiar las columnas de ASSIGNMENTS.
+     * Una base antigua con duplicados se rechaza; nunca se borran datos automáticamente.
+     * El marcador separa sentencias completas, incluidos los cuerpos de los triggers.
+     */
+    private void instalarIntegridadDni(Connection connection) throws SQLException {
+        try (InputStream input = SqliteSchemaInitializer.class.getResourceAsStream("/dni_integrity.sql")) {
+            if (input == null) throw new SQLException("No se encuentra dni_integrity.sql.");
+            String sql = new String(input.readAllBytes(), StandardCharsets.UTF_8);
+            try (Statement statement = connection.createStatement()) {
+                for (String sentencia : sql.split("-- statement")) {
+                    if (!sentencia.isBlank()) statement.executeUpdate(sentencia);
+                }
+            }
+        } catch (IOException e) {
+            throw new SQLException("No se pueden leer las restricciones de DNI.", e);
+        }
     }
 
     // Comprueba la existencia de tablas; no valida columnas, restricciones ni versiones.

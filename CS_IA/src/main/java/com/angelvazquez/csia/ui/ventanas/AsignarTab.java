@@ -15,6 +15,7 @@ import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
 import com.angelvazquez.csia.Main;
+import com.angelvazquez.csia.util.Dni;
 import com.angelvazquez.csia.database.DatabaseConnectionFactory;
 import com.angelvazquez.csia.database.repository.AlumnoRepository;
 import com.angelvazquez.csia.database.repository.AsignacionRepository;
@@ -164,7 +165,7 @@ public class AsignarTab extends VentanaSecundaria {
     }
 
     /**
-     * Valida personas, horario y orden de fechas antes de crear una entidad nueva.
+     * Valida personas distintas por DNI normalizado, horario y fechas antes de crear una entidad.
      * El ID recibido en el constructor distingue el alta de la actualización;
      * no se modifica directamente la instancia usada para precargar el formulario.
      */
@@ -179,6 +180,12 @@ public class AsignarTab extends VentanaSecundaria {
         if (!(profesorSeleccionado instanceof OpcionPersona profesor)
                 || !(alumnoSeleccionado instanceof OpcionPersona alumno)) {
             mostrarError(I18n.get("assign.personRequired"));
+            return;
+        }
+
+        // Los IDs pertenecen a tablas distintas: la identidad se compara por DNI.
+        if (Dni.normalizar(profesor.dni()).equals(Dni.normalizar(alumno.dni()))) {
+            mostrarError(I18n.get("assign.selfAssignment"));
             return;
         }
 

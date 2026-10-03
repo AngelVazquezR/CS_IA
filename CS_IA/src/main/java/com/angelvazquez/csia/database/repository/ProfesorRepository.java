@@ -12,6 +12,7 @@ import java.util.Optional;
 
 import com.angelvazquez.csia.database.ConfigDB;
 import com.angelvazquez.csia.database.DatabaseConnectionFactory;
+import com.angelvazquez.csia.util.Dni;
 import com.angelvazquez.csia.model.Profesor;
 
 /** Persistencia de profesores sobre la tabla TEACHERS. */
@@ -26,7 +27,7 @@ public final class ProfesorRepository {
     private static final String FIND_BY_DNI = """
             SELECT TEACHER_ID, FIRST_NAME, LAST_NAME, DNI, SUBJECT, EMAIL
             FROM TEACHERS
-            WHERE DNI = ?
+            WHERE UPPER(TRIM(DNI)) = ?
             """;
 
     private static final String INSERT = """
@@ -44,7 +45,7 @@ public final class ProfesorRepository {
 
     /**
      * Cada operación SQL abre y cierra su propia conexión mediante try-with-resources.
-     * Las comprobaciones de DNI y las escrituras se realizan en llamadas separadas.
+     * Las búsquedas previas no reservan el DNI; los índices protegen cada escritura.
      */
     private final DatabaseConnectionFactory connectionFactory;
     private final ConfigDB configuration;
@@ -73,16 +74,17 @@ public final class ProfesorRepository {
     }
 
     /**
-     * Busca el primer registro que coincide con el DNI enviado a la consulta.
+     * Busca por DNI normalizado (trim y mayúsculas), igual que al guardar.
      *
-     * @param dni valor que se compara sin recortar ni cambiar mayúsculas en este repositorio
+     * @param dni DNI no vacío; se recorta y convierte a mayúsculas
+     * @throws IllegalArgumentException si el DNI es nulo o vacío
      * @return entidad encontrada, o un Optional vacío si no hay coincidencias
      * @throws SQLException si falla la conexión o la consulta
      */
     public Optional<Profesor> buscarPorDni(String dni) throws SQLException {
         try (Connection connection = connectionFactory.open(configuration);
              PreparedStatement statement = connection.prepareStatement(FIND_BY_DNI)) {
-            statement.setString(1, dni);
+            statement.setString(1, Dni.normalizar(dni));
             try (ResultSet rows = statement.executeQuery()) {
                 return rows.next() ? Optional.of(map(rows)) : Optional.empty();
             }
@@ -91,20 +93,23 @@ public final class ProfesorRepository {
 
     /**
      * Inserta una nueva entidad y asigna a la instancia recibida el ID generado.
-     * No realiza una comprobación previa de DNI duplicado ni valida formatos de los campos.
+     * Normaliza el DNI; el índice único de la base rechaza duplicados en esta tabla.
+     * No valida el formato legal del DNI. Se permite el mismo DNI en la otra tabla.
      *
      * @param profesor entidad no nula cuyos datos se van a guardar
      * @return TEACHER_ID generado, también guardado en la entidad
+     * @throws IllegalArgumentException si el DNI está vacío o ya existe en esta tabla
      * @throws NullPointerException si la entidad es nula
      * @throws SQLException si falla la inserción o no se obtiene la clave generada
      */
     public int agregar(Profesor profesor) throws SQLException {
         Objects.requireNonNull(profesor);
+        String dniNormalizado = Dni.normalizar(profesor.GetDNI());
         try (Connection connection = connectionFactory.open(configuration);
              PreparedStatement statement = connection.prepareStatement(INSERT, Statement.RETURN_GENERATED_KEYS)) {
             statement.setString(1, profesor.GetNombre());
             statement.setString(2, profesor.GetApellido());
-            statement.setString(3, profesor.GetDNI());
+            statement.setString(3, dniNormalizado);
             statement.setString(4, profesor.getAsignatura());
             statement.setString(5, profesor.getEmail());
             statement.executeUpdate();
@@ -114,23 +119,29 @@ public final class ProfesorRepository {
                 }
                 int id = keys.getInt(1);
                 profesor.setDatabaseId(id);
+                profesor.DNI = dniNormalizado;
                 return id;
             }
+        } catch (SQLException e) {
+            throw RepositoryErrors.traducir(e);
         }
     }
 
     /**
      * Actualiza los campos del registro identificado por el ID de la entidad.
-     * No realiza una comprobación previa de DNI duplicado ni valida formatos de los campos.
+     * Normaliza el DNI; el índice único de la base rechaza duplicados en esta tabla.
+     * No valida el formato legal del DNI. Se permite el mismo DNI en la otra tabla.
      *
      * @param profesor entidad no nula con identificador de base de datos
      * @return true si JDBC informa de exactamente una fila afectada; false en otro caso
      * @throws NullPointerException si la entidad es nula
-     * @throws IllegalArgumentException si falta el identificador
+     * @throws IllegalArgumentException si falta el identificador, el DNI es inválido,
+     *         está duplicado o el cambio crea una autoasignación
      * @throws SQLException si falla la actualización
      */
     public boolean modificar(Profesor profesor) throws SQLException {
         Objects.requireNonNull(profesor);
+        String dniNormalizado = Dni.normalizar(profesor.GetDNI());
         if (profesor.getDatabaseId() == null) {
             throw new IllegalArgumentException("El profesor debe tener TEACHER_ID para modificarse.");
         }
@@ -138,11 +149,15 @@ public final class ProfesorRepository {
              PreparedStatement statement = connection.prepareStatement(UPDATE)) {
             statement.setString(1, profesor.GetNombre());
             statement.setString(2, profesor.GetApellido());
-            statement.setString(3, profesor.GetDNI());
+            statement.setString(3, dniNormalizado);
             statement.setString(4, profesor.getAsignatura());
             statement.setString(5, profesor.getEmail());
             statement.setInt(6, profesor.getDatabaseId());
-            return statement.executeUpdate() == 1;
+            boolean actualizado = statement.executeUpdate() == 1;
+            if (actualizado) profesor.DNI = dniNormalizado;
+            return actualizado;
+        } catch (SQLException e) {
+            throw RepositoryErrors.traducir(e);
         }
     }
 
@@ -163,9 +178,10 @@ public final class ProfesorRepository {
 
     /**
      * Consulta si existe algún registro con el DNI, usando la misma búsqueda de buscarPorDni.
-     * El resultado no reserva el DNI ni garantiza su unicidad en una escritura posterior.
+     * El resultado no reserva el DNI; la unicidad se garantiza al escribir mediante el índice.
      *
-     * @param dni valor que se compara sin normalización en este repositorio
+     * @param dni DNI no vacío; se recorta y convierte a mayúsculas
+     * @throws IllegalArgumentException si el DNI es nulo o vacío
      * @return true si la búsqueda encuentra una fila
      * @throws SQLException si falla la consulta
      */
