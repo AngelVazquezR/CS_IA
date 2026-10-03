@@ -18,6 +18,7 @@ import com.angelvazquez.csia.i18n.I18n;
 import com.angelvazquez.csia.security.AuthService;
 import com.angelvazquez.csia.security.PasswordHasher;
 
+/** Formulario de acceso que delega la autenticación en AuthService. */
 public class LoginPage implements ActionListener {
 
     private final JFrame frame = new JFrame(I18n.get("login.title"));
@@ -75,6 +76,7 @@ public class LoginPage implements ActionListener {
                     I18n.get("login.queryError", ex.getMessage()),
                     I18n.get("database.error.title"),
                     JOptionPane.ERROR_MESSAGE);
+        // Vacía el componente visual además del array que limpia AuthService.
         } finally {
             userPasswordField.setText("");
         }
