@@ -33,6 +33,10 @@ public final class UsuarioRepository {
             VALUES (?, ?)
             """;
 
+    /**
+     * Cada consulta o escritura abre y cierra su propia conexión.
+     * La comprobación de usuario existente y la inserción no comparten una transacción.
+     */
     private final DatabaseConnectionFactory connectionFactory;
     private final ConfigDB configuration;
 
@@ -41,6 +45,14 @@ public final class UsuarioRepository {
         this.configuration = Objects.requireNonNull(configuration);
     }
 
+    /**
+     * Busca por nombre recortado y convertido a mayúsculas con Locale.ROOT.
+     *
+     * @param username nombre no nulo; aquí no se rechazan los nombres en blanco
+     * @return primer usuario encontrado, o un Optional vacío si no existe
+     * @throws NullPointerException si el nombre es nulo
+     * @throws SQLException si falla la consulta
+     */
     public Optional<Usuario> buscarPorUsername(String username) throws SQLException {
         String normalized = normalize(username);
         try (Connection connection = connectionFactory.open(configuration);
@@ -59,6 +71,12 @@ public final class UsuarioRepository {
         }
     }
 
+    /**
+     * Permite decidir si es necesario solicitar el primer usuario de la instalación.
+     *
+     * @return true si USERS contiene al menos una fila
+     * @throws SQLException si falla la consulta
+     */
     public boolean existeAlgunUsuario() throws SQLException {
         try (Connection connection = connectionFactory.open(configuration);
              PreparedStatement statement = connection.prepareStatement(EXISTS_ANY);
@@ -67,9 +85,21 @@ public final class UsuarioRepository {
         }
     }
 
+    /**
+     * Comprueba si el nombre normalizado ya existe y después inserta el usuario.
+     * Al obtener la clave, actualiza el ID y el nombre normalizado en la instancia recibida.
+     * El hash debe llegar generado: este repositorio no valida su formato ni cifra contraseñas.
+     *
+     * @param usuario entidad no nula con nombre y hash no nulos
+     * @return USER_ID generado
+     * @throws NullPointerException si la entidad, el nombre o el hash son nulos
+     * @throws IllegalArgumentException si la consulta previa encuentra el nombre
+     * @throws SQLException si falla la consulta, la inserción o la obtención de la clave
+     */
     public int registrar(Usuario usuario) throws SQLException {
         Objects.requireNonNull(usuario);
         String normalized = normalize(usuario.getUsername());
+        // Esta consulta previa no garantiza unicidad ante registros concurrentes.
         if (buscarPorUsername(normalized).isPresent()) {
             throw new IllegalArgumentException("Ya existe un usuario con USERNAME " + normalized + ".");
         }
@@ -91,6 +121,9 @@ public final class UsuarioRepository {
         }
     }
 
+    /**
+     * Comparte la normalización entre búsqueda y registro, independiente del idioma de la JVM.
+     */
     private String normalize(String username) {
         return Objects.requireNonNull(username, "USERNAME no puede ser null.")
                 .trim().toUpperCase(Locale.ROOT);

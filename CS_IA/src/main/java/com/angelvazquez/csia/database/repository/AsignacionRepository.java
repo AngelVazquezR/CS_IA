@@ -40,6 +40,9 @@ public final class AsignacionRepository {
 
     private static final String DELETE = "DELETE FROM ASSIGNMENTS WHERE ASSIGNMENT_ID = ?";
 
+    /**
+     * Cada operación SQL abre y cierra su propia conexión mediante try-with-resources.
+     */
     private final DatabaseConnectionFactory connectionFactory;
     private final ConfigDB configuration;
 
@@ -48,6 +51,13 @@ public final class AsignacionRepository {
         this.configuration = Objects.requireNonNull(configuration);
     }
 
+    /**
+     * Lee todas las asignaciones por ASSIGNMENT_ID y convierte las fechas y horas almacenadas.
+     *
+     * @return lista de entidades nuevas, vacía si no hay registros
+     * @throws SQLException si falla la conexión o la consulta
+     * @throws java.time.format.DateTimeParseException si una fecha u hora almacenada no se puede interpretar
+     */
     public List<Asignacion> listar() throws SQLException {
         List<Asignacion> asignaciones = new ArrayList<>();
         try (Connection connection = connectionFactory.open(configuration);
@@ -60,6 +70,17 @@ public final class AsignacionRepository {
         return asignaciones;
     }
 
+    /**
+     * Valida e inserta la asignación y actualiza su ID con la clave generada.
+     * La validación comprueba datos obligatorios, día entre 1 y 7 y fecha final no anterior
+     * a la inicial; la existencia del profesor y alumno queda a cargo de la base de datos.
+     *
+     * @param asignacion entidad con IDs de profesor y alumno, hora y fechas no nulos
+     * @return ASSIGNMENT_ID generado, también guardado en la entidad
+     * @throws NullPointerException si la entidad o alguno de esos datos son nulos
+     * @throws IllegalArgumentException si el día o el orden de fechas no son válidos
+     * @throws SQLException si falla la inserción o no se obtiene la clave generada
+     */
     public int agregar(Asignacion asignacion) throws SQLException {
         Objects.requireNonNull(asignacion);
         validate(asignacion);
@@ -78,6 +99,16 @@ public final class AsignacionRepository {
         }
     }
 
+    /**
+     * Valida y actualiza la asignación identificada por su ID, con las mismas reglas de agregar.
+     * No comprueba solapamientos de horarios.
+     *
+     * @param asignacion entidad con ID de asignación y datos obligatorios completos
+     * @return true si JDBC informa de exactamente una fila afectada; false en otro caso
+     * @throws NullPointerException si la entidad o un dato obligatorio son nulos
+     * @throws IllegalArgumentException si falta el ID, el día está fuera de 1 a 7 o las fechas no son válidas
+     * @throws SQLException si falla la actualización
+     */
     public boolean modificar(Asignacion asignacion) throws SQLException {
         Objects.requireNonNull(asignacion);
         validate(asignacion);
@@ -91,6 +122,13 @@ public final class AsignacionRepository {
         }
     }
 
+    /**
+     * Elimina la asignación identificada sin modificar la entidad que pueda tener el llamador.
+     *
+     * @param assignmentId identificador de la asignación que se desea eliminar
+     * @return true si JDBC informa de exactamente una fila afectada; false en otro caso
+     * @throws SQLException si falla el borrado
+     */
     public boolean eliminar(int assignmentId) throws SQLException {
         try (Connection connection = connectionFactory.open(configuration);
              PreparedStatement statement = connection.prepareStatement(DELETE)) {
@@ -99,6 +137,10 @@ public final class AsignacionRepository {
         }
     }
 
+    /**
+     * Guarda hora y fechas con el formato ISO de LocalTime y LocalDate para su lectura con parse.
+     * includeId añade el parámetro del WHERE de UPDATE; INSERT deja que la base genere el ID.
+     */
     private void bind(PreparedStatement statement, Asignacion asignacion, boolean includeId)
             throws SQLException {
         statement.setInt(1, asignacion.getProfesorId());
@@ -112,6 +154,10 @@ public final class AsignacionRepository {
         }
     }
 
+    /**
+     * Valida campos obligatorios y coherencia temporal antes de escribir.
+     * No consulta la existencia de personas ni detecta solapamientos con otras asignaciones.
+     */
     private void validate(Asignacion asignacion) {
         Objects.requireNonNull(asignacion.getProfesorId(), "TEACHER_ID no puede ser null.");
         Objects.requireNonNull(asignacion.getAlumnoId(), "STUDENT_ID no puede ser null.");
