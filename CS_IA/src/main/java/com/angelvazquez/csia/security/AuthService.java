@@ -19,6 +19,18 @@ public final class AuthService {
         this.passwordHasher = Objects.requireNonNull(passwordHasher);
     }
 
+    /**
+     * Valida las credenciales, genera el hash y persiste el nuevo usuario.
+     * Tras superar la validación, borra el array de contraseña incluso si falla
+     * el hash o la escritura. Si la validación falla, el array no se borra aquí.
+     *
+     * @param username nombre no nulo ni en blanco; el repositorio lo recorta y convierte a mayúsculas
+     * @param password contraseña de al menos ocho caracteres; el array se modifica
+     * @return identificador generado para el usuario registrado
+     * @throws IllegalArgumentException si las credenciales no son válidas o el usuario ya existe
+     * @throws SQLException si falla la persistencia
+     * @throws IllegalStateException si no se puede generar el hash
+     */
     public int registrar(String username, char[] password) throws SQLException {
         validateUsername(username);
         validatePassword(password);
@@ -30,6 +42,18 @@ public final class AuthService {
         }
     }
 
+    /**
+     * Busca el usuario y verifica la contraseña frente al hash almacenado.
+     * Borra el array recibido, si no es nulo, también con entradas inválidas
+     * o cuando falla la consulta. El llamador no debe reutilizar su contenido.
+     *
+     * @param username nombre que el repositorio recorta y convierte a mayúsculas para buscar
+     * @param password contraseña que se desea comprobar; puede ser nula
+     * @return {@code true} si coincide; {@code false} si las entradas no son
+     *         válidas, el usuario no existe o la verificación rechaza el hash
+     * @throws SQLException si falla la consulta de usuarios
+     * @throws IllegalStateException si falla la operación criptográfica
+     */
     public boolean autenticar(String username, char[] password) throws SQLException {
         if (username == null || username.isBlank() || password == null || password.length == 0) {
             if (password != null) {
