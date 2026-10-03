@@ -21,11 +21,23 @@ import com.angelvazquez.csia.ui.ventanas.VisualizarAsignaciones;
 import com.angelvazquez.csia.ui.ventanas.VisualizarProfesores;
 import com.angelvazquez.csia.ui.ventanas.WelcomePage;
 
+/**
+ * Punto de entrada y acceso compartido a la configuración y a la apertura de ventanas.
+ * Los métodos de navegación crean nuevas ventanas; el cierre u ocultación de la
+ * ventana anterior corresponde al código que los invoca.
+ */
 public class Main {
 
     private static AppConfig appConfig;
     private static ConfigDB configuracion;
 
+    /**
+     * Inicializa configuración e idioma antes de consultar los usuarios y abrir el login.
+     * Si se cancela la configuración o no se garantiza un primer usuario, termina
+     * este método sin abrir LoginPage.
+     *
+     * @param args argumentos de lanzamiento, no utilizados
+     */
     public static void main(String[] args) {
         appConfig = new StartupManager().inicializar();
         if (appConfig == null) return;
@@ -35,6 +47,12 @@ public class Main {
         new LoginPage();
     }
 
+    /**
+     * Comprueba si USERS contiene alguna fila y, si está vacía, solicita el primer usuario.
+     *
+     * @return true si ya existe un usuario o se registra el primero; false si se cancela
+     *         el registro o falla una operación SQL, cuyo error se muestra al usuario
+     */
     private static boolean asegurarUsuarioInicial() {
         UsuarioRepository repository = new UsuarioRepository(
                 new DatabaseConnectionFactory(), configuracion);
@@ -49,11 +67,23 @@ public class Main {
         }
     }
 
+    /**
+     * Devuelve la instancia compartida de configuración de base de datos, sin copiarla.
+     *
+     * @return configuración establecida durante el arranque
+     * @throws IllegalStateException si aún no se ha establecido
+     */
     public static ConfigDB getConfiguracion() {
         if (configuracion == null) throw new IllegalStateException("Configuración no inicializada");
         return configuracion;
     }
 
+    /**
+     * Devuelve la instancia compartida de configuración global, sin copiarla.
+     *
+     * @return configuración recuperada durante el arranque
+     * @throws IllegalStateException si aún no se ha establecido
+     */
     public static AppConfig getAppConfig() {
         if (appConfig == null) throw new IllegalStateException("Configuración de aplicación no inicializada");
         return appConfig;
@@ -66,6 +96,7 @@ public class Main {
         ventana.setVisible(true);
     }
 
+    // Las sobrecargas sin padre abren ventanas sin una ventana de retorno asociada.
     public static void Asignar() { Asignar(null); }
     public static void Asignar(Window parent) {
         AsignarTab ventana = new AsignarTab(parent);
