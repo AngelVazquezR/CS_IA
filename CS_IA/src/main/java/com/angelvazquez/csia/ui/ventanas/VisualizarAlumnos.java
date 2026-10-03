@@ -121,19 +121,21 @@ public class VisualizarAlumnos extends VentanaSecundaria {
         try {
             if (repository.existeDni(a.GetDNI())) { error(I18n.get("students.duplicateDni")); return; }
             repository.agregar(a); recargarDatos(); limpiar();
-        } catch (SQLException e) { error(I18n.get("students.addError", e.getMessage())); }
+        } catch (IllegalArgumentException e) { error(e.getMessage()); }
+        catch (SQLException e) { error(I18n.get("students.addError", e.getMessage())); }
     }
 
     /**
-     * Modifica la entidad compartida antes de escribir en la base de datos.
-     * Si la escritura falla, aquí no se restaura su estado anterior.
-     * La comprobación previa de DNI duplicado se realiza en el alta, no en este método.
+     * Edita una copia y recarga tras guardar, sin alterar la entidad visible si falla.
+     * El repositorio normaliza el DNI y la base rechaza duplicados y autoasignaciones.
      */
     private void modificar() {
-        Alumno a = seleccionado(); if (a == null || !valido()) return;
-        a.SetNombre(nombre.getText().trim()); a.SetApellido(apellido.getText().trim());
-        a.DNI = dni.getText().trim(); a.setEmail(email.getText().trim());
-        try { repository.modificar(a); recargarDatos(); limpiar(); }
+        Alumno original = seleccionado(); if (original == null || !valido()) return;
+        Alumno a = new Alumno(original.getDatabaseId(), nombre.getText().trim(), apellido.getText().trim(), dni.getText(), email.getText().trim());
+        try {
+            if (!repository.modificar(a)) { error(I18n.get("person.notFound")); return; }
+            recargarDatos(); limpiar();
+        } catch (IllegalArgumentException e) { error(e.getMessage()); }
         catch (SQLException e) { error(I18n.get("students.editError", e.getMessage())); }
     }
 

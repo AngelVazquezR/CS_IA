@@ -123,19 +123,22 @@ public class VisualizarProfesores extends VentanaSecundaria {
         try {
             if (repository.existeDni(p.GetDNI())) { error(I18n.get("teachers.duplicateDni")); return; }
             repository.agregar(p); recargarDatos(); limpiar();
-        } catch (SQLException e) { error(I18n.get("teachers.addError", e.getMessage())); }
+        } catch (IllegalArgumentException e) { error(e.getMessage()); }
+        catch (SQLException e) { error(I18n.get("teachers.addError", e.getMessage())); }
     }
 
     /**
-     * Modifica la entidad compartida antes de escribir en la base de datos.
-     * Si la escritura falla, aquí no se restaura su estado anterior.
-     * La comprobación previa de DNI duplicado se realiza en el alta, no en este método.
+     * Edita una copia y recarga tras guardar, sin alterar la entidad visible si falla.
+     * El repositorio normaliza el DNI y la base rechaza duplicados y autoasignaciones.
      */
     private void modificar() {
-        Profesor p = seleccionado(); if (p == null || !valido()) return;
-        p.SetNombre(nombre.getText().trim()); p.SetApellido(apellido.getText().trim()); p.DNI = dni.getText().trim();
-        p.setAsignatura(asignatura.getText().trim()); p.setEmail(email.getText().trim());
-        try { repository.modificar(p); recargarDatos(); limpiar(); }
+        Profesor original = seleccionado(); if (original == null || !valido()) return;
+        Profesor p = new Profesor(original.getDatabaseId(), nombre.getText().trim(), apellido.getText().trim(), dni.getText(),
+                asignatura.getText().trim(), email.getText().trim());
+        try {
+            if (!repository.modificar(p)) { error(I18n.get("person.notFound")); return; }
+            recargarDatos(); limpiar();
+        } catch (IllegalArgumentException e) { error(e.getMessage()); }
         catch (SQLException e) { error(I18n.get("teachers.editError", e.getMessage())); }
     }
 
