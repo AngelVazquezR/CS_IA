@@ -62,6 +62,10 @@ public final class PreferenciasPage extends VentanaSecundaria {
         guardarButton.addActionListener(e -> guardar());
     }
 
+    /**
+     * Valida y guarda una configuración nueva en el XML para el próximo arranque.
+     * No reemplaza la configuración de Main ni aplica el idioma a las ventanas actuales.
+     */
     private void guardar() {
         String error = databasePanel.validar();
         if (error != null) {
