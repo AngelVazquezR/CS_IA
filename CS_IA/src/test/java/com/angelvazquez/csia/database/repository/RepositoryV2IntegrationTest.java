@@ -48,14 +48,14 @@ class RepositoryV2IntegrationTest {
     @Test
     void alumnoRepositoryRealizaCrudConIdAutoincremental() throws Exception {
         AlumnoRepository repository = new AlumnoRepository(factory, config);
-        Alumno alumno = new Alumno("Ana", "Lopez", "12345678A", "ana@example.test");
+        Alumno alumno = new Alumno("Ana", "Lopez", "12345678Z", "ana@example.test");
 
         int id = repository.agregar(alumno);
         assertTrue(id > 0);
         assertEquals(id, alumno.getDatabaseId());
-        assertTrue(repository.existeDni("12345678A"));
+        assertTrue(repository.existeDni("12345678Z"));
 
-        Alumno guardado = repository.buscarPorDni("12345678A").orElseThrow();
+        Alumno guardado = repository.buscarPorDni("12345678Z").orElseThrow();
         assertEquals("Ana", guardado.GetNombre());
         assertEquals("ana@example.test", guardado.getEmail());
 
@@ -65,19 +65,19 @@ class RepositoryV2IntegrationTest {
         assertEquals("Ana Maria", repository.listar().getFirst().GetNombre());
 
         assertTrue(repository.eliminar(id));
-        assertFalse(repository.existeDni("12345678A"));
+        assertFalse(repository.existeDni("12345678Z"));
     }
 
     @Test
     void profesorRepositoryRealizaCrudConSubjectYEmail() throws Exception {
         ProfesorRepository repository = new ProfesorRepository(factory, config);
-        Profesor profesor = new Profesor("Luis", "Martin", "87654321B", "Matematicas", "luis@example.test");
+        Profesor profesor = new Profesor("Luis", "Martin", "87654321X", "Matematicas", "luis@example.test");
 
         int id = repository.agregar(profesor);
         assertTrue(id > 0);
         assertEquals(id, profesor.getDatabaseId());
 
-        Profesor guardado = repository.buscarPorDni("87654321B").orElseThrow();
+        Profesor guardado = repository.buscarPorDni("87654321X").orElseThrow();
         assertEquals("Matematicas", guardado.getAsignatura());
         assertEquals("luis@example.test", guardado.getEmail());
 
@@ -86,7 +86,7 @@ class RepositoryV2IntegrationTest {
         assertEquals("Fisica", repository.listar().getFirst().getAsignatura());
 
         assertTrue(repository.eliminar(id));
-        assertFalse(repository.existeDni("87654321B"));
+        assertFalse(repository.existeDni("87654321X"));
     }
 
     @Test
@@ -112,8 +112,8 @@ class RepositoryV2IntegrationTest {
         ProfesorRepository profesores = new ProfesorRepository(factory, config);
         AsignacionRepository asignaciones = new AsignacionRepository(factory, config);
 
-        Alumno alumno = new Alumno("Eva", "Ruiz", "11111111C", "eva@example.test");
-        Profesor profesor = new Profesor("Mario", "Diaz", "22222222D", "Lengua", "mario@example.test");
+        Alumno alumno = new Alumno("Eva", "Ruiz", "11111111H", "eva@example.test");
+        Profesor profesor = new Profesor("Mario", "Diaz", "22222222J", "Lengua", "mario@example.test");
         int studentId = alumnos.agregar(alumno);
         int teacherId = profesores.agregar(profesor);
 

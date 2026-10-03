@@ -9,6 +9,7 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.table.TableRowSorter;
 import com.angelvazquez.csia.Main;
+import com.angelvazquez.csia.util.Dni;
 import com.angelvazquez.csia.controller.PersonasTableController;
 import com.angelvazquez.csia.database.DatabaseConnectionFactory;
 import com.angelvazquez.csia.database.repository.AlumnoRepository;
@@ -69,7 +70,7 @@ public class VisualizarAlumnos extends VentanaSecundaria {
         JPanel p = new JPanel();
         p.add(new JLabel(I18n.get("table.name") + ":")); p.add(nombre);
         p.add(new JLabel(I18n.get("table.surname") + ":")); p.add(apellido);
-        p.add(new JLabel("DNI:")); p.add(dni);
+        p.add(new JLabel("DNI/NIE:")); p.add(dni);
         p.add(new JLabel("Email:")); p.add(email);
         p.add(agregar); p.add(modificar); p.add(eliminar); p.add(atras);
         add(p, BorderLayout.SOUTH);
@@ -104,12 +105,19 @@ public class VisualizarAlumnos extends VentanaSecundaria {
 
     /**
      * Comprueba que los campos obligatorios no estén en blanco.
-     * No valida el formato de DNI o email ni consulta duplicados.
+     * Comprueba formato y letra de control de DNI/NIE antes de enviar el formulario.
+     * El repositorio repite la validación al guardar.
+     * Este método no valida el email ni consulta duplicados.
      */
     private boolean valido() {
         if (nombre.getText().isBlank() || apellido.getText().isBlank()
                 || dni.getText().isBlank() || email.getText().isBlank()) {
             error(I18n.get("students.required")); return false;
+        }
+        try {
+            Dni.normalizarYValidar(dni.getText());
+        } catch (IllegalArgumentException e) {
+            error(e.getMessage()); return false;
         }
         return true;
     }
@@ -127,7 +135,7 @@ public class VisualizarAlumnos extends VentanaSecundaria {
 
     /**
      * Edita una copia y recarga tras guardar, sin alterar la entidad visible si falla.
-     * El repositorio normaliza el DNI y la base rechaza duplicados y autoasignaciones.
+     * El repositorio normaliza y valida el DNI/NIE y la base rechaza duplicados y autoasignaciones.
      */
     private void modificar() {
         Alumno original = seleccionado(); if (original == null || !valido()) return;
