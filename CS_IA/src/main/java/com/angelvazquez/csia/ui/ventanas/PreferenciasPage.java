@@ -35,6 +35,7 @@ public final class PreferenciasPage extends VentanaSecundaria {
         configurarAcciones();
     }
 
+    /** Configuración basica de la ventana. */
     private void construirInterfaz() {
         JPanel contentPane = new JPanel(new BorderLayout(10, 10));
         contentPane.setBorder(new EmptyBorder(12, 12, 12, 12));

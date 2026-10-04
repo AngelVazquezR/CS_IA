@@ -7,6 +7,7 @@ import java.util.HexFormat;
 
 public class Algoritmos {
 
+    /** Algoritmo de creación de IDs. */
 	public static String GenerateID(String cadena, int sequencial) {
 		int secuancial_num;
 		secuancial_num = sequencial+1;
@@ -16,6 +17,7 @@ public class Algoritmos {
 		return cadena;
 	}
 	
+	/** Algoritmo de creación de IDs. */
 	public static String GenerateID(String cadena, String sequencial) {
 		int secuancial_num;
 		secuancial_num = Integer.parseInt(sequencial)+1;
@@ -25,17 +27,14 @@ public class Algoritmos {
 		return cadena;
 	}
 	
+	/** Algoritmo de creación de encriptación. */
 	public static String hashAlgorithm (String password) {
-		
 		if(password != null) {
 			try {
 				MessageDigest digest = MessageDigest.getInstance("SHA-256");
 				byte [] bytesTexto = password.getBytes(StandardCharsets.UTF_8);
 				byte [] bytesHash = digest.digest(bytesTexto);
-				return HexFormat.of().formatHex(bytesHash);
-				
-				
-				
+				return HexFormat.of().formatHex(bytesHash);				
 			} catch (NoSuchAlgorithmException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

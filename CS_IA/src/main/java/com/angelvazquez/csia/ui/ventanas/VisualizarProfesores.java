@@ -50,6 +50,7 @@ public class VisualizarProfesores extends VentanaSecundaria {
         recargarDatos();
     }
 
+    /** Configuración basica de la ventana. */
     private void configurarVentana() {
         setTitle(I18n.get("teachers.title"));
         setLayout(new BorderLayout());

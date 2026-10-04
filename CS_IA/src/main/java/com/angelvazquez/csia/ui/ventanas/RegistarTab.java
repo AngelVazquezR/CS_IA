@@ -25,6 +25,7 @@ public class RegistarTab extends VentanaSecundaria implements ActionListener {
 
     public RegistarTab() { this(null); }
 
+    /** Configuración basica de la ventana. */
     public RegistarTab(Window parent) {
         super(parent);
         UsuarioRepository repository = new UsuarioRepository(

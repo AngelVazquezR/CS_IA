@@ -31,6 +31,7 @@ public class WelcomePage extends JFrame implements ActionListener {
 
     private final JMenuItem mntmAsignacionesTabla = new JMenuItem(I18n.get("home.assignments"));
 
+    /** Configuración basica de la ventana. */
     public WelcomePage() {
         setTitle(I18n.get("home.title"));
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

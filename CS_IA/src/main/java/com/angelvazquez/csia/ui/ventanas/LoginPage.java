@@ -29,6 +29,7 @@ public class LoginPage implements ActionListener {
     private final JLabel userPasswordLabel = new JLabel(I18n.get("login.password"));
     private final AuthService authService;
 
+    /** Configuración basica de la ventana. */
     public LoginPage() {
         UsuarioRepository repository = new UsuarioRepository(
                 new DatabaseConnectionFactory(), Main.getConfiguracion());

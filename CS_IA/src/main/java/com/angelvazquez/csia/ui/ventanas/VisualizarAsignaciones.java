@@ -44,6 +44,7 @@ public class VisualizarAsignaciones extends VentanaSecundaria {
     private final JLabel estado = new JLabel();
     private final ConfigDB configuracion;
 
+    /** Configuración basica de la ventana. */
     public VisualizarAsignaciones(Window parent) {
         super(parent);
         configuracion = Main.getConfiguracion();

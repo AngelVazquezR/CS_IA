@@ -99,7 +99,7 @@ public class AsignarTab extends VentanaSecundaria {
         asignarButton.setEnabled(false);
         mostrarError(I18n.get("assign.personMissing", id));
     }
-
+    /** Configuración basica de la ventana. */
     private void configurarVentana() {
         setTitle(I18n.get("assign.title"));
         setBounds(100, 100, 620, 360);

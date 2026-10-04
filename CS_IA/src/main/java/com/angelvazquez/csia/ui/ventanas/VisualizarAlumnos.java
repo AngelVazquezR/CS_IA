@@ -49,6 +49,7 @@ public class VisualizarAlumnos extends VentanaSecundaria {
         recargarDatos();
     }
 
+    /** Configuración basica de la ventana. */
     private void configurarVentana() {
         setTitle(I18n.get("students.title"));
         setLayout(new BorderLayout());
