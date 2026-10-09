@@ -19,12 +19,12 @@ import java.util.Objects;
 public final class DatabaseConnectionFactory {
 
     private static final String SQLITE_URL_PREFIX = "jdbc:sqlite:";
-    // La caché es por archivo físico, no por instancia de la factoría: los
+    // La caché es por ruta y fecha de creación, no por instancia de la factoría: los
     // repositorios pueden crear factorías distintas para la misma base.
     private static final Object SCHEMA_LOCK = new Object();
     private static final Map<Path, SchemaState> INITIALIZED_FILES = new HashMap<>();
 
-    private record SchemaState(Object fileIdentity, int schemaVersion) {}
+    private record SchemaState(Object creationTime, int schemaVersion) {}
     private static final SqliteSchemaInitializer SQLITE_INITIALIZER =
             new SqliteSchemaInitializer();
 
@@ -73,8 +73,8 @@ public final class DatabaseConnectionFactory {
                 requiresInitialization = databasePath == null
                         || !Files.isRegularFile(databasePath)
                         || !INITIALIZED_FILES.containsKey(databasePath)
-                        || !Objects.equals(INITIALIZED_FILES.get(databasePath).fileIdentity(),
-                                identidadArchivo(databasePath));
+                        || !Objects.equals(INITIALIZED_FILES.get(databasePath).creationTime(),
+                                fechaCreacionArchivo(databasePath));
                 if (requiresInitialization) {
                     crearDirectorioSqlite(configuration.url);
                 }
@@ -91,16 +91,16 @@ public final class DatabaseConnectionFactory {
                 synchronized (SCHEMA_LOCK) {
                     SchemaState previous = databasePath == null
                             ? null : INITIALIZED_FILES.get(databasePath);
-                    Object identity = databasePath == null ? null : identidadArchivo(databasePath);
+                    Object identity = databasePath == null ? null : fechaCreacionArchivo(databasePath);
                     int schemaVersion = versionEsquema(connection);
                     if (previous == null
-                            || !Objects.equals(previous.fileIdentity(), identity)
+                            || !Objects.equals(previous.creationTime(), identity)
                             || previous.schemaVersion() != schemaVersion
                             || contieneTriggersAntiguos(connection)) {
                         SQLITE_INITIALIZER.initialize(connection);
                         if (databasePath != null) {
                             INITIALIZED_FILES.put(databasePath,
-                                    new SchemaState(identidadArchivo(databasePath),
+                                    new SchemaState(fechaCreacionArchivo(databasePath),
                                             versionEsquema(connection)));
                         }
                     }
@@ -175,12 +175,13 @@ public final class DatabaseConnectionFactory {
         }
     }
 
-    private Object identidadArchivo(Path path) throws SQLException {
+    // En Windows la fecha de creación permite reconocer sustituciones habituales
+    // del fichero. No es una identidad infalible y puede conservarse al copiar.
+    private Object fechaCreacionArchivo(Path path) throws SQLException {
         try {
             if (!Files.isRegularFile(path)) return null;
             BasicFileAttributes attributes = Files.readAttributes(path, BasicFileAttributes.class);
-            Object fileKey = attributes.fileKey();
-            return fileKey != null ? fileKey : attributes.creationTime();
+            return attributes.creationTime();
         } catch (IOException e) {
             throw new SQLException("No se pueden comprobar los atributos de SQLite: " + path, e);
         }
