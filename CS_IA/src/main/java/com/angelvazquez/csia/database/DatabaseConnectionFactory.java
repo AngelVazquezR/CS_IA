@@ -5,6 +5,9 @@ import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.util.HashMap;
+import java.util.Map;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -15,6 +18,10 @@ import java.util.Objects;
 public final class DatabaseConnectionFactory {
 
     private static final String SQLITE_URL_PREFIX = "jdbc:sqlite:";
+    // La caché es por archivo físico, no por instancia de la factoría: los
+    // repositorios pueden crear factorías distintas para la misma base.
+    private static final Object SCHEMA_LOCK = new Object();
+    private static final Map<Path, Object> INITIALIZED_FILES = new HashMap<>();
     private static final SqliteSchemaInitializer SQLITE_INITIALIZER =
             new SqliteSchemaInitializer();
 
@@ -54,7 +61,18 @@ public final class DatabaseConnectionFactory {
         }
 
         if (configuration.databaseType == DatabaseType.SQLITE) {
-            crearDirectorioSqlite(configuration.url);
+            // Sólo se prepara el directorio cuando se necesita inicializar.
+            Path databasePath = rutaSqliteConvencional(configuration.url);
+            boolean requiresInitialization;
+            synchronized (SCHEMA_LOCK) {
+                requiresInitialization = databasePath == null
+                        || !Files.isRegularFile(databasePath)
+                        || !Objects.equals(INITIALIZED_FILES.get(databasePath),
+                                identidadArchivo(databasePath));
+                if (requiresInitialization) {
+                    crearDirectorioSqlite(configuration.url);
+                }
+            }
             Connection connection = DriverManager.getConnection(configuration.url);
 
             try {
@@ -62,7 +80,18 @@ public final class DatabaseConnectionFactory {
                     // La comprobación de claves foráneas se activa en cada conexión SQLite.
                     statement.execute("PRAGMA foreign_keys = ON");
                 }
-                SQLITE_INITIALIZER.initialize(connection);
+                // El bloqueo impide inicializaciones concurrentes duplicadas.
+                // La identidad detecta una base borrada y recreada en la misma ruta.
+                synchronized (SCHEMA_LOCK) {
+                    if (databasePath == null
+                            || !Objects.equals(INITIALIZED_FILES.get(databasePath),
+                                    identidadArchivo(databasePath))) {
+                        SQLITE_INITIALIZER.initialize(connection);
+                        if (databasePath != null) {
+                            INITIALIZED_FILES.put(databasePath, identidadArchivo(databasePath));
+                        }
+                    }
+                }
                 return connection;
             // Si la preparación falla, la conexión aún no se ha entregado al llamador.
             } catch (SQLException e) {
@@ -87,6 +116,37 @@ public final class DatabaseConnectionFactory {
      * Las bases en memoria, las URI file: y los recursos quedan a cargo del driver;
      * la parte posterior a '?' no forma parte de la ruta que se crea.
      */
+    /**
+     * Las URI SQLite y las bases en memoria no se almacenan en la caché:
+     * pueden designar bases diferentes entre aperturas.
+     */
+    private Path rutaSqliteConvencional(String url) {
+        if (url == null || !url.startsWith(SQLITE_URL_PREFIX)) return null;
+        String location = url.substring(SQLITE_URL_PREFIX.length());
+        int queryStart = location.indexOf('?');
+        if (queryStart >= 0) return null;
+        if (location.isBlank() || location.equals(":memory:")
+                || location.startsWith("file:") || location.startsWith(":resource:")) {
+            return null;
+        }
+        try {
+            return Paths.get(location).toAbsolutePath().normalize();
+        } catch (InvalidPathException e) {
+            return null;
+        }
+    }
+
+    private Object identidadArchivo(Path path) throws SQLException {
+        try {
+            if (!Files.isRegularFile(path)) return null;
+            BasicFileAttributes attributes = Files.readAttributes(path, BasicFileAttributes.class);
+            Object fileKey = attributes.fileKey();
+            return fileKey != null ? fileKey : attributes.creationTime();
+        } catch (IOException e) {
+            throw new SQLException("No se pueden comprobar los atributos de SQLite: " + path, e);
+        }
+    }
+
     private void crearDirectorioSqlite(String url) throws SQLException {
         if (url == null || !url.startsWith(SQLITE_URL_PREFIX)) {
             return;
