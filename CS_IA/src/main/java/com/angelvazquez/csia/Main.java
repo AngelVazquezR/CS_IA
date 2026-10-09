@@ -14,7 +14,7 @@ import com.angelvazquez.csia.i18n.I18n;
 import com.angelvazquez.csia.ui.ventanas.AsignarTab;
 import com.angelvazquez.csia.ui.ventanas.LoginPage;
 import com.angelvazquez.csia.ui.ventanas.PreferenciasPage;
-import com.angelvazquez.csia.ui.ventanas.RegistarTab;
+import com.angelvazquez.csia.ui.ventanas.RegistrarTab;
 import com.angelvazquez.csia.ui.ventanas.RegistroInicialUsuario;
 import com.angelvazquez.csia.ui.ventanas.VisualizarAlumnos;
 import com.angelvazquez.csia.ui.ventanas.VisualizarAsignaciones;
@@ -121,7 +121,7 @@ public class Main {
 
     public static void RegistrarUser() { RegistrarUser(null); }
     public static void RegistrarUser(Window parent) {
-        RegistarTab ventana = new RegistarTab(parent);
+        RegistrarTab ventana = new RegistrarTab(parent);
         ventana.setVisible(true);
     }
 
