@@ -26,8 +26,10 @@ public final class DatabaseConnectionFactory {
             new SqliteSchemaInitializer();
 
     /**
-     * Abre una conexión y, para SQLite, crea el directorio si procede, habilita
-     * claves foráneas e inicializa las tablas ausentes del esquema v2.
+     * Abre una conexión y habilita sus claves foráneas SQLite. Inicializa el
+     * esquema sólo en la primera apertura de cada archivo durante el proceso,
+     * o cuando detecta que ese archivo ha sido sustituido. Las URI especiales
+     * y las bases en memoria se inicializan en cada apertura.
      *
      * @param configuration configuración no nula de un motor habilitado
      * @return conexión abierta; el llamador debe cerrarla, preferiblemente con
