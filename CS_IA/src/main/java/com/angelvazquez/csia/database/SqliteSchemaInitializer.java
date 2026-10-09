@@ -68,6 +68,7 @@ final class SqliteSchemaInitializer {
         }
 
         instalarIntegridadDni(connection);
+        instalarUnicidadUsuarios(connection);
         validarEsquema(connection);
     }
 
@@ -87,6 +88,20 @@ final class SqliteSchemaInitializer {
             }
         } catch (IOException e) {
             throw new SQLException("No se pueden leer las restricciones de DNI.", e);
+        }
+    }
+
+    /** Impide nombres de usuario repetidos, ignorando espacios extremos y mayúsculas. */
+    private void instalarUnicidadUsuarios(Connection connection) throws SQLException {
+        try (Statement statement = connection.createStatement()) {
+            statement.executeUpdate("""
+                    CREATE UNIQUE INDEX IF NOT EXISTS CSIA_USERS_USERNAME_UNIQUE
+                    ON USERS (UPPER(TRIM(USERNAME)))
+                    """);
+        } catch (SQLException e) {
+            throw new SQLException(
+                    "No se ha podido garantizar la unicidad de USERS.USERNAME. "
+                    + "Compruebe si hay usuarios duplicados en la base de datos.", e);
         }
     }
 
