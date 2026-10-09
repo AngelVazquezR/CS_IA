@@ -11,6 +11,7 @@ import java.util.Map;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.Objects;
 
@@ -21,14 +22,16 @@ public final class DatabaseConnectionFactory {
     // La caché es por archivo físico, no por instancia de la factoría: los
     // repositorios pueden crear factorías distintas para la misma base.
     private static final Object SCHEMA_LOCK = new Object();
-    private static final Map<Path, Object> INITIALIZED_FILES = new HashMap<>();
+    private static final Map<Path, SchemaState> INITIALIZED_FILES = new HashMap<>();
+
+    private record SchemaState(Object fileIdentity, int schemaVersion) {}
     private static final SqliteSchemaInitializer SQLITE_INITIALIZER =
             new SqliteSchemaInitializer();
 
     /**
      * Abre una conexión y habilita sus claves foráneas SQLite. Inicializa el
      * esquema sólo en la primera apertura de cada archivo durante el proceso,
-     * o cuando detecta que ese archivo ha sido sustituido. Las URI especiales
+     * o cuando detecta que el archivo o su esquema ha cambiado. Las URI especiales
      * y las bases en memoria se inicializan en cada apertura.
      *
      * @param configuration configuración no nula de un motor habilitado
@@ -69,7 +72,8 @@ public final class DatabaseConnectionFactory {
             synchronized (SCHEMA_LOCK) {
                 requiresInitialization = databasePath == null
                         || !Files.isRegularFile(databasePath)
-                        || !Objects.equals(INITIALIZED_FILES.get(databasePath),
+                        || !INITIALIZED_FILES.containsKey(databasePath)
+                        || !Objects.equals(INITIALIZED_FILES.get(databasePath).fileIdentity(),
                                 identidadArchivo(databasePath));
                 if (requiresInitialization) {
                     crearDirectorioSqlite(configuration.url);
@@ -85,12 +89,18 @@ public final class DatabaseConnectionFactory {
                 // El bloqueo impide inicializaciones concurrentes duplicadas.
                 // La identidad detecta una base borrada y recreada en la misma ruta.
                 synchronized (SCHEMA_LOCK) {
-                    if (databasePath == null
-                            || !Objects.equals(INITIALIZED_FILES.get(databasePath),
-                                    identidadArchivo(databasePath))) {
+                    SchemaState previous = databasePath == null
+                            ? null : INITIALIZED_FILES.get(databasePath);
+                    Object identity = databasePath == null ? null : identidadArchivo(databasePath);
+                    int schemaVersion = versionEsquema(connection);
+                    if (previous == null
+                            || !Objects.equals(previous.fileIdentity(), identity)
+                            || previous.schemaVersion() != schemaVersion) {
                         SQLITE_INITIALIZER.initialize(connection);
                         if (databasePath != null) {
-                            INITIALIZED_FILES.put(databasePath, identidadArchivo(databasePath));
+                            INITIALIZED_FILES.put(databasePath,
+                                    new SchemaState(identidadArchivo(databasePath),
+                                            versionEsquema(connection)));
                         }
                     }
                 }
@@ -130,6 +140,20 @@ public final class DatabaseConnectionFactory {
             return Paths.get(location).toAbsolutePath().normalize();
         } catch (InvalidPathException e) {
             return null;
+        }
+    }
+
+    /**
+     * SQLite incrementa schema_version cuando cambian tablas, índices o triggers.
+     * Permite detectar alteraciones externas sin ejecutar DDL en cada apertura.
+     */
+    private int versionEsquema(Connection connection) throws SQLException {
+        try (Statement statement = connection.createStatement();
+                ResultSet result = statement.executeQuery("PRAGMA schema_version")) {
+            if (!result.next()) {
+                throw new SQLException("SQLite no devolvió schema_version.");
+            }
+            return result.getInt(1);
         }
     }
 
