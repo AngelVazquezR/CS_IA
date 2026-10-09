@@ -3,7 +3,7 @@ package com.angelvazquez.csia.util;
 import java.util.Locale;
 import com.angelvazquez.csia.i18n.I18n;
 
-/** Normalización y validación compartidas de DNI/NIE; no verifica su expedición ni titularidad. */
+/** Normalización y validación de DNI/NIE */
 public final class Dni {
     private Dni() { }
 
@@ -18,6 +18,7 @@ public final class Dni {
      * Normaliza y comprueba formato y letra de control antes de guardar.
      * DNI: ocho cifras y letra. NIE: X/Y/Z, siete cifras y letra.
      * Algoritmo: Ministerio del Interior, cálculo del dígito de control del NIF/NIE.
+     * https://www.interior.gob.es/opencms/es/servicios-al-ciudadano/tramites-y-gestiones/dni/calculo-del-digito-de-control-del-nif-nie
      */
     public static String normalizarYValidar(String documento) {
         String valor = normalizar(documento);
