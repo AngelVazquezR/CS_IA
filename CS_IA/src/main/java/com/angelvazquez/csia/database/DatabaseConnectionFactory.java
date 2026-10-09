@@ -95,7 +95,8 @@ public final class DatabaseConnectionFactory {
                     int schemaVersion = versionEsquema(connection);
                     if (previous == null
                             || !Objects.equals(previous.fileIdentity(), identity)
-                            || previous.schemaVersion() != schemaVersion) {
+                            || previous.schemaVersion() != schemaVersion
+                            || contieneTriggersAntiguos(connection)) {
                         SQLITE_INITIALIZER.initialize(connection);
                         if (databasePath != null) {
                             INITIALIZED_FILES.put(databasePath,
@@ -154,6 +155,23 @@ public final class DatabaseConnectionFactory {
                 throw new SQLException("SQLite no devolvió schema_version.");
             }
             return result.getInt(1);
+        }
+    }
+
+    /**
+     * Defensa adicional para instalaciones que aún conservan los triggers V1.
+     * Deben eliminarse antes de modificar un DNI para respetar la prioridad
+     * del error de duplicado frente al de autoasignación.
+     */
+    private boolean contieneTriggersAntiguos(Connection connection) throws SQLException {
+        try (Statement statement = connection.createStatement();
+                ResultSet rows = statement.executeQuery("""
+                        SELECT 1 FROM sqlite_master
+                        WHERE type = 'trigger' AND name IN
+                            ('CSIA_STUDENTS_SELF_UPDATE', 'CSIA_TEACHERS_SELF_UPDATE')
+                        LIMIT 1
+                        """)) {
+            return rows.next();
         }
     }
 
