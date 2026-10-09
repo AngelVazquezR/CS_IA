@@ -114,13 +114,8 @@ public final class DatabaseConnectionFactory {
     }
 
     /**
-     * Prepara el directorio de una URL SQLite con ruta de fichero convencional.
-     * Las bases en memoria, las URI file: y los recursos quedan a cargo del driver;
-     * la parte posterior a '?' no forma parte de la ruta que se crea.
-     */
-    /**
-     * Las URI SQLite y las bases en memoria no se almacenan en la caché:
-     * pueden designar bases diferentes entre aperturas.
+     * Devuelve la ruta normalizada para una base SQLite de fichero convencional.
+     * Las URI y bases en memoria no se almacenan en caché.
      */
     private Path rutaSqliteConvencional(String url) {
         if (url == null || !url.startsWith(SQLITE_URL_PREFIX)) return null;
@@ -149,6 +144,10 @@ public final class DatabaseConnectionFactory {
         }
     }
 
+    /**
+     * Prepara el directorio de una URL SQLite con ruta de fichero convencional.
+     * Las bases en memoria, las URI file: y los recursos quedan a cargo del driver.
+     */
     private void crearDirectorioSqlite(String url) throws SQLException {
         if (url == null || !url.startsWith(SQLITE_URL_PREFIX)) {
             return;
