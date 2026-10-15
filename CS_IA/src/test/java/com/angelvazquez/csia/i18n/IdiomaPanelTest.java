@@ -6,6 +6,8 @@ import java.util.Locale;
 
 import javax.swing.SwingUtilities;
 
+import com.angelvazquez.csia.ui.ventanas.IdiomaPanel;
+
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
