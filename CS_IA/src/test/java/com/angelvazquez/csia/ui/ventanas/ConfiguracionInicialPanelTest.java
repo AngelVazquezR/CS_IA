@@ -34,9 +34,9 @@ class ConfiguracionInicialPanelTest {
         assertEquals(null, panel.validar());
 
         ConfigDB configuracion = panel.crearConfiguracion();
-        assertEquals(DatabaseType.SQLITE, configuracion.databaseType);
-        assertEquals("", configuracion.user);
-        assertEquals("", configuracion.password);
+        assertEquals(DatabaseType.SQLITE, configuracion.getDatabaseType());
+        assertEquals("", configuracion.getUser());
+        assertEquals("", configuracion.getPassword());
     }
 
     @Test
