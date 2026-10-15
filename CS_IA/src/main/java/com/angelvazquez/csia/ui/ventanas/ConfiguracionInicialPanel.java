@@ -22,13 +22,8 @@ import com.angelvazquez.csia.i18n.I18n;
 
 /** Formulario reutilizable para configurar motores de base de datos habilitados. */
 public final class ConfiguracionInicialPanel extends JPanel {
-
-    static final String DRIVER_MYSQL = "com.mysql.cj.jdbc.Driver";
-    static final String URL_MYSQL = "jdbc:mysql://localhost:3306/";
-    static final String DRIVER_SQLITE = "org.sqlite.JDBC";
-    static final String NOMBRE_DB_SQLITE = "CSIA";
-    static final String PREFIJO_URL_SQLITE = "jdbc:sqlite:data/";
-
+	private static final long serialVersionUID = 1L;
+	
     private final JComboBox<DatabaseType> campoTipo =
             new JComboBox<>(DatabaseType.enabledValues());
     private final JTextField campoDriver = new JTextField(30);
@@ -102,21 +97,21 @@ public final class ConfiguracionInicialPanel extends JPanel {
 
     private void aplicarTipoSeleccionado() {
         boolean sqlite = obtenerTipo() == DatabaseType.SQLITE;
-        campoDriver.setText(sqlite ? DRIVER_SQLITE : DRIVER_MYSQL);
+        campoDriver.setText(sqlite ? ConfigDB.DRIVER_SQLITE : ConfigDB.DRIVER_MYSQL);
         campoUrl.setEditable(!sqlite);
         campoUsuario.setEnabled(!sqlite);
         campoPassword.setEnabled(!sqlite);
 
         if (sqlite) {
             etiquetaDB.setText(I18n.get("database.sqlite.file.label"));
-            campoDB.setText(NOMBRE_DB_SQLITE);
+            campoDB.setText(ConfigDB.NOMBRE_DB_SQLITE);
             campoUsuario.setText("");
             campoPassword.setText("");
             actualizarUrlSqlite();
         } else {
             etiquetaDB.setText(I18n.get("database.name.label"));
             campoDB.setText("");
-            campoUrl.setText(URL_MYSQL);
+            campoUrl.setText(ConfigDB.URL_MYSQL);
         }
     }
 
@@ -136,8 +131,8 @@ public final class ConfiguracionInicialPanel extends JPanel {
     private void actualizarUrlSqlite() {
         if (obtenerTipo() != DatabaseType.SQLITE) return;
         String nombre = campoDB.getText().trim();
-        campoUrl.setText(nombre.isEmpty() ? PREFIJO_URL_SQLITE
-                : PREFIJO_URL_SQLITE + agregarExtensionDb(nombre));
+        campoUrl.setText(nombre.isEmpty() ? ConfigDB.PREFIJO_URL_SQLITE
+                : ConfigDB.PREFIJO_URL_SQLITE + agregarExtensionDb(nombre));
     }
 
     private String agregarExtensionDb(String nombre) {
