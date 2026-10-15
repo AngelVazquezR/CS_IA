@@ -26,7 +26,7 @@ class UsersUniquenessIntegrationTest {
 
     @Test
     void rechazaDuplicadosInclusoMedianteSqlDirecto() throws Exception {
-        ConfigDB config = config(temporal.resolve("users.getDb()"));
+        ConfigDB config = config(temporal.resolve("users.db"));
         try (Connection connection = new DatabaseConnectionFactory().open(config);
                 Statement statement = connection.createStatement()) {
             statement.executeUpdate(
@@ -42,7 +42,7 @@ class UsersUniquenessIntegrationTest {
 
     @Test
     void aplicaUnicidadAlAbrirBaseExistente() throws Exception {
-        Path file = temporal.resolve("existing.getDb()");
+        Path file = temporal.resolve("existing.db");
         ConfigDB config = config(file);
         try (Connection connection = DriverManager.getConnection(config.getUrl());
                 Statement statement = connection.createStatement()) {
@@ -62,7 +62,7 @@ class UsersUniquenessIntegrationTest {
 
     @Test
     void rechazaBaseAntiguaConDuplicadosSinBorrarDatos() throws Exception {
-        Path file = temporal.resolve("duplicates.getDb()");
+        Path file = temporal.resolve("duplicates.db");
         ConfigDB config = config(file);
         try (Connection connection = DriverManager.getConnection(config.getUrl());
                 Statement statement = connection.createStatement()) {
