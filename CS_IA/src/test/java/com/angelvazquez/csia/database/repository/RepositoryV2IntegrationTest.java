@@ -56,13 +56,13 @@ class RepositoryV2IntegrationTest {
         assertTrue(repository.existeDni("12345678Z"));
 
         Alumno guardado = repository.buscarPorDni("12345678Z").orElseThrow();
-        assertEquals("Ana", guardado.GetNombre());
+        assertEquals("Ana", guardado.getNombre());
         assertEquals("ana@example.test", guardado.getEmail());
 
-        guardado.SetNombre("Ana Maria");
+        guardado.setNombre("Ana Maria");
         guardado.setEmail("anamaria@example.test");
         assertTrue(repository.modificar(guardado));
-        assertEquals("Ana Maria", repository.listar().getFirst().GetNombre());
+        assertEquals("Ana Maria", repository.listar().getFirst().getNombre());
 
         assertTrue(repository.eliminar(id));
         assertFalse(repository.existeDni("12345678Z"));
