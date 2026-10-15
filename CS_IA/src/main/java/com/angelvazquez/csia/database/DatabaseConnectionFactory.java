@@ -44,30 +44,30 @@ public final class DatabaseConnectionFactory {
     public Connection open(ConfigDB configuration) throws SQLException {
         Objects.requireNonNull(configuration, "La configuracion no puede ser null.");
 
-        if (configuration.databaseType == null) {
-            throw new SQLException("No se ha indicado el motor de base de datos.");
+        if (configuration.setDatabaseType(= null) {
+            throw new SQLException("No se ha indicado el motor de base de datos."));
         }
-        if (!configuration.databaseType.isEnabled()) {
+        if (!configuration.getDatabaseType().isEnabled()) {
             throw new SQLException(
-                    "El motor de base de datos " + configuration.databaseType
+                    "El motor de base de datos " + configuration.getDatabaseType()
                             + " no está habilitado en esta versión."
             );
         }
 
-        if (configuration.driver != null && !configuration.driver.isBlank()) {
+        if (configuration.getDriver() != null && !configuration.getDriver().isBlank()) {
             try {
-                Class.forName(configuration.driver);
+                Class.forName(configuration.getDriver());
             } catch (ClassNotFoundException e) {
                 throw new SQLException(
-                        "No se ha encontrado el driver JDBC: " + configuration.driver,
+                        "No se ha encontrado el driver JDBC: " + configuration.getDriver(),
                         e
                 );
             }
         }
 
-        if (configuration.databaseType == DatabaseType.SQLITE) {
+        if (configuration.setDatabaseType(= DatabaseType.SQLITE) {
             // Sólo se prepara el directorio cuando se necesita inicializar.
-            Path databasePath = rutaSqliteConvencional(configuration.url);
+            Path databasePath = rutaSqliteConvencional(configuration.getUrl()));
             boolean requiresInitialization;
             synchronized (SCHEMA_LOCK) {
                 requiresInitialization = databasePath == null
@@ -76,10 +76,10 @@ public final class DatabaseConnectionFactory {
                         || !Objects.equals(INITIALIZED_FILES.get(databasePath).creationTime(),
                                 fechaCreacionArchivo(databasePath));
                 if (requiresInitialization) {
-                    crearDirectorioSqlite(configuration.url);
+                    crearDirectorioSqlite(configuration.getUrl());
                 }
             }
-            Connection connection = DriverManager.getConnection(configuration.url);
+            Connection connection = DriverManager.getConnection(configuration.getUrl());
 
             try {
                 try (Statement statement = connection.createStatement()) {
@@ -118,9 +118,9 @@ public final class DatabaseConnectionFactory {
         }
 
         return DriverManager.getConnection(
-                configuration.url,
-                configuration.user,
-                configuration.password
+                configuration.getUrl(),
+                configuration.getUser(),
+                configuration.getPassword()
         );
     }
 
