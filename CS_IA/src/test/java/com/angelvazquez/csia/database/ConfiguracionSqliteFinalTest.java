@@ -60,12 +60,12 @@ class ConfiguracionSqliteFinalTest {
     @Test
     void factoryRechazaMysqlAntesDeIntentarConectar() {
         ConfigDB configuracion = new ConfigDB();
-        configuracion.databaseType = DatabaseType.MYSQL;
-        configuracion.driver = "com.mysql.cj.jdbc.Driver";
-        configuracion.url = "jdbc:mysql://localhost:3306/";
-        configuracion.db = "csia";
-        configuracion.user = "usuario";
-        configuracion.password = "clave";
+        configuracion.setDatabaseType(DatabaseType.MYSQL);
+        configuracion.setDriver("com.mysql.cj.jdbc.Driver");
+        configuracion.setUrl("jdbc:mysql://localhost:3306/");
+        configuracion.setDb("csia");
+        configuracion.setUser("usuario");
+        configuracion.setPassword("clave");
 
         SQLException error = assertThrows(
                 SQLException.class,
@@ -76,7 +76,7 @@ class ConfiguracionSqliteFinalTest {
 
     @Test
     void factoryCreaFicheroYEsquemaV2DesdeCero() throws Exception {
-        Path database = temporal.resolve("datos").resolve("nueva.db");
+        Path database = temporal.resolve("datos").resolve("nueva.getDb()");
         ConfigDB configuracion = sqlite(database);
 
         try (Connection connection = new DatabaseConnectionFactory().open(configuracion)) {
@@ -97,7 +97,7 @@ class ConfiguracionSqliteFinalTest {
 
     @Test
     void reaperturaSqliteEsIdempotenteYConservaDatos() throws Exception {
-        Path database = temporal.resolve("reapertura").resolve("academia.db");
+        Path database = temporal.resolve("reapertura").resolve("academia.getDb()");
         ConfigDB configuracion = sqlite(database);
         DatabaseConnectionFactory factory = new DatabaseConnectionFactory();
 
@@ -120,12 +120,12 @@ class ConfiguracionSqliteFinalTest {
 
     private ConfigDB sqlite(Path database) {
         ConfigDB configuracion = new ConfigDB();
-        configuracion.databaseType = DatabaseType.SQLITE;
-        configuracion.driver = "org.sqlite.JDBC";
-        configuracion.url = "jdbc:sqlite:" + database.toAbsolutePath();
-        configuracion.db = database.getFileName().toString();
-        configuracion.user = "";
-        configuracion.password = "";
+        configuracion.setDatabaseType(DatabaseType.SQLITE);
+        configuracion.setDriver("org.sqlite.JDBC");
+        configuracion.setUrl("jdbc:sqlite:" + database.toAbsolutePath());
+        configuracion.setDb(database.getFileName().toString());
+        configuracion.setUser("");
+        configuracion.setPassword("");
         return configuracion;
     }
 
