@@ -12,10 +12,8 @@ import javax.swing.border.EmptyBorder;
 import com.angelvazquez.csia.Main;
 import com.angelvazquez.csia.config.AppConfig;
 import com.angelvazquez.csia.database.ConfigDB;
-import com.angelvazquez.csia.database.ConfiguracionInicialPanel;
 import com.angelvazquez.csia.database.ConfiguracionManager;
 import com.angelvazquez.csia.i18n.I18n;
-import com.angelvazquez.csia.i18n.IdiomaPanel;
 
 /** Preferencias persistentes de idioma y base de datos. */
 public final class PreferenciasPage extends VentanaSecundaria {
