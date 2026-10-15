@@ -18,15 +18,15 @@ class UsersUniquenessIntegrationTest {
 
     private ConfigDB config(Path file) {
         ConfigDB config = new ConfigDB();
-        config.databaseType = DatabaseType.SQLITE;
-        config.driver = "org.sqlite.JDBC";
-        config.url = "jdbc:sqlite:" + file.toAbsolutePath();
+        config.setDatabaseType(DatabaseType.SQLITE);
+        config.setDriver("org.sqlite.JDBC");
+        config.setUrl("jdbc:sqlite:" + file.toAbsolutePath());
         return config;
     }
 
     @Test
     void rechazaDuplicadosInclusoMedianteSqlDirecto() throws Exception {
-        ConfigDB config = config(temporal.resolve("users.db"));
+        ConfigDB config = config(temporal.resolve("users.getDb()"));
         try (Connection connection = new DatabaseConnectionFactory().open(config);
                 Statement statement = connection.createStatement()) {
             statement.executeUpdate(
@@ -42,9 +42,9 @@ class UsersUniquenessIntegrationTest {
 
     @Test
     void aplicaUnicidadAlAbrirBaseExistente() throws Exception {
-        Path file = temporal.resolve("existing.db");
+        Path file = temporal.resolve("existing.getDb()");
         ConfigDB config = config(file);
-        try (Connection connection = DriverManager.getConnection(config.url);
+        try (Connection connection = DriverManager.getConnection(config.getUrl());
                 Statement statement = connection.createStatement()) {
             statement.executeUpdate("""
                     CREATE TABLE USERS (USERNAME TEXT NOT NULL,
@@ -62,9 +62,9 @@ class UsersUniquenessIntegrationTest {
 
     @Test
     void rechazaBaseAntiguaConDuplicadosSinBorrarDatos() throws Exception {
-        Path file = temporal.resolve("duplicates.db");
+        Path file = temporal.resolve("duplicates.getDb()");
         ConfigDB config = config(file);
-        try (Connection connection = DriverManager.getConnection(config.url);
+        try (Connection connection = DriverManager.getConnection(config.getUrl());
                 Statement statement = connection.createStatement()) {
             statement.executeUpdate("""
                     CREATE TABLE USERS (USERNAME TEXT NOT NULL,
@@ -76,7 +76,7 @@ class UsersUniquenessIntegrationTest {
                     "INSERT INTO USERS (USERNAME, PASSWORD_HASH) VALUES (' admin ','hash2')");
         }
         assertThrows(SQLException.class, () -> new DatabaseConnectionFactory().open(config));
-        try (Connection connection = DriverManager.getConnection(config.url);
+        try (Connection connection = DriverManager.getConnection(config.getUrl());
                 Statement statement = connection.createStatement();
                 var rows = statement.executeQuery("SELECT COUNT(*) FROM USERS")) {
             rows.next();
