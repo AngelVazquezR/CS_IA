@@ -77,11 +77,11 @@ public final class ConfiguracionInicialPanel extends JPanel {
         constraints.fill = GridBagConstraints.HORIZONTAL;
 
         agregarFila(0, new JLabel(I18n.get("database.type.label")), campoTipo, constraints);
-        agregarFila(1, new JLabel(I18n.get("database.getDriver().label")), campoDriver, constraints);
-        agregarFila(2, new JLabel(I18n.get("database.getUrl().label")), campoUrl, constraints);
+        agregarFila(1, new JLabel(I18n.get("database.driver.label")), campoDriver, constraints);
+        agregarFila(2, new JLabel(I18n.get("database.url.label")), campoUrl, constraints);
         agregarFila(3, etiquetaDB, campoDB, constraints);
-        agregarFila(4, new JLabel(I18n.get("database.getUser().label")), campoUsuario, constraints);
-        agregarFila(5, new JLabel(I18n.get("database.getPassword().label")), campoPassword, constraints);
+        agregarFila(4, new JLabel(I18n.get("database.user.label")), campoUsuario, constraints);
+        agregarFila(5, new JLabel(I18n.get("database.password.label")), campoPassword, constraints);
     }
 
     private void agregarFila(int fila, JLabel etiqueta,
