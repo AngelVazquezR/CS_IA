@@ -91,8 +91,8 @@ public class VisualizarAlumnos extends VentanaSecundaria {
         boolean hay = a != null;
         modificar.setEnabled(hay); eliminar.setEnabled(hay);
         if (!hay) return;
-        nombre.setText(a.GetNombre()); apellido.setText(a.GetApellido());
-        dni.setText(a.GetDNI()); email.setText(a.getEmail());
+        nombre.setText(a.getNombre()); apellido.setText(a.getApellido());
+        dni.setText(a.getDni()); email.setText(a.getEmail());
     }
 
     /**
@@ -128,7 +128,7 @@ public class VisualizarAlumnos extends VentanaSecundaria {
         Alumno a = new Alumno(nombre.getText().trim(), apellido.getText().trim(),
                 dni.getText().trim(), email.getText().trim());
         try {
-            if (repository.existeDni(a.GetDNI())) { error(I18n.get("students.duplicateDni")); return; }
+            if (repository.existeDni(a.getDni())) { error(I18n.get("students.duplicateDni")); return; }
             repository.agregar(a); recargarDatos(); limpiar();
         } catch (IllegalArgumentException e) { error(e.getMessage()); }
         catch (SQLException e) { error(I18n.get("students.addError", e.getMessage())); }
