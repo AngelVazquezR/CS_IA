@@ -93,7 +93,7 @@ public class VisualizarProfesores extends VentanaSecundaria {
         boolean hay = p != null;
         modificar.setEnabled(hay); eliminar.setEnabled(hay);
         if (!hay) return;
-        nombre.setText(p.GetNombre()); apellido.setText(p.GetApellido()); dni.setText(p.GetDNI());
+        nombre.setText(p.getNombre()); apellido.setText(p.getApellido()); dni.setText(p.getDni());
         asignatura.setText(p.getAsignatura()); email.setText(p.getEmail());
     }
 
@@ -130,7 +130,7 @@ public class VisualizarProfesores extends VentanaSecundaria {
         Profesor p = new Profesor(nombre.getText().trim(), apellido.getText().trim(), dni.getText().trim(),
                 asignatura.getText().trim(), email.getText().trim());
         try {
-            if (repository.existeDni(p.GetDNI())) { error(I18n.get("teachers.duplicateDni")); return; }
+            if (repository.existeDni(p.getDni())) { error(I18n.get("teachers.duplicateDni")); return; }
             repository.agregar(p); recargarDatos(); limpiar();
         } catch (IllegalArgumentException e) { error(e.getMessage()); }
         catch (SQLException e) { error(I18n.get("teachers.addError", e.getMessage())); }
