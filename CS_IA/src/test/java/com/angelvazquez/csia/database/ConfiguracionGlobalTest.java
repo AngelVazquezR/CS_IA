@@ -37,8 +37,8 @@ class ConfiguracionGlobalTest {
 
         assertTrue(config.tieneIdiomaConfigurado());
         assertEquals(Idioma.ESPANOL, config.getIdioma());
-        assertEquals(DatabaseType.SQLITE, config.getDatabase().databaseType);
-        assertEquals("academia", config.getDatabase().db);
+        assertEquals(DatabaseType.SQLITE, config.getDatabase().getDatabaseType());
+        assertEquals("academia", config.getDatabase().getDb());
     }
 
     @Test
@@ -49,7 +49,7 @@ class ConfiguracionGlobalTest {
                     <baseDatos>
                         <tipo>sqlite</tipo>
                         <driver>org.sqlite.JDBC</driver>
-                        <url>jdbc:sqlite:data/academia.db</url>
+                        <url>jdbc:sqlite:data/academia.getDb()</url>
                         <usuario></usuario>
                         <password></password>
                         <db>academia</db>
@@ -62,7 +62,7 @@ class ConfiguracionGlobalTest {
 
         assertFalse(config.tieneIdiomaConfigurado());
         assertEquals(null, config.getIdioma());
-        assertEquals(DatabaseType.SQLITE, config.getDatabase().databaseType);
+        assertEquals(DatabaseType.SQLITE, config.getDatabase().getDatabaseType());
     }
 
     @Test
@@ -96,8 +96,8 @@ class ConfiguracionGlobalTest {
 
         AppConfig recuperada = manager.leerConfiguracionAplicacion(ruta);
         assertEquals(Idioma.INGLES, recuperada.getIdioma());
-        assertEquals(DatabaseType.SQLITE, recuperada.getDatabase().databaseType);
-        assertEquals("jdbc:sqlite:data/academia.db", recuperada.getDatabase().url);
+        assertEquals(DatabaseType.SQLITE, recuperada.getDatabase().getDatabaseType());
+        assertEquals("jdbc:sqlite:data/academia.getDb()", recuperada.getDatabase().getUrl());
     }
 
     @Test
@@ -117,12 +117,12 @@ class ConfiguracionGlobalTest {
 
     private ConfigDB sqlite() {
         ConfigDB database = new ConfigDB();
-        database.databaseType = DatabaseType.SQLITE;
-        database.driver = "org.sqlite.JDBC";
-        database.url = "jdbc:sqlite:data/academia.db";
-        database.db = "academia";
-        database.user = "";
-        database.password = "";
+        database.setDatabaseType(DatabaseType.SQLITE);
+        database.setDriver("org.sqlite.JDBC");
+        database.setUrl("jdbc:sqlite:data/academia.getDb()");
+        database.setDb("academia");
+        database.setUser("");
+        database.setPassword("");
         return database;
     }
 
@@ -135,7 +135,7 @@ class ConfiguracionGlobalTest {
                     <baseDatos>
                         <tipo>sqlite</tipo>
                         <driver>org.sqlite.JDBC</driver>
-                        <url>jdbc:sqlite:data/academia.db</url>
+                        <url>jdbc:sqlite:data/academia.getDb()</url>
                         <usuario></usuario>
                         <password></password>
                         <db>academia</db>
