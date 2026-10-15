@@ -205,9 +205,9 @@ public class ConfiguracionManager {
         configuracion.setUrl(obtenerValor(baseDatos, "url"));
         configuracion.setDb(obtenerValor(baseDatos, "db"));
 
-        if (configuracion.setDatabaseType(= DatabaseType.SQLITE) {
+        if (configuracion.getDatabaseType() == DatabaseType.SQLITE) {
             configuracion.setUser(obtenerValorOpcionalConPredeterminado(
-                    baseDatos, "usuario", "")));
+                    baseDatos, "usuario", ""));
             configuracion.setPassword(obtenerValorOpcionalConPredeterminado(
                     baseDatos, "password", ""));
         } else {
