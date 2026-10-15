@@ -76,7 +76,7 @@ class ConfiguracionSqliteFinalTest {
 
     @Test
     void factoryCreaFicheroYEsquemaV2DesdeCero() throws Exception {
-        Path database = temporal.resolve("datos").resolve("nueva.getDb()");
+        Path database = temporal.resolve("datos").resolve("nueva.db");
         ConfigDB configuracion = sqlite(database);
 
         try (Connection connection = new DatabaseConnectionFactory().open(configuracion)) {
@@ -97,7 +97,7 @@ class ConfiguracionSqliteFinalTest {
 
     @Test
     void reaperturaSqliteEsIdempotenteYConservaDatos() throws Exception {
-        Path database = temporal.resolve("reapertura").resolve("academia.getDb()");
+        Path database = temporal.resolve("reapertura").resolve("academia.db");
         ConfigDB configuracion = sqlite(database);
         DatabaseConnectionFactory factory = new DatabaseConnectionFactory();
 
