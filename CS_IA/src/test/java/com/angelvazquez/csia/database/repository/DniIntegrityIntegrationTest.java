@@ -66,7 +66,7 @@ class DniIntegrityIntegrationTest {
     void rechazaDniAjenoAlEditarYConservaLaFilaPersistida(boolean alumno) throws Exception {
         Persona a = persona(alumno, "00000001R"); Persona b = persona(alumno, "00000002W");
         agregar(alumno, a); agregar(alumno, b);
-        b.DNI = " 00000001r "; b.setNombre("No guardar");
+        b.setDni(" 00000001r "); b.setNombre("No guardar");
         assertThrows(IllegalArgumentException.class, () -> modificar(alumno, b));
         assertEquals("Ana", buscar(alumno, "00000002W").getNombre());
     }
@@ -105,7 +105,7 @@ class DniIntegrityIntegrationTest {
         Alumno a = (Alumno) persona(true, "00000001R"); Profesor p = (Profesor) persona(false, "00000002W");
         alumnos().agregar(a); profesores().agregar(p);
         asignaciones().agregar(asignacion(p.getDatabaseId(), a.getDatabaseId()));
-        Persona editada = alumno ? a : p; editada.DNI = alumno ? " 00000002w " : " 00000001r ";
+        Persona editada = alumno ? a : p; editada.setDni(alumno ? " 00000002w " : " 00000001r ");
         assertThrows(IllegalArgumentException.class, () -> modificar(alumno, editada));
         assertEquals(alumno ? "00000001R" : "00000002W", buscar(alumno, alumno ? "00000001R" : "00000002W").getDni());
     }
@@ -143,7 +143,7 @@ class DniIntegrityIntegrationTest {
             st.executeUpdate("CREATE TRIGGER CSIA_" + tabla + "_SELF_UPDATE BEFORE UPDATE OF DNI ON "
                     + tabla + " BEGIN SELECT RAISE(ABORT, 'CSIA_SELF_ASSIGNMENT'); END");
         }
-        Persona editada = alumno ? a : p; editada.DNI = alumno ? " 00000002w " : " 00000001r ";
+        Persona editada = alumno ? a : p; editada.setDni(alumno ? " 00000002w " : " 00000001r ");
         IllegalArgumentException error = assertThrows(IllegalArgumentException.class,
                 () -> modificar(alumno, editada));
         assertEquals(com.angelvazquez.csia.i18n.I18n.get(alumno ? "students.duplicateDni" : "teachers.duplicateDni"),
