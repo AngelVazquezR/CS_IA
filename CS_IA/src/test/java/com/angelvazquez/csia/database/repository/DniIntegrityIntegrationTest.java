@@ -48,7 +48,7 @@ class DniIntegrityIntegrationTest {
     void normalizaAltaBusquedaYRechazaDuplicado(boolean alumno) throws Exception {
         Persona p = persona(alumno, " 12345678z ");
         int id = agregar(alumno, p);
-        assertEquals("12345678Z", p.GetDNI());
+        assertEquals("12345678Z", p.getDni());
         assertEquals(id, buscar(alumno, " 12345678z ").getDatabaseId());
         assertThrows(IllegalArgumentException.class, () -> agregar(alumno, persona(alumno, "12345678Z")));
     }
@@ -56,9 +56,9 @@ class DniIntegrityIntegrationTest {
     @ParameterizedTest @ValueSource(booleans = {true, false})
     void permiteConservarDniPropioYNormalizaCambio(boolean alumno) throws Exception {
         Persona p = persona(alumno, "00000001R"); agregar(alumno, p);
-        p.DNI = " 00000001r "; assertTrue(modificar(alumno, p));
-        p.DNI = " 00000002W "; assertTrue(modificar(alumno, p));
-        assertEquals("00000002W", p.GetDNI());
+        p.setDni(" 00000001r "); assertTrue(modificar(alumno, p));
+        p.setDni(" 00000002W "); assertTrue(modificar(alumno, p));
+        assertEquals("00000002W", p.getDni());
         assertEquals(p.getDatabaseId(), buscar(alumno, " 00000002w ").getDatabaseId());
     }
 
@@ -66,9 +66,9 @@ class DniIntegrityIntegrationTest {
     void rechazaDniAjenoAlEditarYConservaLaFilaPersistida(boolean alumno) throws Exception {
         Persona a = persona(alumno, "00000001R"); Persona b = persona(alumno, "00000002W");
         agregar(alumno, a); agregar(alumno, b);
-        b.DNI = " 00000001r "; b.SetNombre("No guardar");
+        b.DNI = " 00000001r "; b.setNombre("No guardar");
         assertThrows(IllegalArgumentException.class, () -> modificar(alumno, b));
-        assertEquals("Ana", buscar(alumno, "00000002W").GetNombre());
+        assertEquals("Ana", buscar(alumno, "00000002W").getNombre());
     }
 
     @ParameterizedTest @ValueSource(booleans = {true, false})
@@ -107,7 +107,7 @@ class DniIntegrityIntegrationTest {
         asignaciones().agregar(asignacion(p.getDatabaseId(), a.getDatabaseId()));
         Persona editada = alumno ? a : p; editada.DNI = alumno ? " 00000002w " : " 00000001r ";
         assertThrows(IllegalArgumentException.class, () -> modificar(alumno, editada));
-        assertEquals(alumno ? "00000001R" : "00000002W", buscar(alumno, alumno ? "00000001R" : "00000002W").GetDNI());
+        assertEquals(alumno ? "00000001R" : "00000002W", buscar(alumno, alumno ? "00000001R" : "00000002W").getDni());
     }
 
     @ParameterizedTest @ValueSource(booleans = {true, false})
@@ -155,15 +155,15 @@ class DniIntegrityIntegrationTest {
     void documentoInvalidoNoSeGuardaNiModifica(boolean alumno) throws Exception {
         assertThrows(IllegalArgumentException.class, () -> agregar(alumno, persona(alumno, "12345678A")));
         Persona p = persona(alumno, "X1234567L"); agregar(alumno, p);
-        p.DNI = "Y1234567A";
+        p.setDni("Y1234567A");
         assertThrows(IllegalArgumentException.class, () -> modificar(alumno, p));
         assertEquals(p.getDatabaseId(), buscar(alumno, "X1234567L").getDatabaseId());
     }
     @ParameterizedTest @ValueSource(booleans = {true, false})
     void nieRespetaUnicidadYPermiteCambiarDesdeDni(boolean alumno) throws Exception {
         Persona p = persona(alumno, "00000001R"); agregar(alumno, p);
-        p.DNI = " x1234567l "; assertTrue(modificar(alumno, p));
-        assertEquals("X1234567L", p.GetDNI());
+        p.setDni(" x1234567l "); assertTrue(modificar(alumno, p));
+        assertEquals("X1234567L", p.getDni());
         assertThrows(IllegalArgumentException.class, () -> agregar(alumno, persona(alumno, " X1234567l ")));
     }
 }
