@@ -37,7 +37,7 @@ class RepositoryV2IntegrationTest {
         config = new ConfigDB();
         config.setDatabaseType(DatabaseType.SQLITE);
         config.setDriver("org.sqlite.JDBC");
-        config.setUrl("jdbc:sqlite:" + tempDir.resolve("repository-v2.getDb()"));
+        config.setUrl("jdbc:sqlite:" + tempDir.resolve("repository-v2.db"));
         factory = new DatabaseConnectionFactory();
 
         try (Connection ignored = factory.open(config)) {
