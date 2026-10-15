@@ -44,8 +44,8 @@ public final class DatabaseConnectionFactory {
     public Connection open(ConfigDB configuration) throws SQLException {
         Objects.requireNonNull(configuration, "La configuracion no puede ser null.");
 
-        if (configuration.setDatabaseType(= null) {
-            throw new SQLException("No se ha indicado el motor de base de datos."));
+        if (configuration.getDatabaseType() == null) {
+            throw new SQLException("No se ha indicado el motor de base de datos.");
         }
         if (!configuration.getDatabaseType().isEnabled()) {
             throw new SQLException(
@@ -65,9 +65,9 @@ public final class DatabaseConnectionFactory {
             }
         }
 
-        if (configuration.setDatabaseType(= DatabaseType.SQLITE) {
+        if (configuration.getDatabaseType() == DatabaseType.SQLITE) {
             // Sólo se prepara el directorio cuando se necesita inicializar.
-            Path databasePath = rutaSqliteConvencional(configuration.getUrl()));
+            Path databasePath = rutaSqliteConvencional(configuration.getUrl());
             boolean requiresInitialization;
             synchronized (SCHEMA_LOCK) {
                 requiresInitialization = databasePath == null
