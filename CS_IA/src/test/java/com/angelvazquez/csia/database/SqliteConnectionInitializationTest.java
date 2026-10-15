@@ -47,7 +47,7 @@ class SqliteConnectionInitializationTest {
 
     @Test
     void restauraUnTriggerSiElEsquemaHaCambiado() throws Exception {
-        ConfigDB config = config(temporary.resolve("changed.getDb()"));
+        ConfigDB config = config(temporary.resolve("changed.db"));
         try (Connection connection = new DatabaseConnectionFactory().open(config);
                 Statement statement = connection.createStatement()) {
             statement.executeUpdate("DROP TRIGGER CSIA_ASSIGNMENTS_SELF_INSERT");
@@ -68,7 +68,7 @@ class SqliteConnectionInitializationTest {
 
     @Test
     void inicializaCadaArchivoDistinto() throws Exception {
-        for (String name : new String[] {"one.getDb()", "two.getDb()"}) {
+        for (String name : new String[] {"one.db", "two.db"}) {
             try (Connection connection = new DatabaseConnectionFactory()
                     .open(config(temporary.resolve(name)));
                     Statement statement = connection.createStatement()) {
