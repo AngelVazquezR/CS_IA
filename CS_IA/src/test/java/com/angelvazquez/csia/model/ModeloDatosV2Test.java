@@ -13,7 +13,7 @@ class ModeloDatosV2Test {
     void alumnoV2ExponeDatosEsperados() {
         Alumno alumno = new Alumno(7, "Ana", "Lopez", "12345678A", "ana@example.com");
         assertEquals(7, alumno.getDatabaseId());
-        assertEquals("7", alumno.GetID());
+        assertEquals("7", alumno.getId());
         assertEquals("ana@example.com", alumno.getEmail());
     }
 
@@ -21,7 +21,7 @@ class ModeloDatosV2Test {
     void alumnoNuevoNoTieneIdHastaPersistirse() {
         Alumno alumno = new Alumno("Ana", "Lopez", "12345678A", "ana@example.com");
         assertNull(alumno.getDatabaseId());
-        assertEquals("", alumno.GetID());
+        assertEquals("", alumno.getId());
     }
 
     @Test
