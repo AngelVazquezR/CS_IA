@@ -9,7 +9,7 @@ import com.angelvazquez.csia.database.ConfigDB;
 import com.angelvazquez.csia.database.ConfiguracionManager;
 import com.angelvazquez.csia.i18n.I18n;
 import com.angelvazquez.csia.i18n.Idioma;
-import com.angelvazquez.csia.i18n.IdiomaPanel;
+import com.angelvazquez.csia.ui.ventanas.IdiomaPanel;
 
 /** Orquesta la configuración necesaria antes de iniciar la aplicación. */
 public final class StartupManager {
