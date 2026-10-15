@@ -18,15 +18,15 @@ class SqliteConnectionInitializationTest {
 
     private ConfigDB config(Path file) {
         ConfigDB config = new ConfigDB();
-        config.databaseType = DatabaseType.SQLITE;
-        config.driver = "org.sqlite.JDBC";
-        config.url = "jdbc:sqlite:" + file.toAbsolutePath();
+        config.setDatabaseType(DatabaseType.SQLITE);
+        config.setDriver("org.sqlite.JDBC");
+        config.setUrl("jdbc:sqlite:" + file.toAbsolutePath());
         return config;
     }
 
     @Test
     void conexionSinCambiosNoModificaVersionDelEsquema() throws Exception {
-        ConfigDB config = config(temporary.resolve("database.db"));
+        ConfigDB config = config(temporary.resolve("database.getDb()"));
         int version;
         try (Connection connection = new DatabaseConnectionFactory().open(config);
                 Statement statement = connection.createStatement()) {
@@ -47,7 +47,7 @@ class SqliteConnectionInitializationTest {
 
     @Test
     void restauraUnTriggerSiElEsquemaHaCambiado() throws Exception {
-        ConfigDB config = config(temporary.resolve("changed.db"));
+        ConfigDB config = config(temporary.resolve("changed.getDb()"));
         try (Connection connection = new DatabaseConnectionFactory().open(config);
                 Statement statement = connection.createStatement()) {
             statement.executeUpdate("DROP TRIGGER CSIA_ASSIGNMENTS_SELF_INSERT");
@@ -68,7 +68,7 @@ class SqliteConnectionInitializationTest {
 
     @Test
     void inicializaCadaArchivoDistinto() throws Exception {
-        for (String name : new String[] {"one.db", "two.db"}) {
+        for (String name : new String[] {"one.getDb()", "two.getDb()"}) {
             try (Connection connection = new DatabaseConnectionFactory()
                     .open(config(temporary.resolve(name)));
                     Statement statement = connection.createStatement()) {
