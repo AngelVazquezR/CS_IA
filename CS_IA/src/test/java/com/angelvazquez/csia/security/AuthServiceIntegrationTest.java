@@ -53,10 +53,10 @@ class AuthServiceIntegrationTest {
         }
 
         ConfigDB configuration = new ConfigDB();
-        configuration.databaseType = DatabaseType.SQLITE;
-        configuration.driver = "org.sqlite.JDBC";
-        configuration.url = url;
-        configuration.db = db.getFileName().toString();
+        configuration.setDatabaseType(DatabaseType.SQLITE);
+        configuration.setDriver("org.sqlite.JDBC");
+        configuration.setUrl(url);
+        configuration.setDb(db.getFileName().toString());
 
         UsuarioRepository repository = new UsuarioRepository(
                 new DatabaseConnectionFactory(), configuration);
