@@ -53,8 +53,8 @@ final class SqliteSchemaInitializer {
             statement.executeUpdate("""
                     CREATE TABLE IF NOT EXISTS ASSIGNMENTS (
                         ASSIGNMENT_ID INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-                        TEACHER_ID INTEGER,
-                        STUDENT_ID INTEGER,
+                        TEACHER_ID INTEGER NOT NULL,
+                        STUDENT_ID INTEGER NOT NULL,
                         DAY_OF_WEEK INTEGER NOT NULL,
                         START_TIME TEXT NOT NULL,
                         START_DATE TEXT NOT NULL,
