@@ -35,9 +35,9 @@ class RepositoryV2IntegrationTest {
     @BeforeEach
     void prepararBaseDeDatos() throws Exception {
         config = new ConfigDB();
-        config.databaseType = DatabaseType.SQLITE;
-        config.driver = "org.sqlite.JDBC";
-        config.url = "jdbc:sqlite:" + tempDir.resolve("repository-v2.db");
+        config.setDatabaseType(DatabaseType.SQLITE);
+        config.setDriver("org.sqlite.JDBC");
+        config.setUrl("jdbc:sqlite:" + tempDir.resolve("repository-v2.getDb()"));
         factory = new DatabaseConnectionFactory();
 
         try (Connection ignored = factory.open(config)) {
