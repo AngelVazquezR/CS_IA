@@ -187,32 +187,32 @@ public class ConfiguracionManager {
 
         // Los XML antiguos no incluyen tipo: se infiere de la URL o del driver.
         if (tipo == null || tipo.isBlank()) {
-            configuracion.databaseType = detectarTipoBaseDatos(
+            configuracion.setDatabaseType(detectarTipoBaseDatos(
                     obtenerValorOpcional(baseDatos, "url"),
                     obtenerValorOpcional(baseDatos, "driver")
-            );
+            ));
         } else {
             try {
-                configuracion.databaseType = DatabaseType.fromConfigValue(tipo);
+                configuracion.setDatabaseType(DatabaseType.fromConfigValue(tipo));
             } catch (IllegalArgumentException e) {
                 throw new IOException(e.getMessage(), e);
             }
         }
 
-        validarMotorHabilitado(configuracion.databaseType);
+        validarMotorHabilitado(configuracion.getDatabaseType());
 
-        configuracion.driver = obtenerValor(baseDatos, "driver");
-        configuracion.url = obtenerValor(baseDatos, "url");
-        configuracion.db = obtenerValor(baseDatos, "db");
+        configuracion.setDriver(obtenerValor(baseDatos, "driver"));
+        configuracion.setUrl(obtenerValor(baseDatos, "url"));
+        configuracion.setDb(obtenerValor(baseDatos, "db"));
 
-        if (configuracion.databaseType == DatabaseType.SQLITE) {
-            configuracion.user = obtenerValorOpcionalConPredeterminado(
-                    baseDatos, "usuario", "");
-            configuracion.password = obtenerValorOpcionalConPredeterminado(
-                    baseDatos, "password", "");
+        if (configuracion.setDatabaseType(= DatabaseType.SQLITE) {
+            configuracion.setUser(obtenerValorOpcionalConPredeterminado(
+                    baseDatos, "usuario", "")));
+            configuracion.setPassword(obtenerValorOpcionalConPredeterminado(
+                    baseDatos, "password", ""));
         } else {
-            configuracion.user = obtenerValor(baseDatos, "usuario");
-            configuracion.password = obtenerValor(baseDatos, "password");
+            configuracion.setUser(obtenerValor(baseDatos, "usuario"));
+            configuracion.setPassword(obtenerValor(baseDatos, "password"));
         }
 
         return configuracion;
@@ -287,7 +287,7 @@ public class ConfiguracionManager {
     private void guardarDocumento(Path ruta, AppConfig configuracion,
             boolean incluirAplicacion) throws Exception {
         ConfigDB database = configuracion.getDatabase();
-        validarMotorHabilitado(database.databaseType);
+        validarMotorHabilitado(database.getDatabaseType());
 
         Path directorio = ruta.toAbsolutePath().normalize().getParent();
         if (directorio == null) {
@@ -318,13 +318,13 @@ public class ConfiguracionManager {
 
         agregarElemento(
                 document, baseDatos, "tipo",
-                database.databaseType.getConfigValue()
+                database.getDatabaseType().getConfigValue()
         );
-        agregarElemento(document, baseDatos, "driver", database.driver);
-        agregarElemento(document, baseDatos, "url", database.url);
-        agregarElemento(document, baseDatos, "usuario", database.user);
-        agregarElemento(document, baseDatos, "password", database.password);
-        agregarElemento(document, baseDatos, "db", database.db);
+        agregarElemento(document, baseDatos, "driver", database.getDriver());
+        agregarElemento(document, baseDatos, "url", database.getUrl());
+        agregarElemento(document, baseDatos, "usuario", database.getUser());
+        agregarElemento(document, baseDatos, "password", database.getPassword());
+        agregarElemento(document, baseDatos, "db", database.getDb());
 
         Transformer transformer = TransformerFactory
                 .newInstance()
