@@ -184,11 +184,11 @@ public class VisualizarAsignaciones extends VentanaSecundaria {
                 DatabaseConnectionFactory factory = new DatabaseConnectionFactory();
                 Map<Integer, String> profesores = new HashMap<>();
                 for (var p : new ProfesorRepository(factory, configuracion).listar()) {
-                    profesores.put(p.getDatabaseId(), p.GetApellido() + ", " + p.GetNombre());
+                    profesores.put(p.getDatabaseId(), p.getApellido() + ", " + p.getNombre());
                 }
                 Map<Integer, String> alumnos = new HashMap<>();
                 for (var a : new AlumnoRepository(factory, configuracion).listar()) {
-                    alumnos.put(a.getDatabaseId(), a.GetApellido() + ", " + a.GetNombre());
+                    alumnos.put(a.getDatabaseId(), a.getApellido() + ", " + a.getNombre());
                 }
                 return new Datos(new AsignacionRepository(factory, configuracion).listar(), profesores, alumnos);
             }
