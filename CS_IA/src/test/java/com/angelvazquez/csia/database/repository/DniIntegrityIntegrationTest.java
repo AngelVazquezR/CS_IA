@@ -18,7 +18,7 @@ class DniIntegrityIntegrationTest {
         ConfigDB c = new ConfigDB();
         c.setDatabaseType(DatabaseType.SQLITE);
         c.setDriver("org.sqlite.JDBC");
-        c.setUrl("jdbc:sqlite:" + temporal.resolve("dni.getDb()"));
+        c.setUrl("jdbc:sqlite:" + temporal.resolve("dni.db"));
         return c;
     }
 
