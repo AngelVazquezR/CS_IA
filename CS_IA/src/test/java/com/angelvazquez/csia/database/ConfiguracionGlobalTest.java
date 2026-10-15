@@ -49,7 +49,7 @@ class ConfiguracionGlobalTest {
                     <baseDatos>
                         <tipo>sqlite</tipo>
                         <driver>org.sqlite.JDBC</driver>
-                        <url>jdbc:sqlite:data/academia.getDb()</url>
+                        <url>jdbc:sqlite:data/academia.db</url>
                         <usuario></usuario>
                         <password></password>
                         <db>academia</db>
@@ -97,7 +97,7 @@ class ConfiguracionGlobalTest {
         AppConfig recuperada = manager.leerConfiguracionAplicacion(ruta);
         assertEquals(Idioma.INGLES, recuperada.getIdioma());
         assertEquals(DatabaseType.SQLITE, recuperada.getDatabase().getDatabaseType());
-        assertEquals("jdbc:sqlite:data/academia.getDb()", recuperada.getDatabase().getUrl());
+        assertEquals("jdbc:sqlite:data/academia.db", recuperada.getDatabase().getUrl());
     }
 
     @Test
@@ -119,7 +119,7 @@ class ConfiguracionGlobalTest {
         ConfigDB database = new ConfigDB();
         database.setDatabaseType(DatabaseType.SQLITE);
         database.setDriver("org.sqlite.JDBC");
-        database.setUrl("jdbc:sqlite:data/academia.getDb()");
+        database.setUrl("jdbc:sqlite:data/academia.db");
         database.setDb("academia");
         database.setUser("");
         database.setPassword("");
@@ -135,7 +135,7 @@ class ConfiguracionGlobalTest {
                     <baseDatos>
                         <tipo>sqlite</tipo>
                         <driver>org.sqlite.JDBC</driver>
-                        <url>jdbc:sqlite:data/academia.getDb()</url>
+                        <url>jdbc:sqlite:data/academia.db</url>
                         <usuario></usuario>
                         <password></password>
                         <db>academia</db>
