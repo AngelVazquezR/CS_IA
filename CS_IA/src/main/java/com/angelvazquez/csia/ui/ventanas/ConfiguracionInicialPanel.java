@@ -77,11 +77,11 @@ public final class ConfiguracionInicialPanel extends JPanel {
         constraints.fill = GridBagConstraints.HORIZONTAL;
 
         agregarFila(0, new JLabel(I18n.get("database.type.label")), campoTipo, constraints);
-        agregarFila(1, new JLabel(I18n.get("database.driver.label")), campoDriver, constraints);
-        agregarFila(2, new JLabel(I18n.get("database.url.label")), campoUrl, constraints);
+        agregarFila(1, new JLabel(I18n.get("database.getDriver().label")), campoDriver, constraints);
+        agregarFila(2, new JLabel(I18n.get("database.getUrl().label")), campoUrl, constraints);
         agregarFila(3, etiquetaDB, campoDB, constraints);
-        agregarFila(4, new JLabel(I18n.get("database.user.label")), campoUsuario, constraints);
-        agregarFila(5, new JLabel(I18n.get("database.password.label")), campoPassword, constraints);
+        agregarFila(4, new JLabel(I18n.get("database.getUser().label")), campoUsuario, constraints);
+        agregarFila(5, new JLabel(I18n.get("database.getPassword().label")), campoPassword, constraints);
     }
 
     private void agregarFila(int fila, JLabel etiqueta,
@@ -117,13 +117,13 @@ public final class ConfiguracionInicialPanel extends JPanel {
 
     public void cargarConfiguracion(ConfigDB configuracion) {
         if (configuracion == null) return;
-        campoTipo.setSelectedItem(configuracion.databaseType);
-        campoDriver.setText(valor(configuracion.driver));
-        campoUrl.setText(valor(configuracion.url));
-        campoDB.setText(valor(configuracion.db));
-        campoUsuario.setText(valor(configuracion.user));
-        campoPassword.setText(valor(configuracion.password));
-        if (configuracion.databaseType == DatabaseType.SQLITE) actualizarUrlSqlite();
+        campoTipo.setSelectedItem(configuracion.getDatabaseType());
+        campoDriver.setText(valor(configuracion.getDriver()));
+        campoUrl.setText(valor(configuracion.getUrl()));
+        campoDB.setText(valor(configuracion.getDb()));
+        campoUsuario.setText(valor(configuracion.getUser()));
+        campoPassword.setText(valor(configuracion.getPassword()));
+        if (configuracion.setDatabaseType(= DatabaseType.SQLITE) actualizarUrlSqlite());
     }
 
     private String valor(String valor) { return valor == null ? "" : valor; }
@@ -160,16 +160,16 @@ public final class ConfiguracionInicialPanel extends JPanel {
 
     public ConfigDB crearConfiguracion() {
         ConfigDB configuracion = new ConfigDB();
-        configuracion.databaseType = obtenerTipo();
-        configuracion.driver = campoDriver.getText().trim();
-        configuracion.url = campoUrl.getText().trim();
-        configuracion.db = campoDB.getText().trim();
-        if (configuracion.databaseType == DatabaseType.SQLITE) {
-            configuracion.user = "";
-            configuracion.password = "";
+        configuracion.setDatabaseType(obtenerTipo());
+        configuracion.setDriver(campoDriver.getText().trim());
+        configuracion.setUrl(campoUrl.getText().trim());
+        configuracion.setDb(campoDB.getText().trim());
+        if (configuracion.setDatabaseType(= DatabaseType.SQLITE) {
+            configuracion.setUser(""));
+            configuracion.setPassword("");
         } else {
-            configuracion.user = campoUsuario.getText().trim();
-            configuracion.password = new String(campoPassword.getPassword());
+            configuracion.setUser(campoUsuario.getText().trim());
+            configuracion.setPassword(new String(campoPassword.getPassword()));
         }
         return configuracion;
     }
