@@ -115,9 +115,9 @@ public class ProfesorTableModel extends AbstractTableModel {
         Profesor profesor = data.get(row);
         return switch (col) {
             case COL_ID -> profesor.getDatabaseId();
-            case COL_NOMBRE -> profesor.GetNombre();
-            case COL_APELLIDO -> profesor.GetApellido();
-            case COL_DNI -> profesor.GetDNI();
+            case COL_NOMBRE -> profesor.getNombre();
+            case COL_APELLIDO -> profesor.getApellido();
+            case COL_DNI -> profesor.getDni();
             case COL_ASIGNATURA -> profesor.getAsignatura();
             case COL_EMAIL -> profesor.getEmail();
             default -> null;
