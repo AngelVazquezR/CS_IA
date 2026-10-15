@@ -123,7 +123,7 @@ public final class ConfiguracionInicialPanel extends JPanel {
         campoDB.setText(valor(configuracion.getDb()));
         campoUsuario.setText(valor(configuracion.getUser()));
         campoPassword.setText(valor(configuracion.getPassword()));
-        if (configuracion.setDatabaseType(= DatabaseType.SQLITE) actualizarUrlSqlite());
+        if (configuracion.getDatabaseType() == DatabaseType.SQLITE) actualizarUrlSqlite();
     }
 
     private String valor(String valor) { return valor == null ? "" : valor; }
@@ -164,8 +164,8 @@ public final class ConfiguracionInicialPanel extends JPanel {
         configuracion.setDriver(campoDriver.getText().trim());
         configuracion.setUrl(campoUrl.getText().trim());
         configuracion.setDb(campoDB.getText().trim());
-        if (configuracion.setDatabaseType(= DatabaseType.SQLITE) {
-            configuracion.setUser(""));
+        if (configuracion.getDatabaseType() == DatabaseType.SQLITE) {
+            configuracion.setUser("");
             configuracion.setPassword("");
         } else {
             configuracion.setUser(campoUsuario.getText().trim());
