@@ -142,16 +142,16 @@ public class AsignarTab extends VentanaSecundaria {
             for (Profesor profesor : profesorRepository.listar()) {
                 profesorCombo.addItem(new OpcionPersona(
                         profesor.getDatabaseId(),
-                        profesor.GetNombre() + " " + profesor.GetApellido(),
-                        profesor.GetDNI()
+                        profesor.getNombre() + " " + profesor.getApellido(),
+                        profesor.getDni()
                 ));
             }
 
             for (Alumno alumno : alumnoRepository.listar()) {
                 alumnoCombo.addItem(new OpcionPersona(
                         alumno.getDatabaseId(),
-                        alumno.GetNombre() + " " + alumno.GetApellido(),
-                        alumno.GetDNI()
+                        alumno.getNombre() + " " + alumno.getApellido(),
+                        alumno.getDni()
                 ));
             }
         } catch (SQLException ex) {
