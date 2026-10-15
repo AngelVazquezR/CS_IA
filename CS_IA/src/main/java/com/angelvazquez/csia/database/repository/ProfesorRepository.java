@@ -104,11 +104,11 @@ public final class ProfesorRepository {
      */
     public int agregar(Profesor profesor) throws SQLException {
         Objects.requireNonNull(profesor);
-        String dniNormalizado = Dni.normalizarYValidar(profesor.GetDNI());
+        String dniNormalizado = Dni.normalizarYValidar(profesor.getDni());
         try (Connection connection = connectionFactory.open(configuration);
              PreparedStatement statement = connection.prepareStatement(INSERT, Statement.RETURN_GENERATED_KEYS)) {
-            statement.setString(1, profesor.GetNombre());
-            statement.setString(2, profesor.GetApellido());
+            statement.setString(1, profesor.getNombre());
+            statement.setString(2, profesor.getApellido());
             statement.setString(3, dniNormalizado);
             statement.setString(4, profesor.getAsignatura());
             statement.setString(5, profesor.getEmail());
@@ -119,7 +119,7 @@ public final class ProfesorRepository {
                 }
                 int id = keys.getInt(1);
                 profesor.setDatabaseId(id);
-                profesor.DNI = dniNormalizado;
+                profesor.setDni(dniNormalizado);
                 return id;
             }
         } catch (SQLException e) {
@@ -141,20 +141,20 @@ public final class ProfesorRepository {
      */
     public boolean modificar(Profesor profesor) throws SQLException {
         Objects.requireNonNull(profesor);
-        String dniNormalizado = Dni.normalizarYValidar(profesor.GetDNI());
+        String dniNormalizado = Dni.normalizarYValidar(profesor.getDni());
         if (profesor.getDatabaseId() == null) {
             throw new IllegalArgumentException("El profesor debe tener TEACHER_ID para modificarse.");
         }
         try (Connection connection = connectionFactory.open(configuration);
              PreparedStatement statement = connection.prepareStatement(UPDATE)) {
-            statement.setString(1, profesor.GetNombre());
-            statement.setString(2, profesor.GetApellido());
+            statement.setString(1, profesor.getNombre());
+            statement.setString(2, profesor.getApellido());
             statement.setString(3, dniNormalizado);
             statement.setString(4, profesor.getAsignatura());
             statement.setString(5, profesor.getEmail());
             statement.setInt(6, profesor.getDatabaseId());
             boolean actualizado = statement.executeUpdate() == 1;
-            if (actualizado) profesor.DNI = dniNormalizado;
+            if (actualizado) profesor.setDni(dniNormalizado);
             return actualizado;
         } catch (SQLException e) {
             throw RepositoryErrors.traducir(e);
