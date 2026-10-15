@@ -116,9 +116,9 @@ public class AlumnoTableModel extends AbstractTableModel {
         Alumno alumno = data.get(row);
         return switch (col) {
             case COL_ID -> alumno.getDatabaseId();
-            case COL_NOMBRE -> alumno.GetNombre();
-            case COL_APELLIDO -> alumno.GetApellido();
-            case COL_DNI -> alumno.GetDNI();
+            case COL_NOMBRE -> alumno.getNombre();
+            case COL_APELLIDO -> alumno.getApellido();
+            case COL_DNI -> alumno.getDni();
             case COL_EMAIL -> alumno.getEmail();
             default -> null;
         };
