@@ -8,14 +8,14 @@ package com.angelvazquez.csia.model;
  */
 public class Persona {
 
-    public String Nombre;
-    public String Apellido;
+    private String Nombre;
+    private String Apellido;
     private String ID;
     private Integer databaseId;
-    public String DNI;
+    private String DNI;
     private String email;
-    public String fAlta;
-    public String fBaja;
+    private String fAlta;
+    private String fBaja;
 
     /** Constructor legado. */
     public Persona(String nombre, String apellido, String dni, String falta,
@@ -38,18 +38,18 @@ public class Persona {
         this.email = email;
     }
 
-    public String GetNombre() {
+    public String getNombre() {
         return Nombre;
     }
 
-    public String GetApellido() {
+    public String getApellido() {
         return Apellido;
     }
 
     /**
      * API legada. Para entidades v2 devuelve el identificador numerico como texto.
      */
-    public String GetID() {
+    public String getId() {
         return ID;
     }
 
@@ -62,8 +62,12 @@ public class Persona {
         this.ID = databaseId == null ? "" : databaseId.toString();
     }
 
-    public String GetDNI() {
+    public String getDni() {
         return DNI;
+    }
+
+    public void setDni(String dni) {
+        this.DNI = dni;
     }
 
     public String getEmail() {
@@ -74,27 +78,27 @@ public class Persona {
         this.email = email;
     }
 
-    public String GetfAlta() {
+    public String getFAlta() {
         return fAlta;
     }
 
-    public String GetfBaja() {
+    public String getFBaja() {
         return fBaja;
     }
 
-    public void SetNombre(String nombre) {
+    public void setNombre(String nombre) {
         Nombre = nombre;
     }
 
-    public void SetApellido(String apellido) {
+    public void setApellido(String apellido) {
         Apellido = apellido;
     }
 
-    public void SetfAlta(String falta) {
+    public void setFAlta(String falta) {
         fAlta = falta;
     }
 
-    public void SetfBaja(String fbaja) {
+    public void setFBaja(String fbaja) {
         fBaja = fbaja;
     }
 }
