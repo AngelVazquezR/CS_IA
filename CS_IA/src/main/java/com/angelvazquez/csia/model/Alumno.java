@@ -41,7 +41,7 @@ public class Alumno extends Persona {
     /** Compatibilidad con la carga legada desde ResultSet. */
     public void CargaDatos(ResultSet rs) {
         try {
-            super.SetNombre(rs.getString("NOMBRE"));
+            super.setNombre(rs.getString("NOMBRE"));
         } catch (SQLException e) {
             throw new IllegalStateException("No se han podido cargar los datos del alumno.", e);
         }
