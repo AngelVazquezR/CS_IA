@@ -21,6 +21,7 @@ import org.w3c.dom.Element;
 import com.angelvazquez.csia.config.AppConfig;
 import com.angelvazquez.csia.i18n.I18n;
 import com.angelvazquez.csia.i18n.Idioma;
+import com.angelvazquez.csia.ui.ventanas.ConfiguracionInicialPanel;
 
 /** Lee y guarda la configuración XML, manteniendo compatibilidad con ficheros sin idioma o tipo de motor. */
 public class ConfiguracionManager {
